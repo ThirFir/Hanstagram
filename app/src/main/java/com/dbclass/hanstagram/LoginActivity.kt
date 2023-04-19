@@ -5,8 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import com.dbclass.hanstagram.databinding.ActivityLoginBinding
-import com.dbclass.hanstagram.db.account.AccountDatabase
-import com.dbclass.hanstagram.db.account.AccountEntity
+import com.dbclass.hanstagram.db.HanstagramDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,12 +27,12 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 // 로그인 시도 (내부 DB)
                 CoroutineScope(Dispatchers.Default).launch {
-                    val accountDB = AccountDatabase.getInstance(this@LoginActivity)
-                    val account = accountDB?.accountDao()?.getAccount(id)
-                    if (account == null) {
+                    val db = HanstagramDatabase.getInstance(this@LoginActivity)
+                    val user = db?.usersDao()?.getUser(id)
+                    if (user == null) {
                         //Toast.makeText(this@LoginActivity, R.string.toast_no_exist_id, Toast.LENGTH_SHORT).show()
                     } else {
-                        if(id == account.id && password == account.password) { // Login Success
+                        if(id == user.id && password == user.password) { // Login Success
                             val mainIntent = Intent(this@LoginActivity, MainActivity::class.java)
                             startActivity(mainIntent)
                             finish()
