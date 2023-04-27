@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.dbclass.hanstagram.databinding.ActivityLoginBinding
 import com.dbclass.hanstagram.db.HanstagramDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -11,10 +12,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
+    private lateinit var userViewModel: UserViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
 
         binding.buttonLogin.setOnClickListener {
             val id = binding.editTextId.text.toString()
@@ -30,14 +34,26 @@ class LoginActivity : AppCompatActivity() {
                     val db = HanstagramDatabase.getInstance(this@LoginActivity)
                     val user = db?.usersDao()?.getUser(id)
                     if (user == null) {
-                        //Toast.makeText(this@LoginActivity, R.string.toast_no_exist_id, Toast.LENGTH_SHORT).show()
+                        CoroutineScope(Dispatchers.Main).launch {
+                            Toast.makeText(this@LoginActivity, R.string.toast_no_exist_id, Toast.LENGTH_SHORT).show()
+                        }
                     } else {
                         if(id == user.id && password == user.password) { // Login Success
-                            val mainIntent = Intent(this@LoginActivity, MainActivity::class.java)
-                            startActivity(mainIntent)
-                            finish()
+
+                            CoroutineScope(Dispatchers.Main).launch {
+                                userViewModel.setUser(user)
+                                val mainIntent = Intent(this@LoginActivity, MainActivity::class.java)
+                                startActivity(mainIntent)
+                                finish()
+                            }
                         } else {
-                            //Toast.makeText(this@LoginActivity, R.string.toast_wrong_account, Toast.LENGTH_SHORT).show()
+                            CoroutineScope(Dispatchers.Main).launch {
+                                Toast.makeText(
+                                    this@LoginActivity,
+                                    R.string.toast_wrong_account,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
                 }

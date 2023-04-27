@@ -11,18 +11,18 @@ interface UsersDao {
     @Insert(onConflict = OnConflictStrategy.NONE)
     fun createUser(user: UserEntity)
 
-    @Query("select * from user")
+    @Query("select * from users")
     fun getAll(): List<UserEntity>
 
-    @Query("select * from user where id = :id")
+    @Query("select * from users where id = :id")
     fun getUser(id: String): UserEntity
 
-    @Query("delete from user where id = :id")
+    @Query("delete from users where id = :id")
     fun deleteUser(id: String)
 
-    @Query("update user set password = :password where id = :id")
+    @Query("update users set password = :password where id = :id")
     fun updatePassword(password: String, id: String)
 
-    @Query("update user set nickname = :nickname where id = :id")
+    @Query("update users set nickname = :nickname where id = :id")
     fun updateNickname(nickname: String, id: String)
 }
