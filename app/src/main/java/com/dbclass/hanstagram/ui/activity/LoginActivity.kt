@@ -1,12 +1,15 @@
-package com.dbclass.hanstagram
+package com.dbclass.hanstagram.ui.activity
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import com.dbclass.hanstagram.R
+import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.ActivityLoginBinding
-import com.dbclass.hanstagram.db.HanstagramDatabase
+import com.dbclass.hanstagram.data.db.HanstagramDatabase
+import com.dbclass.hanstagram.data.repository.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +21,7 @@ class LoginActivity : AppCompatActivity() {
         val binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        initializeVariables()
 
         binding.buttonLogin.setOnClickListener {
             val id = binding.editTextId.text.toString()
@@ -39,7 +42,6 @@ class LoginActivity : AppCompatActivity() {
                         }
                     } else {
                         if(id == user.id && password == user.password) { // Login Success
-
                             CoroutineScope(Dispatchers.Main).launch {
                                 userViewModel.setUser(user)
                                 val mainIntent = Intent(this@LoginActivity, MainActivity::class.java)
@@ -62,6 +64,20 @@ class LoginActivity : AppCompatActivity() {
         binding.textRegister.setOnClickListener {
             val registerIntent = Intent(this, RegisterActivity::class.java)
             startActivity(registerIntent)
+        }
+    }
+
+    private fun initializeVariables() {
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        CoroutineScope(Dispatchers.Default).launch {
+            with(applicationContext) {
+                UserRepository.init(this)
+                PostRepository.init(this)
+                LikeRepository.init(this)
+                FollowRepository.init(this)
+                DislikeRepository.init(this)
+                CommentRepository.init(this)
+            }
         }
     }
 }
