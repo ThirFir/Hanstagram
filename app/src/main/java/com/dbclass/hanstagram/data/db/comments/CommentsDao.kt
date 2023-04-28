@@ -1,4 +1,4 @@
-package com.dbclass.hanstagram.db.comments
+package com.dbclass.hanstagram.data.db.comments
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -9,7 +9,7 @@ import androidx.room.Update
 interface CommentsDao {
 
     @Insert
-    fun leaveComment(comment: CommentEntity)
+    fun insertComment(comment: CommentEntity)
 
     @Delete
     fun deleteComment(comment: CommentEntity)

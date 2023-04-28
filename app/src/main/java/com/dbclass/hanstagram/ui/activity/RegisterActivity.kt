@@ -1,11 +1,12 @@
-package com.dbclass.hanstagram
+package com.dbclass.hanstagram.ui.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import com.dbclass.hanstagram.R
+import com.dbclass.hanstagram.data.repository.UserRepository
 import com.dbclass.hanstagram.databinding.ActivityRegisterBinding
-import com.dbclass.hanstagram.db.HanstagramDatabase
-import com.dbclass.hanstagram.db.users.UserEntity
+import com.dbclass.hanstagram.data.db.users.UserEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,22 +28,22 @@ class RegisterActivity : AppCompatActivity() {
                 Toast.makeText(this, R.string.toast_input_id, Toast.LENGTH_SHORT).show()
             } else if (password.isEmpty()) {
                 Toast.makeText(this, R.string.toast_input_password, Toast.LENGTH_SHORT).show()
+            } else if (email.isEmpty()) {
+                Toast.makeText(this, R.string.toast_input_email, Toast.LENGTH_SHORT).show()
             } else if (studentID.isEmpty()) {
                 Toast.makeText(this, R.string.toast_input_student_id, Toast.LENGTH_SHORT).show()
             } else {
                 // 계정 생성
+                val user = UserEntity(
+                    id = id.toString(),
+                    password = password.toString(),
+                    nickname = id.toString(),
+                    studentID = studentID.toString(),
+                    createdTime = System.currentTimeMillis(),
+                    email = email.toString(),
+                )
                 CoroutineScope(Dispatchers.Default).launch {
-                    val db = HanstagramDatabase.getInstance(this@RegisterActivity)
-                    db?.usersDao()?.createUser(
-                        UserEntity(
-                            id = id.toString(),
-                            password = password.toString(),
-                            nickname = id.toString(),
-                            studentID = studentID.toString(),
-                            timestamp = System.currentTimeMillis(),
-                            email = email.toString(),
-                        )
-                    )
+                    UserRepository.createUser(user)
                     CoroutineScope(Dispatchers.Main).launch {
                         Toast.makeText(
                             this@RegisterActivity,

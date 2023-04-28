@@ -1,8 +1,12 @@
-package com.dbclass.hanstagram
+package com.dbclass.hanstagram.ui.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
+import com.dbclass.hanstagram.ui.fragment.PostsPageFragment
+import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
+import com.dbclass.hanstagram.R
+import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
