@@ -2,24 +2,49 @@ package com.dbclass.hanstagram.ui.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.dbclass.hanstagram.ui.fragment.PostsPageFragment
 import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
 import com.dbclass.hanstagram.R
+import com.dbclass.hanstagram.data.db.HanstagramDatabase
+import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var userViewModel: UserViewModel
+    private lateinit var binding: ActivityMainBinding
+    private val userViewModel: UserViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        setBottomNavigationOperation()
+
+        CoroutineScope(Dispatchers.Default).launch {
+            val db = HanstagramDatabase.getInstance(this@MainActivity)
+            val id = intent.getStringExtra("user_id")
+            var user: UserEntity? = null
+            if(id != null)
+                user = db?.usersDao()?.getUser(id)
+            CoroutineScope(Dispatchers.Main).launch {
+                user?.let { userViewModel.setUser(it) }
+            }
+        }
+
+        binding.mainToolbar.setTitle(R.string.special_app_name)
+        setSupportActionBar(binding.mainToolbar)
 
         supportFragmentManager.beginTransaction().add(R.id.fragment_content, PostsPageFragment()).commit()
+    }
+
+    private fun setBottomNavigationOperation() {
         binding.bottomNavigationView.run {
             setOnItemSelectedListener { item ->
                 when(item.itemId) {
@@ -28,7 +53,8 @@ class MainActivity : AppCompatActivity() {
                         true
                     }
                     R.id.item_profile -> {
-                        supportFragmentManager.beginTransaction().replace(R.id.fragment_content, ProfilePageFragment()).commit()
+                        val profilePageFragment = ProfilePageFragment()
+                        supportFragmentManager.beginTransaction().replace(R.id.fragment_content, profilePageFragment).commit()
                         true
                     }
                     else -> {

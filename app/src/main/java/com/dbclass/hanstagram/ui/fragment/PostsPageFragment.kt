@@ -31,12 +31,19 @@ class PostsPageFragment : Fragment() {
 
         binding.recyclerviewPosts.layoutManager = LinearLayoutManager(context)
 
+
         val posts1 = listOf(
             PostEntity(
-            userID = "test1", caption = "ddddd", images = "", createdTime = System.currentTimeMillis()
-        ), PostEntity(
-            userID = "test2", caption = "ddddddd", images = "", createdTime = System.currentTimeMillis()
-        )
+                userID = "test1",
+                caption = "ddddd",
+                images = "",
+                createdTime = System.currentTimeMillis()
+            ), PostEntity(
+                userID = "test2",
+                caption = "ddddddd",
+                images = "",
+                createdTime = System.currentTimeMillis()
+            )
         )
         CoroutineScope(Dispatchers.Default).launch {
             val db = context?.let { HanstagramDatabase.getInstance(it) }

@@ -8,10 +8,11 @@
     tools:context=".ui.activity.LoginActivity">
 
     <TextView
+        style="@style/login_activity_text"
         android:id="@+id/text_logo_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/special_title"
+        android:text="@string/special_app_name"
         android:textSize="52sp"
         app:layout_constraintBottom_toTopOf="@+id/edit_text_id"
         app:layout_constraintEnd_toEndOf="@+id/edit_text_id"
@@ -48,6 +49,7 @@
         android:background="@drawable/background_login_button"
         android:layout_marginTop="16dp"
         android:text="@string/text_login"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="@+id/edit_text_password"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/edit_text_password"
@@ -65,6 +67,7 @@
         app:layout_constraintVertical_bias="0.795">
 
         <TextView
+            style="@style/login_activity_text"
             android:id="@+id/text_not_have_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -72,6 +75,7 @@
             android:text="@string/text_question_account" />
 
         <TextView
+            style="@style/login_activity_text"
             android:id="@+id/text_register"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -87,10 +87,11 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/text_caption_name"
+        android:id="@+id/text_nickname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
+        android:layout_marginTop="12dp"
         app:layout_constraintStart_toStartOf="@id/image_profile"
         app:layout_constraintTop_toBottomOf="@id/image_profile" />
 
@@ -98,8 +99,9 @@
         android:id="@+id/text_caption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@id/text_caption_name"
-        app:layout_constraintTop_toBottomOf="@id/text_caption_name" />
+        android:layout_marginStart="4dp"
+        app:layout_constraintStart_toStartOf="@id/text_nickname"
+        app:layout_constraintTop_toBottomOf="@id/text_nickname" />
 
     <Button
         android:id="@+id/button_follow"

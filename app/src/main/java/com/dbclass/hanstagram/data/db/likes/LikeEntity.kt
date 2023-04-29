@@ -23,6 +23,5 @@ import com.dbclass.hanstagram.data.db.users.UserEntity
 data class LikeEntity(
     @ColumnInfo(name = "user_id") val userID: String,
     @ColumnInfo(name = "post_id") val postID: Long,
-) {
     @PrimaryKey val pid: Long = 0
-}
+)
