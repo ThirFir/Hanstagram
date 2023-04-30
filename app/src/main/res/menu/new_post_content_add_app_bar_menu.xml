@@ -3,8 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/icon_add_new_post"
-        android:icon="@drawable/ic_add_new_48"
+        android:id="@+id/icon_add_complete_new_post"
+        android:icon="@drawable/baseline_check_24"
         android:title="item"
         app:showAsAction="always"/>
+
 </menu>

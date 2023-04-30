@@ -35,12 +35,12 @@ class PostsPageFragment : Fragment() {
         val posts1 = listOf(
             PostEntity(
                 userID = "test1",
-                caption = "ddddd",
+                content = "ddddd",
                 images = "",
                 createdTime = System.currentTimeMillis()
             ), PostEntity(
                 userID = "test2",
-                caption = "ddddddd",
+                content = "ddddddd",
                 images = "",
                 createdTime = System.currentTimeMillis()
             )

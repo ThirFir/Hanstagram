@@ -72,7 +72,7 @@ class ProfileEditActivity : AppCompatActivity() {
         when (item.itemId) {
 
             // edit complete
-            R.id.set -> {
+            R.id.icon_set_profile -> {
                 if(binding.editTextNickname.text.isEmpty()){
                     Toast.makeText(this, R.string.toast_nickname_blank, Toast.LENGTH_SHORT).show()
                     return true

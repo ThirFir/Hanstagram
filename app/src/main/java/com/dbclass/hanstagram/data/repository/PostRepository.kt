@@ -16,7 +16,7 @@ object PostRepository {
         postsDao = HanstagramDatabase.getInstance(appContext)?.postsDao()
     }
 
-    fun createPost(post: PostEntity) {
+    fun addPost(post: PostEntity) {
         CoroutineScope(Dispatchers.Default).launch {
             postsDao?.insertPost(post)
         }
