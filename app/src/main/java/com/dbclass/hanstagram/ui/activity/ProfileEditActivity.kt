@@ -28,8 +28,6 @@ class ProfileEditActivity : AppCompatActivity() {
         binding = ActivityProfileEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-
         with(intent){
             userID = getStringExtra("user_id") ?: ""
             initialNickname = getStringExtra("nickname") ?: ""
