@@ -3,11 +3,9 @@ package com.dbclass.hanstagram.ui.activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.lifecycle.ViewModelProvider
 import com.dbclass.hanstagram.ui.fragment.PostsPageFragment
 import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
 import com.dbclass.hanstagram.R
@@ -43,7 +41,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.mainToolbar.setTitle(R.string.special_app_name)
         setSupportActionBar(binding.mainToolbar)
-
         supportFragmentManager.beginTransaction().add(R.id.fragment_content, PostsPageFragment()).commit()
     }
 
@@ -76,9 +73,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
-            R.id.new_post -> {
+            R.id.icon_add_new_post -> {
                 val intent = Intent(this, NewPostActivity::class.java).apply {
-
+                    putExtra("user_id", userViewModel.user.value?.id)
                 }
                 startActivity(intent)
             }

@@ -116,7 +116,7 @@ class ProfilePageFragment : Fragment() {
             userViewModel.user.observe(viewLifecycleOwner) {
                 binding.run {
                     textNickname.text = userViewModel.user.value?.nickname
-                    textCaption.text = userViewModel.user.value?.caption
+                    textContent.text = userViewModel.user.value?.caption
                     textFollowingCount.text        // TODO: followerID = id 인 count
                     textFollowerCount.text
                     Glide.with(this@ProfilePageFragment)
@@ -132,7 +132,7 @@ class ProfilePageFragment : Fragment() {
 
                 CoroutineScope(Dispatchers.Main).launch {
                     binding.textNickname.text = user?.nickname
-                    binding.textCaption.text = user?.caption
+                    binding.textContent.text = user?.caption
                     Glide.with(requireContext()).load(user?.profileImage)
                         .error(R.drawable.baseline_account_circle_24)
                         .placeholder(R.drawable.baseline_account_circle_24)
