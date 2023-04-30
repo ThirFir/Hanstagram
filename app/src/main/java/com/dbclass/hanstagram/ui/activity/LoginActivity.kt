@@ -3,6 +3,7 @@ package com.dbclass.hanstagram.ui.activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.dbclass.hanstagram.R
@@ -15,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
-    private lateinit var userViewModel: UserViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -43,8 +43,9 @@ class LoginActivity : AppCompatActivity() {
                     } else {
                         if(id == user.id && password == user.password) { // Login Success
                             CoroutineScope(Dispatchers.Main).launch {
-                                userViewModel.setUser(user)
-                                val mainIntent = Intent(this@LoginActivity, MainActivity::class.java)
+                                val mainIntent = Intent(this@LoginActivity, MainActivity::class.java).apply {
+                                    putExtra("user_id", id)
+                                }
                                 startActivity(mainIntent)
                                 finish()
                             }
@@ -68,7 +69,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun initializeVariables() {
-        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         CoroutineScope(Dispatchers.Default).launch {
             with(applicationContext) {
                 UserRepository.init(this)

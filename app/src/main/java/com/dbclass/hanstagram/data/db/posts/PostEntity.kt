@@ -9,7 +9,6 @@ data class PostEntity(
     @ColumnInfo(name = "user_id") val userID: String,
     var caption: String?,
     var images: String,
-    @ColumnInfo(name = "created_time") val createdTime: Long
-) {
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "post_id") val postID: Long = 0
-}
+    @ColumnInfo(name = "created_time") val createdTime: Long,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "post_id") val postID: Long = 0L
+)

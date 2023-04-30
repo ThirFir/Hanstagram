@@ -2,10 +2,17 @@
     <string name="app_name">Hanstagram</string>
     <string name="hint_input_id">아이디를 입력하세요</string>
     <string name="hint_input_password">비밀번호를 입력하세요</string>
+    <string name="text_nickname">닉네임</string>
+    <string name="text_name">이름</string>
+    <string name="text_caption">소개</string>
+    <string name="text_student_id">학번</string>
+    <string name="text_department">학과</string>
     <string name="text_login">로그인</string>
     <string name="text_follow">팔로우</string>
+    <string name="text_following_now">팔로우 중</string>
     <string name="text_message">쪽지</string>
     <string name="text_register">회원가입</string>
+    <string name="text_edit_profile">프로필 편집</string>
     <string name="text_question_account">계정이 없으신가요?</string>
     <string name="hint_input_new_id">새 아이디를 입력하세요</string>
     <string name="hint_input_new_password">새 비밀번호를 입력하세요</string>
@@ -21,7 +28,10 @@
     <string name="toast_no_exist_id">존재하지 않는 아이디입니다</string>
     <string name="toast_wrong_account">잘못된 아이디 또는 비밀번호입니다</string>
     <string name="toast_create_account">회원가입이 완료되었습니다</string>
-    <string name="special_title">𝓗𝓪𝓷𝓼𝓽𝓪𝓰𝓻𝓪𝓶</string>
+    <string name="toast_edit_profile">프로필이 변경되었습니다</string>
+    <string name="toast_nickname_blank">닉네임을 입력해주세요</string>
+    <string name="toast_edit_profile_failed">프로필을 변경할 수 없습니다</string>
+    <string name="special_app_name">𝓗𝓪𝓷𝓼𝓽𝓪𝓰𝓻𝓪𝓶</string>
     <string name="hint_input_student_id">학번을 입력하세요</string>
     <string name="hint_input_email">이메일을 입력하세요</string>
     <!-- TODO: Remove or change this placeholder text -->

@@ -14,7 +14,7 @@ interface PostsDao {
     @Update
     fun updatePost(post: PostEntity)
 
-    @Query("delete from posts where poist_id = :postID")
+    @Query("delete from posts where post_id = :postID")
     fun deletePost(postID: Long)
 
     @Query("select * from posts")
@@ -23,12 +23,12 @@ interface PostsDao {
     @Query("SELECT * FROM posts WHERE user_id IN (SELECT following_id FROM follows WHERE follower_id=:id)")
     fun getFollowingPosts(id: String): List<PostEntity>
 
-    @Query("")
+    @Query("select post_id from posts where user_id = :userID")
     fun getPostsCount(userID: String): Int
 
-    @Query("")
+    @Query("select post_id from posts where post_id = :postID")
     fun getPostsLikesCount(postID: Long): Long
 
-    @Query("")
+    @Query("select post_id from posts where post_id = :postID")
     fun getPostsDislikesCount(postID: Long): Long
 }

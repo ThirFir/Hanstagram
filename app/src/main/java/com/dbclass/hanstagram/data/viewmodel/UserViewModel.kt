@@ -20,27 +20,39 @@ class UserViewModel : ViewModel() {
         _user.value = user
     }
 
-    fun setProfileImage(url: String) {
-        _user.value?.profileImage = url
+    fun setProfileImage(uri: String) {
+        val updatedUser = user.value?.apply {
+            profileImage = uri
+        } ?: return
+        _user.value = updatedUser
         if (user.value?.id != null)
-            UserRepository.updateProfileImage(user.value?.id!!, url)
+            UserRepository.updateProfileImage(user.value?.id!!, uri)
     }
 
     fun setNickname(nickname: String) {
-        _user.value?.nickname = nickname
+        val updatedUser = user.value?.apply {
+            this.nickname = nickname
+        } ?: return
+        _user.value = updatedUser
         if (user.value?.id != null)
             UserRepository.updateNickname(user.value?.id!!, nickname)
     }
 
     fun setTemperature(t: Float) {
-        _user.value?.temperature = t
+        val updatedUser = user.value?.apply {
+            temperature = t
+        } ?: return
+        _user.value = updatedUser
         if (user.value?.id != null)
             UserRepository.updateTemperature(user.value?.id!!, t)
 
     }
 
     fun setCaption(caption: String) {
-        _user.value?.caption = caption
+        val updatedUser = user.value?.apply {
+            this.caption = caption
+        } ?: return
+        _user.value = updatedUser
         if (user.value?.id != null)
             UserRepository.updateCaption(user.value?.id!!, caption)
     }

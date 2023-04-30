@@ -1,6 +1,7 @@
 package com.dbclass.hanstagram.data.repository
 
 import android.content.Context
+import android.net.Uri
 import com.dbclass.hanstagram.data.db.HanstagramDatabase
 import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.db.users.UsersDao
@@ -21,9 +22,14 @@ object UserRepository {
         }
     }
 
-    fun updateProfileImage(id: String, url: String) {
+    fun updateProfileImage(id: String, uri: Uri) {
         CoroutineScope(Dispatchers.Default).launch {
-            usersDao?.updateProfileImage(id, url)
+            usersDao?.updateProfileImage(id, uri.toString())
+        }
+    }
+    fun updateProfileImage(id: String, uri: String) {
+        CoroutineScope(Dispatchers.Default).launch {
+            usersDao?.updateProfileImage(id, uri)
         }
     }
 

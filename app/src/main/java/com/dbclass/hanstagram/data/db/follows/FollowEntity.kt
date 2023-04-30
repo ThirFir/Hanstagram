@@ -22,7 +22,6 @@ import com.dbclass.hanstagram.data.db.users.UserEntity
 ])
 data class FollowEntity(
     @ColumnInfo(name = "follower_id") val followerID: String,
-    @ColumnInfo(name = "following_id") val followingID: String
-) {
-    @PrimaryKey val pid: Long = 0
-}
+    @ColumnInfo(name = "following_id") val followingID: String,
+    @PrimaryKey val pid: Long = 0,
+)

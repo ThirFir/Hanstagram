@@ -25,7 +25,6 @@ data class CommentEntity(
     @ColumnInfo(name = "post_id") val postID: Long,
     @ColumnInfo(name = "user_id") val userID: String,
     val content: String,
-    @ColumnInfo(name = "created_time") val createdTime: Long
-) {
+    @ColumnInfo(name = "created_time") val createdTime: Long,
     @PrimaryKey val pid: Long = 0
-}
+)

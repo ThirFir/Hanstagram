@@ -61,6 +61,7 @@
         style="@style/login_activity_size"
         android:background="@drawable/background_login_button"
         android:text="@string/text_register"
+        android:textColor="@color/white"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="@+id/edit_text_new_password"
         app:layout_constraintStart_toStartOf="@+id/edit_text_new_password"
