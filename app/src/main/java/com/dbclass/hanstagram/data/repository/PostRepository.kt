@@ -6,6 +6,7 @@ import com.dbclass.hanstagram.data.db.posts.PostEntity
 import com.dbclass.hanstagram.data.db.posts.PostsDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 object PostRepository {
@@ -31,5 +32,11 @@ object PostRepository {
         CoroutineScope(Dispatchers.Default).launch {
             postsDao?.deletePost(postID)
         }
+    }
+
+    suspend fun getPostsCount(userID: String): Int {
+        return CoroutineScope(Dispatchers.Default).async {
+            postsDao?.getPostsCount(userID)
+        }.await() ?: 0
     }
 }

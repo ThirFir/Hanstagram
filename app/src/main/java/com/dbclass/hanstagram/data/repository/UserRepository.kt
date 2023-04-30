@@ -7,6 +7,7 @@ import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.db.users.UsersDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 object UserRepository {
@@ -55,5 +56,11 @@ object UserRepository {
         CoroutineScope(Dispatchers.Default).launch {
             usersDao?.updateDepartment(id, department)
         }
+    }
+
+    suspend fun getUser(id: String): UserEntity? {
+        return CoroutineScope(Dispatchers.Default).async {
+            usersDao?.getUser(id)
+        }.await()
     }
 }
