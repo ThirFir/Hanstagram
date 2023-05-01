@@ -10,6 +10,8 @@ import com.dbclass.hanstagram.data.db.dislikes.DislikeEntity
 import com.dbclass.hanstagram.data.db.dislikes.DislikesDao
 import com.dbclass.hanstagram.data.db.follows.FollowEntity
 import com.dbclass.hanstagram.data.db.follows.FollowsDao
+import com.dbclass.hanstagram.data.db.guests.GuestCommentEntity
+import com.dbclass.hanstagram.data.db.guests.GuestCommentsDao
 import com.dbclass.hanstagram.data.db.likes.LikeEntity
 import com.dbclass.hanstagram.data.db.likes.LikesDao
 import com.dbclass.hanstagram.data.db.posts.PostEntity
@@ -18,7 +20,8 @@ import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.db.users.UsersDao
 
 @Database(
-    entities = [UserEntity::class, PostEntity::class, LikeEntity::class, FollowEntity::class, CommentEntity::class, DislikeEntity::class],
+    entities = [UserEntity::class, PostEntity::class, LikeEntity::class, FollowEntity::class,
+        CommentEntity::class, DislikeEntity::class, GuestCommentEntity::class],
     version = 1
 )
 abstract class HanstagramDatabase : RoomDatabase() {
@@ -28,6 +31,8 @@ abstract class HanstagramDatabase : RoomDatabase() {
     abstract fun dislikesDao(): DislikesDao
     abstract fun followsDao(): FollowsDao
     abstract fun commentsDao(): CommentsDao
+
+    abstract fun guestCommentsDao(): GuestCommentsDao
 
     companion object {
         private var instance: HanstagramDatabase? = null

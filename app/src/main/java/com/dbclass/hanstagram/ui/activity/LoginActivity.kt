@@ -3,11 +3,8 @@ package com.dbclass.hanstagram.ui.activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
 import com.dbclass.hanstagram.R
-import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.ActivityLoginBinding
 import com.dbclass.hanstagram.data.db.HanstagramDatabase
 import com.dbclass.hanstagram.data.repository.*
@@ -77,6 +74,7 @@ class LoginActivity : AppCompatActivity() {
                 FollowRepository.init(this)
                 DislikeRepository.init(this)
                 CommentRepository.init(this)
+                GuestCommentRepository.init(this)
             }
         }
     }
