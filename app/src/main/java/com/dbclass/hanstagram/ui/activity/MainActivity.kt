@@ -11,6 +11,7 @@ import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.HanstagramDatabase
 import com.dbclass.hanstagram.data.db.users.UserEntity
+import com.dbclass.hanstagram.data.repository.UserRepository
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
@@ -29,11 +30,10 @@ class MainActivity : AppCompatActivity() {
         setBottomNavigationOperation()
 
         CoroutineScope(Dispatchers.Default).launch {
-            val db = HanstagramDatabase.getInstance(this@MainActivity)
-            val id = intent.getStringExtra("user_id")
+            val userID = intent.getStringExtra("user_id")
             var user: UserEntity? = null
-            if(id != null)
-                user = db?.usersDao()?.getUser(id)
+            if(userID != null)
+                user = UserRepository.getUser(userID)
             CoroutineScope(Dispatchers.Main).launch {
                 user?.let { userViewModel.setUser(it) }
             }
@@ -82,4 +82,5 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
 }

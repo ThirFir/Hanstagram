@@ -40,4 +40,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="_0">0</string>
     <string name="text_input_content">문구 입력</string>
+    <string name="hint_leave_guest_comment">댓글 남기기</string>
 </resources>

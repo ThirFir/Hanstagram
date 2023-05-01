@@ -51,12 +51,21 @@ class NewPostContentAddFragment : Fragment() {
             R.id.icon_add_complete_new_post -> {
                 val userID = (requireActivity() as NewPostActivity).intent.getStringExtra("user_id")
                 CoroutineScope(Dispatchers.Default).launch {
+                    var images = thumbnailURI
+                    if(secondURI != "")
+                        images += ",$secondURI"
+                    if(thirdURI != "")
+                        images += ",$thirdURI"
+                    if(fourthURI != "")
+                        images += ",$fourthURI"
+                    if(fifthURI != "")
+                        images += ",$fifthURI"
                     if (userID != null)
                         PostRepository.addPost(
                             PostEntity(
                                 userID = userID,
                                 content = binding.editTextContent.text.toString(),
-                                images = "$thumbnailURI,$secondURI,$thirdURI,$fourthURI,$fifthURI",
+                                images = images,
                                 createdTime = System.currentTimeMillis()
                             )
                         )

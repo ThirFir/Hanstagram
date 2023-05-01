@@ -43,7 +43,7 @@ class ProfilePageFragment : Fragment() {
         binding = FragmentProfilePageBinding.inflate(inflater, container, false)
 
         userID = arguments?.getString("user_id") ?: userViewModel.user.value?.id
-        Log.d("ProfilePageFragment", userID ?: "Unknown")
+        Log.d("ProfilePageFragment", userViewModel.user.value?.profileImage ?: "ddd")
 
         binding.viewpagerOfProfile.adapter = ProfileViewPagerFragmentAdapter(requireActivity())
         val tabIcons = listOf(R.drawable.ic_page_48, R.drawable.ic_comments_48)

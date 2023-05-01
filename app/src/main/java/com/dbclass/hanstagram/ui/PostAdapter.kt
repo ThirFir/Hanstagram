@@ -12,7 +12,7 @@ class PostAdapter(private val posts: List<PostEntity>) :
         = PostViewHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val postBinding = (holder as PostViewHolder). binding
+        val postBinding = (holder as PostViewHolder).binding
         postBinding.textNickname.text = posts[position].userID
     }
 
