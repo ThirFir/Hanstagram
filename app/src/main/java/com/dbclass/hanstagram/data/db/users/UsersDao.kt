@@ -16,7 +16,13 @@ interface UsersDao {
     @Query("select * from users where id = :id")
     fun getUser(id: String): UserEntity
 
-    @Query("select * from users where id=:input")   // TODO
+    @Query("select nickname from users where id = :id")
+    fun getNickname(id: String): String
+
+    @Query("select profile_image from users where id = :id")
+    fun getProfileImage(id: String): String
+
+    @Query("SELECT * from users where id like :input")
     fun getContainingInputUsers(input: String): List<UserEntity>
     @Query("delete from users where id = :id")
     fun deleteUser(id: String)

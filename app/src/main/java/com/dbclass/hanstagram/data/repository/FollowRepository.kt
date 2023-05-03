@@ -13,15 +13,15 @@ object FollowRepository {
         followsDao = HanstagramDatabase.getInstance(appContext)?.followsDao()
     }
 
-    fun doFollow(follow: FollowEntity) {
+    fun doFollow(follower: String, following: String) {
         CoroutineScope(Dispatchers.Default).launch {
-            followsDao?.insertFollow(follow)
+            followsDao?.insertFollow(FollowEntity(followingID = following, followerID = follower))
         }
     }
 
-    fun doUnFollow(follow: FollowEntity) {
+    fun doUnFollow(follower: String, following: String) {
         CoroutineScope(Dispatchers.Default).launch {
-            followsDao?.deleteFollow(follow)
+            followsDao?.deleteFollow(followingID = following, followerID = follower)
         }
     }
 
@@ -40,5 +40,17 @@ object FollowRepository {
         return CoroutineScope(Dispatchers.Default).async {
             followsDao?.getFollowingsCount(userID)
         }.await() ?: 0
+    }
+
+    suspend fun getFollowings(userID: String): List<String> {
+        return CoroutineScope(Dispatchers.Default).async {
+            followsDao?.getFollowings(userID) ?: listOf()
+        }.await()
+    }
+
+    suspend fun getFollowers(userID: String): List<String> {
+        return CoroutineScope(Dispatchers.Default).async {
+            followsDao?.getFollowers(userID) ?: listOf()
+        }.await()
     }
 }

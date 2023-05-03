@@ -66,7 +66,18 @@ object UserRepository {
 
     suspend fun findUsers(idInput: String): List<UserEntity> {
         return CoroutineScope(Dispatchers.Default).async {
-            usersDao?.getContainingInputUsers(idInput) ?: listOf()
+            usersDao?.getContainingInputUsers("%$idInput%") ?: listOf()
+        }.await()
+    }
+
+    suspend fun getNickname(userID: String): String? {
+        return CoroutineScope(Dispatchers.Default).async {
+            usersDao?.getNickname(userID)
+        }.await()
+    }
+    suspend fun getProfileImage(userID: String): String? {
+        return CoroutineScope(Dispatchers.Default).async {
+            usersDao?.getProfileImage(userID)
         }.await()
     }
 }

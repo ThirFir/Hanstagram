@@ -19,7 +19,6 @@ class SendMessageActivity : AppCompatActivity() {
         val fromID = intent.getStringExtra("from_id")
         if(toID == null || fromID == null)
             finish()
-        toID!!; fromID!!
 
         binding.textToId.text = toID
         binding.buttonSend.setOnClickListener {
@@ -28,7 +27,9 @@ class SendMessageActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             val content = binding.editTextMessageContent.text.toString()
-            MessageRepository.sendMessage(MessageEntity(fromID, toID, false, content, System.currentTimeMillis()))
+            if(fromID != null && toID != null)
+                MessageRepository.sendMessage(MessageEntity(fromID, toID, false, content, System.currentTimeMillis()))
+            finish()
         }
     }
 }

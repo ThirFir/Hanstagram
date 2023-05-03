@@ -40,7 +40,7 @@ class RegisterActivity : AppCompatActivity() {
                     nickname = id.toString(),
                     studentID = studentID.toString(),
                     createdTime = System.currentTimeMillis(),
-                    email = email.toString(),
+                    email = email.toString()
                 )
                 CoroutineScope(Dispatchers.Default).launch {
                     UserRepository.createUser(user)

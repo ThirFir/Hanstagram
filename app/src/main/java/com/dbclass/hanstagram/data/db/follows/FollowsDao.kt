@@ -11,15 +11,21 @@ interface FollowsDao {
     @Insert
     fun insertFollow(follow: FollowEntity)
 
-    @Delete
-    fun deleteFollow(follow: FollowEntity)
+    @Query("delete from follows where follower_id=:followerID and following_id=:followingID")
+    fun deleteFollow(followerID: String, followingID: String)
 
-    @Query("select pid from follows where follower_id = :id")
+    @Query("SELECT count(pid) from follows where following_id = :id")
     fun getFollowersCount(id: String): Int
 
-    @Query("select pid from follows where follower_id = :id")
+    @Query("SELECT count(pid) from follows where follower_id = :id")
     fun getFollowingsCount(id: String): Int
 
     @Query("select pid from follows where follower_id = :follower and following_id = :following")
     fun getIsFollowing(follower: String, following: String) : Int
+
+    @Query("select following_id from follows where follower_id = :id")
+    fun getFollowings(id: String): List<String>?   // id가 팔로우 중인 사람 return
+
+    @Query("select follower_id from follows where following_id = :id")    // id를 팔로우 중인 사람 return
+    fun getFollowers(id: String): List<String>?
 }
