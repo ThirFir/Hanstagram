@@ -23,7 +23,9 @@ object MessageRepository {
     }
 
     suspend fun getHasUnreadMessage(userID: String): Boolean {
-        return getUnreadMessages(userID).isNotEmpty()
+        return CoroutineScope(Dispatchers.Default).async {
+            messagesDao?.getHasUnreadMessage(userID) ?: false
+        }.await()
     }
 
     suspend fun getAllMessages(userID: String): List<MessageEntity> {

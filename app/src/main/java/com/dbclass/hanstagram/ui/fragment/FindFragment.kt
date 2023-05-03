@@ -29,15 +29,11 @@ class FindFragment : Fragment() {
         (requireActivity() as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
         setHasOptionsMenu(true)
         binding.recyclerviewFoundUsers.layoutManager = LinearLayoutManager(requireActivity())
+        binding.recyclerviewFoundUsers.adapter = FoundUserAdapter(mutableListOf(), requireContext())
 
         binding.imageButtonFind.setOnClickListener {
-            CoroutineScope(Dispatchers.Default).launch {
-                binding.editTextFind.text.ifEmpty { return@launch }
-                val foundUsers = UserRepository.findUsers(binding.editTextFind.text.toString()) as MutableList
-                CoroutineScope(Dispatchers.Main).launch {
-                    binding.recyclerviewFoundUsers.adapter = FoundUserAdapter(foundUsers, requireContext())
-                }
-            }
+            binding.editTextFind.text.ifEmpty { return@setOnClickListener }
+            (binding.recyclerviewFoundUsers.adapter as FoundUserAdapter).findUsers(binding.editTextFind.text.toString())
         }
         return binding.root
     }

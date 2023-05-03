@@ -1,16 +1,23 @@
 package com.dbclass.hanstagram.ui.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.guests.GuestCommentEntity
 import com.dbclass.hanstagram.data.repository.GuestCommentRepository
+import com.dbclass.hanstagram.data.repository.UserRepository
 import com.dbclass.hanstagram.databinding.ItemGuestCommentBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, private val watchingUserID: String?) :
+class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, private val guestID: String?, val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         GuestViewHolder(ItemGuestCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -24,11 +31,19 @@ class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, p
             textGuestComment.text = comment.comment
             textEditDate.text = SimpleDateFormat("yyyy-MMM-dd HH:mm").format(Date(comment.createdTime))
             textButtonDelete.isVisible = false
-            if (watchingUserID == comment.guestUserID || watchingUserID == comment.ownerUserID)
+            if (guestID == comment.guestUserID || guestID == comment.ownerUserID)
                 textButtonDelete.isVisible = true
             textButtonDelete.setOnClickListener {
                 deleteComment(position)
                 GuestCommentRepository.deleteComment(comment)
+            }
+            CoroutineScope(Dispatchers.Default).launch {
+                val image = UserRepository.getProfileImage(comment.guestUserID)
+                CoroutineScope(Dispatchers.Main).launch {
+                    image?.let {
+                        Glide.with(context).load(image).error(R.drawable.baseline_account_circle_24).into(imageGuestProfile)
+                    }
+                }
             }
         }
     }

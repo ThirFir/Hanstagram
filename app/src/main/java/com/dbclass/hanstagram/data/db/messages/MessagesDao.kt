@@ -19,4 +19,7 @@ interface MessagesDao {
 
     @Query("select * from messages where to_user_id = :userID")
     fun getAllOfUser(userID: String): List<MessageEntity>
+
+    @Query("SELECT COUNT(is_read) from messages where to_user_id = :userID AND is_read = 0")
+    fun getHasUnreadMessage(userID: String): Boolean
 }

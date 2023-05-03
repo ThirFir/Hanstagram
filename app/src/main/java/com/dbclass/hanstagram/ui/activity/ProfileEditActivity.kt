@@ -41,6 +41,7 @@ class ProfileEditActivity : AppCompatActivity() {
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode != Activity.RESULT_OK) return@registerForActivityResult
                 imageURI = it.data?.data.toString()
+                Glide.with(this@ProfileEditActivity).load(imageURI).error(R.drawable.baseline_account_circle_24).into(binding.imageProfile)
             }
 
         with(binding) {
@@ -49,8 +50,7 @@ class ProfileEditActivity : AppCompatActivity() {
                 editTextNickname.setText(initialNickname)
             if (initialCaption != "")
                 editTextCaption.setText(initialCaption)
-            if (imageURI != "")
-                Glide.with(this@ProfileEditActivity).load(imageURI).into(imageProfile)
+            Glide.with(this@ProfileEditActivity).load(imageURI).error(R.drawable.baseline_account_circle_24).into(imageProfile)
 
             profileEditToolbar.setTitle(R.string.special_app_name)
             setSupportActionBar(profileEditToolbar)
@@ -102,7 +102,7 @@ class ProfileEditActivity : AppCompatActivity() {
     private fun runGalleryAppWithResult() {
         val intent = Intent()
         intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
+        intent.action = Intent.ACTION_OPEN_DOCUMENT
         activityImageResult.launch(intent)
     }
 }

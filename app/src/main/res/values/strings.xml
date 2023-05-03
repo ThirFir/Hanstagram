@@ -13,6 +13,7 @@
     <string name="text_message">쪽지</string>
     <string name="text_register">회원가입</string>
     <string name="text_edit_profile">프로필 편집</string>
+    <string name="text_logout">로그아웃</string>
     <string name="text_question_account">계정이 없으신가요?</string>
     <string name="hint_input_new_id">새 아이디를 입력하세요</string>
     <string name="hint_input_new_password">새 비밀번호를 입력하세요</string>

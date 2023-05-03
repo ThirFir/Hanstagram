@@ -8,9 +8,8 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
@@ -18,11 +17,9 @@ import com.dbclass.hanstagram.databinding.FragmentProfilePageBinding
 import com.dbclass.hanstagram.data.repository.FollowRepository
 import com.dbclass.hanstagram.data.repository.PostRepository
 import com.dbclass.hanstagram.data.repository.UserRepository
-import com.dbclass.hanstagram.ui.activity.MainActivity
-import com.dbclass.hanstagram.ui.activity.NewPostActivity
+import com.dbclass.hanstagram.data.viewmodel.IsFollowingViewModel
+import com.dbclass.hanstagram.ui.activity.*
 import com.dbclass.hanstagram.ui.adapter.ProfileViewPagerFragmentAdapter
-import com.dbclass.hanstagram.ui.activity.ProfileEditActivity
-import com.dbclass.hanstagram.ui.activity.SendMessageActivity
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,22 +27,28 @@ import kotlinx.coroutines.launch
 
 class ProfilePageFragment : Fragment() {
     private val userViewModel: UserViewModel by activityViewModels()
+    private lateinit var isFollowingViewModel: IsFollowingViewModel
     private lateinit var binding: FragmentProfilePageBinding
-    private val postsCountLiveData = MutableLiveData<Int>()
-    private val followersCountLiveData = MutableLiveData<Int>()
-    private val followingsCountLiveData = MutableLiveData<Int>()
     private lateinit var activityEditedResult: ActivityResultLauncher<Intent>
+    private var postsCount = 0
+    private var followersCount = 0
+    private var followingsCount = 0
     private var ownerID: String? = null     // 프로필 주인 ID
+    private var myID: String? = null     // 본인 ID
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
 
         binding = FragmentProfilePageBinding.inflate(inflater, container, false)
-
         ownerID = arguments?.getString("user_id") ?: userViewModel.user.value?.id
+        myID = userViewModel.user.value?.id
+        isFollowingViewModel = ViewModelProvider(this)[IsFollowingViewModel::class.java]
 
-        binding.viewpagerOfProfile.adapter = ProfileViewPagerFragmentAdapter(requireActivity())
+        val profileViewPagerFragmentAdapter = ProfileViewPagerFragmentAdapter(requireActivity()).apply {
+            ownerID?.let { setProfileOwnerID(it) }
+        }
+        binding.viewpagerOfProfile.adapter = profileViewPagerFragmentAdapter
         val tabIcons = listOf(R.drawable.ic_page_48, R.drawable.ic_comments_48)
         TabLayoutMediator(binding.tabLayout, binding.viewpagerOfProfile) { tab, pos ->
             tab.setIcon(tabIcons[pos])
@@ -66,11 +69,9 @@ class ProfilePageFragment : Fragment() {
                 }
             }
 
-        setButtonState()
-        setProfileInfo()
-        setPostsCount()
-        setFollowersCount()
-        setFollowingsCount()
+        setViewButtonState()
+        setViewProfileInfo()
+        setViewCounts()
 
         (requireActivity() as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
         setHasOptionsMenu(true)
@@ -78,37 +79,21 @@ class ProfilePageFragment : Fragment() {
         return binding.root
     }
 
-    private fun setPostsCount() {
-        postsCountLiveData.observe(viewLifecycleOwner) {
-            binding.textPostCount.text = it.toString()  // user의 count(post)
-        }
+
+    private fun setViewCounts() {
         CoroutineScope(Dispatchers.Default).launch {
-            val count = ownerID?.let { PostRepository.getPostsCount(it) }
-            postsCountLiveData.postValue(count ?: 0)
+            followingsCount = ownerID?.let { FollowRepository.getFollowingsCount(it) } ?: 0
+            followersCount = ownerID?.let { FollowRepository.getFollowersCount(it) } ?: 0
+            postsCount = ownerID?.let { PostRepository.getPostsCount(it) } ?: 0
+            CoroutineScope(Dispatchers.Main).launch {
+                binding.textFollowingCount.text = followingsCount.toString()
+                binding.textFollowerCount.text = followersCount.toString()
+                binding.textPostCount.text = postsCount.toString()
+            }
         }
     }
 
-    private fun setFollowersCount() {
-        followersCountLiveData.observe(viewLifecycleOwner) {
-            binding.textFollowerCount.text = it.toString()  // user의 count(post)
-        }
-        CoroutineScope(Dispatchers.Default).launch {
-            val count = ownerID?.let { FollowRepository.getFollowersCount(it) }
-            followersCountLiveData.postValue(count ?: 0)
-        }
-    }
-
-    private fun setFollowingsCount() {
-        followingsCountLiveData.observe(viewLifecycleOwner) {
-            binding.textFollowingCount.text = it.toString()  // user의 count(post)
-        }
-        CoroutineScope(Dispatchers.Default).launch {
-            val count = ownerID?.let { FollowRepository.getFollowingsCount(it) }
-            followingsCountLiveData.postValue(count ?: 0)
-        }
-    }
-
-    private fun setProfileInfo() {
+    private fun setViewProfileInfo() {
 
         if (isMyProfile()) {
             Glide.with(requireContext()).load(userViewModel.user.value?.profileImage)
@@ -116,11 +101,12 @@ class ProfilePageFragment : Fragment() {
                 .placeholder(R.drawable.baseline_account_circle_24)
                 .into(binding.imageProfile)
 
+
             userViewModel.user.observe(viewLifecycleOwner) {
                 binding.run {
                     textNickname.text = userViewModel.user.value?.nickname
                     textContent.text = userViewModel.user.value?.caption
-                    textFollowingCount.text        // TODO: followerID = id 인 count
+                    textFollowingCount.text        // TODO : followerID = id 인 count
                     textFollowerCount.text
                     Glide.with(this@ProfilePageFragment)
                         .load(userViewModel.user.value?.profileImage)
@@ -130,6 +116,8 @@ class ProfilePageFragment : Fragment() {
                 }
             }
         } else {
+
+            // 타인 프로필
             CoroutineScope(Dispatchers.Default).launch {
                 val user = ownerID?.let { UserRepository.getUser(it) }
 
@@ -145,40 +133,54 @@ class ProfilePageFragment : Fragment() {
         }
     }
 
-    private fun setButtonState() {
+    private fun setViewButtonState() {
 
         if (isMyProfile()) {
-            binding.buttonMessage.isVisible = false
             binding.buttonFollow.text = getString(R.string.text_edit_profile)
+            binding.buttonMessage.text = getString(R.string.text_logout)
 
             // follow버튼을 프로필 편집 버튼으로 사용
             binding.buttonFollow.setOnClickListener {
                 val intent = Intent(context, ProfileEditActivity::class.java).apply {
                     putExtra("nickname", userViewModel.user.value?.nickname)
                     putExtra("caption", userViewModel.user.value?.caption)
-                    putExtra("user_id", userViewModel.user.value?.id)
+                    putExtra("user_id", myID)
                     putExtra("image_uri", userViewModel.user.value?.profileImage)
                 }
                 activityEditedResult.launch(intent)
             }
+
+            // message버튼을 로그아웃 버튼으로 사용
+            binding.buttonMessage.setOnClickListener {
+                startActivity(Intent(requireActivity(), LoginActivity::class.java))
+                (requireActivity() as MainActivity).finish()
+            }
         } else {
-            CoroutineScope(Dispatchers.Default).launch {
-                userViewModel.user.value?.id?.let {
-                    if (FollowRepository.isFollowing(it, ownerID!!)) {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            binding.buttonFollow.text = getString(R.string.text_following_now)
-                        }
-                    }
+            isFollowingViewModel.initializeFollowingState(myID, ownerID)
+            isFollowingViewModel.isFollowing.observe(viewLifecycleOwner) {
+                if(isFollowingViewModel.observe_cuz_initialize) {   // 초기화때문에 발생한 observe 무시
+                    isFollowingViewModel.observe_cuz_initialize = false
+                    return@observe
+                }
+                if(it){
+                    Log.d("ProfilePageFragment", "팔로우 중")
+                    binding.buttonFollow.text = getString(R.string.text_following_now)
+                    binding.textFollowerCount.text = (++followersCount).toString()
+                } else {
+                    Log.d("ProfilePageFragment", "팔로우 중 X")
+                    binding.buttonFollow.text = getString(R.string.text_follow)
+                    binding.textFollowerCount.text = (--followersCount).toString()
                 }
             }
 
             binding.buttonFollow.setOnClickListener {
-
+                if(myID != null && ownerID != null)
+                    isFollowingViewModel.follow(followFrom = myID!!, followTo = ownerID!!)
             }
 
             binding.buttonMessage.setOnClickListener {
                 val intent = Intent(requireActivity(), SendMessageActivity::class.java).apply {
-                    putExtra("from_id", userViewModel.user.value?.id)
+                    putExtra("from_id", myID)
                     putExtra("to_id", ownerID)
                 }
                 startActivity(intent)

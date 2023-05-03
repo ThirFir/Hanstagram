@@ -5,10 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
@@ -123,7 +122,8 @@ class NewPostImageAddFragment : Fragment() {
     private fun runGalleryAppWithResult() {
         val intent = Intent()
         intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
+        intent.action = Intent.ACTION_OPEN_DOCUMENT
         activityImageResult.launch(intent)
+
     }
 }
