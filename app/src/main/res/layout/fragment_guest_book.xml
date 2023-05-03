@@ -19,9 +19,10 @@
     <EditText
         android:id="@+id/edit_text_guest_comment"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="36dp"
         android:layout_marginEnd="8dp"
         android:hint="@string/hint_leave_guest_comment"
+        android:background="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_add_guest_comment"
         app:layout_constraintStart_toStartOf="@+id/recyclerview_guest_comments" />

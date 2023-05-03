@@ -32,6 +32,7 @@
     <string name="toast_nickname_blank">닉네임을 입력해주세요</string>
     <string name="toast_edit_profile_failed">프로필을 변경할 수 없습니다</string>
     <string name="toast_choose_image">대표 이미지를 선택하세요</string>
+    <string name="toast_input_content">내용을 입력하세요</string>
 
     <string name="special_app_name">𝓗𝓪𝓷𝓼𝓽𝓪𝓰𝓻𝓪𝓶</string>
     <string name="hint_input_student_id">학번을 입력하세요</string>
@@ -41,4 +42,6 @@
     <string name="_0">0</string>
     <string name="text_input_content">문구 입력</string>
     <string name="hint_leave_guest_comment">댓글 남기기</string>
+    <string name="hint_find_id">아이디 검색</string>
+    <string name="hint_input_content">내용 입력</string>
 </resources>

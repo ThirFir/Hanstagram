@@ -16,6 +16,8 @@ interface UsersDao {
     @Query("select * from users where id = :id")
     fun getUser(id: String): UserEntity
 
+    @Query("select * from users where id=:input")   // TODO
+    fun getContainingInputUsers(input: String): List<UserEntity>
     @Query("delete from users where id = :id")
     fun deleteUser(id: String)
 

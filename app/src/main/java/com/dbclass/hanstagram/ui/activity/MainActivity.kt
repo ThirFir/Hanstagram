@@ -9,11 +9,11 @@ import androidx.activity.viewModels
 import com.dbclass.hanstagram.ui.fragment.PostsPageFragment
 import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
 import com.dbclass.hanstagram.R
-import com.dbclass.hanstagram.data.db.HanstagramDatabase
 import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.repository.UserRepository
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.ActivityMainBinding
+import com.dbclass.hanstagram.ui.fragment.FindFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,9 +25,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        setBottomNavigationOperation()
 
         CoroutineScope(Dispatchers.Default).launch {
             val userID = intent.getStringExtra("user_id")
@@ -36,12 +34,14 @@ class MainActivity : AppCompatActivity() {
                 user = UserRepository.getUser(userID)
             CoroutineScope(Dispatchers.Main).launch {
                 user?.let { userViewModel.setUser(it) }
+                setContentView(binding.root)
+                setBottomNavigationOperation()
+
+                binding.mainToolbar.setTitle(R.string.special_app_name)
+                setSupportActionBar(binding.mainToolbar)
+                supportFragmentManager.beginTransaction().add(R.id.fragment_content, PostsPageFragment()).commit()
             }
         }
-
-        binding.mainToolbar.setTitle(R.string.special_app_name)
-        setSupportActionBar(binding.mainToolbar)
-        supportFragmentManager.beginTransaction().add(R.id.fragment_content, PostsPageFragment()).commit()
     }
 
     private fun setBottomNavigationOperation() {
@@ -50,6 +50,10 @@ class MainActivity : AppCompatActivity() {
                 when(item.itemId) {
                     R.id.item_posts -> {
                         supportFragmentManager.beginTransaction().replace(R.id.fragment_content, PostsPageFragment()).commit()
+                        true
+                    }
+                    R.id.item_find -> {
+                        supportFragmentManager.beginTransaction().replace(R.id.fragment_content, FindFragment()).commit()
                         true
                     }
                     R.id.item_profile -> {
@@ -66,21 +70,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.profile_frag_app_bar_menu, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
-            R.id.icon_add_new_post -> {
-                val intent = Intent(this, NewPostActivity::class.java).apply {
-                    putExtra("user_id", userViewModel.user.value?.id)
-                }
-                startActivity(intent)
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
 
 }

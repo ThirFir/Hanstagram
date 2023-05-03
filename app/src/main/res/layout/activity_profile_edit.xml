@@ -21,9 +21,15 @@
         android:layout_marginTop="20dp"
         android:src="@drawable/baseline_account_circle_24"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_edit_toolbar" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/baseline_camera_alt_48"
+        app:layout_constraintBottom_toBottomOf="@+id/image_profile"
+        app:layout_constraintEnd_toEndOf="@+id/image_profile" />
 
     <TextView
         android:id="@+id/text_nickname"

@@ -1,9 +1,8 @@
-package com.dbclass.hanstagram.ui
+package com.dbclass.hanstagram.ui.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.data.db.posts.PostEntity

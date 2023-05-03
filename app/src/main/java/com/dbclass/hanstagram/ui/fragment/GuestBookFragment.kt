@@ -1,20 +1,17 @@
 package com.dbclass.hanstagram.ui.fragment
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dbclass.hanstagram.data.db.guests.GuestCommentEntity
 import com.dbclass.hanstagram.data.repository.GuestCommentRepository
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentGuestBookBinding
-import com.dbclass.hanstagram.ui.GuestAdapter
+import com.dbclass.hanstagram.ui.adapter.GuestAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,8 +36,9 @@ class GuestBookFragment : Fragment() {
             CoroutineScope(Dispatchers.Main).launch {
                 binding.recyclerviewGuestComments.layoutManager =
                     LinearLayoutManager(requireContext())
-                binding.recyclerviewGuestComments.adapter =
-                    GuestAdapter(guestComments as MutableList<GuestCommentEntity>)
+                if(guestComments != null)
+                    binding.recyclerviewGuestComments.adapter =
+                        GuestAdapter(guestComments as MutableList<GuestCommentEntity>, userID)
             }
         }
 
@@ -60,5 +58,4 @@ class GuestBookFragment : Fragment() {
         return binding.root
     }
 
-    private fun isMyProfile(): Boolean = userID != null && userID == userViewModel.user.value?.id
 }

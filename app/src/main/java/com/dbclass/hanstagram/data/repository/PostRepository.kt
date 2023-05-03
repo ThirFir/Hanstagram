@@ -39,4 +39,16 @@ object PostRepository {
             postsDao?.getPostsCount(userID)
         }.await() ?: 0
     }
+
+    suspend fun getFollowingPosts(userID: String): List<PostEntity> {
+        return CoroutineScope(Dispatchers.Default).async {
+            postsDao?.getFollowingPosts(userID) ?: listOf()
+        }.await()
+    }
+
+    suspend fun getAllPosts(limit: Int): List<PostEntity> {
+        return CoroutineScope(Dispatchers.Default).async {
+            postsDao?.getAllPosts() ?: listOf()
+        }.await()
+    }
 }

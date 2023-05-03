@@ -75,6 +75,7 @@ class LoginActivity : AppCompatActivity() {
                 DislikeRepository.init(this)
                 CommentRepository.init(this)
                 GuestCommentRepository.init(this)
+                MessageRepository.init(this)
             }
         }
     }

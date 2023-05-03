@@ -63,4 +63,10 @@ object UserRepository {
             usersDao?.getUser(id)
         }.await()
     }
+
+    suspend fun findUsers(idInput: String): List<UserEntity> {
+        return CoroutineScope(Dispatchers.Default).async {
+            usersDao?.getContainingInputUsers(idInput) ?: listOf()
+        }.await()
+    }
 }
