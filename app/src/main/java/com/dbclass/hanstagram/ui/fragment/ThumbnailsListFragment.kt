@@ -7,10 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.dbclass.hanstagram.data.db.posts.PostEntity
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentThumbnailsListBinding
-import com.dbclass.hanstagram.ui.ThumbnailsAdapter
+import com.dbclass.hanstagram.ui.adapter.ThumbnailsAdapter
 
 
 class ThumbnailsListFragment : Fragment() {

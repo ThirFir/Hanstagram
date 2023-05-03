@@ -4,10 +4,8 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
@@ -20,8 +18,11 @@ import com.dbclass.hanstagram.databinding.FragmentProfilePageBinding
 import com.dbclass.hanstagram.data.repository.FollowRepository
 import com.dbclass.hanstagram.data.repository.PostRepository
 import com.dbclass.hanstagram.data.repository.UserRepository
-import com.dbclass.hanstagram.ui.ProfileViewPagerFragmentAdapter
+import com.dbclass.hanstagram.ui.activity.MainActivity
+import com.dbclass.hanstagram.ui.activity.NewPostActivity
+import com.dbclass.hanstagram.ui.adapter.ProfileViewPagerFragmentAdapter
 import com.dbclass.hanstagram.ui.activity.ProfileEditActivity
+import com.dbclass.hanstagram.ui.activity.SendMessageActivity
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +35,7 @@ class ProfilePageFragment : Fragment() {
     private val followersCountLiveData = MutableLiveData<Int>()
     private val followingsCountLiveData = MutableLiveData<Int>()
     private lateinit var activityEditedResult: ActivityResultLauncher<Intent>
-    private var userID: String? = null
+    private var ownerID: String? = null     // 프로필 주인 ID
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,8 +43,7 @@ class ProfilePageFragment : Fragment() {
 
         binding = FragmentProfilePageBinding.inflate(inflater, container, false)
 
-        userID = arguments?.getString("user_id") ?: userViewModel.user.value?.id
-        Log.d("ProfilePageFragment", userViewModel.user.value?.profileImage ?: "ddd")
+        ownerID = arguments?.getString("user_id") ?: userViewModel.user.value?.id
 
         binding.viewpagerOfProfile.adapter = ProfileViewPagerFragmentAdapter(requireActivity())
         val tabIcons = listOf(R.drawable.ic_page_48, R.drawable.ic_comments_48)
@@ -72,6 +72,9 @@ class ProfilePageFragment : Fragment() {
         setFollowersCount()
         setFollowingsCount()
 
+        (requireActivity() as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
+        setHasOptionsMenu(true)
+
         return binding.root
     }
 
@@ -80,7 +83,7 @@ class ProfilePageFragment : Fragment() {
             binding.textPostCount.text = it.toString()  // user의 count(post)
         }
         CoroutineScope(Dispatchers.Default).launch {
-            val count = userID?.let { PostRepository.getPostsCount(it) }
+            val count = ownerID?.let { PostRepository.getPostsCount(it) }
             postsCountLiveData.postValue(count ?: 0)
         }
     }
@@ -90,7 +93,7 @@ class ProfilePageFragment : Fragment() {
             binding.textFollowerCount.text = it.toString()  // user의 count(post)
         }
         CoroutineScope(Dispatchers.Default).launch {
-            val count = userID?.let { FollowRepository.getFollowersCount(it) }
+            val count = ownerID?.let { FollowRepository.getFollowersCount(it) }
             followersCountLiveData.postValue(count ?: 0)
         }
     }
@@ -100,7 +103,7 @@ class ProfilePageFragment : Fragment() {
             binding.textFollowingCount.text = it.toString()  // user의 count(post)
         }
         CoroutineScope(Dispatchers.Default).launch {
-            val count = userID?.let { FollowRepository.getFollowingsCount(it) }
+            val count = ownerID?.let { FollowRepository.getFollowingsCount(it) }
             followingsCountLiveData.postValue(count ?: 0)
         }
     }
@@ -128,7 +131,7 @@ class ProfilePageFragment : Fragment() {
             }
         } else {
             CoroutineScope(Dispatchers.Default).launch {
-                val user = UserRepository.getUser(userID!!)
+                val user = ownerID?.let { UserRepository.getUser(it) }
 
                 CoroutineScope(Dispatchers.Main).launch {
                     binding.textNickname.text = user?.nickname
@@ -161,17 +164,46 @@ class ProfilePageFragment : Fragment() {
         } else {
             CoroutineScope(Dispatchers.Default).launch {
                 userViewModel.user.value?.id?.let {
-                    if (FollowRepository.isFollowing(it, userID!!)) {
+                    if (FollowRepository.isFollowing(it, ownerID!!)) {
                         CoroutineScope(Dispatchers.Main).launch {
                             binding.buttonFollow.text = getString(R.string.text_following_now)
                         }
                     }
                 }
             }
+
             binding.buttonFollow.setOnClickListener {
+
+            }
+
+            binding.buttonMessage.setOnClickListener {
+                val intent = Intent(requireActivity(), SendMessageActivity::class.java).apply {
+                    putExtra("from_id", userViewModel.user.value?.id)
+                    putExtra("to_id", ownerID)
+                }
+                startActivity(intent)
             }
         }
     }
 
-    private fun isMyProfile(): Boolean = userID != null && userID == userViewModel.user.value?.id
+    private fun isMyProfile(): Boolean = ownerID != null && ownerID == userViewModel.user.value?.id
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.profile_frag_app_bar_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        return when (item.itemId) {
+            R.id.icon_add_new_post -> {
+                val intent = Intent(requireActivity(), NewPostActivity::class.java).apply {
+                    putExtra("user_id", userViewModel.user.value?.id)
+                }
+                startActivity(intent)
+                true
+            }
+            else -> false
+        }
+    }
 }

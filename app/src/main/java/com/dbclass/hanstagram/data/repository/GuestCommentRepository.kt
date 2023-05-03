@@ -29,6 +29,6 @@ object GuestCommentRepository {
     }
 
     suspend fun getGuestComments(ownerUserID: String) : List<GuestCommentEntity> = CoroutineScope(Dispatchers.Default).async {
-        guestCommentsDao?.getGuestComments(ownerUserID)
-    }.await() ?: listOf()
+        guestCommentsDao?.getGuestComments(ownerUserID) ?: listOf()
+    }.await()
 }
