@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -62,15 +63,15 @@ class GuestBookFragment : Fragment() {
             )
             binding.editTextGuestComment.text.clear()
         }
-
+        val layout = inflater.inflate(R.layout.item_guest_comment, container, false) as ConstraintLayout
+        val view = layout.findViewById<ImageView>(R.id.image_guest_profile)
         userViewModel.user.observe(viewLifecycleOwner) {
             userViewModel.user.value?.profileImage?.let {
                 Glide.with(requireContext()).load(it)
-                    .into((requireActivity() as MainActivity).findViewById(R.id.image_guest_profile))
+                    .into(view)
             }
         }
 
         return binding.root
     }
-
 }

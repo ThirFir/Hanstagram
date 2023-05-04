@@ -100,6 +100,7 @@ class ProfileEditActivity : AppCompatActivity() {
 
 
     private fun runGalleryAppWithResult() {
+        
         val intent = Intent()
         intent.type = "image/*"
         intent.action = Intent.ACTION_OPEN_DOCUMENT

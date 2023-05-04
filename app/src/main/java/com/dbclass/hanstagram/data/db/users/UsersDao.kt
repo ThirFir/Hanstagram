@@ -7,6 +7,7 @@ import androidx.room.Query
 @Dao
 interface UsersDao {
 
+
     @Insert(onConflict = OnConflictStrategy.NONE)
     fun insertUser(user: UserEntity)
 

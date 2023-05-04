@@ -34,7 +34,7 @@ object PostRepository {
         }
     }
 
-    suspend fun getPostsCount(userID: String): Int {
+    suspend fun getPostsCount(userID: String): Long {
         return CoroutineScope(Dispatchers.Default).async {
             postsDao?.getPostsCount(userID)
         }.await() ?: 0

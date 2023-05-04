@@ -8,48 +8,51 @@ import kotlinx.coroutines.*
 
 object FollowRepository {
     private var followsDao: FollowsDao? = null
+    private val followScope = CoroutineScope(Dispatchers.Default)
 
     fun init(appContext: Context) {
         followsDao = HanstagramDatabase.getInstance(appContext)?.followsDao()
     }
 
-    fun doFollow(follower: String, following: String) {
-        CoroutineScope(Dispatchers.Default).launch {
+    suspend fun getFollowPID(follower: String, following: String): Long? {
+        return followScope.async {
+            followsDao?.getFollowPID(followerID = follower, followingID = following)
+        }.await()
+    }
+
+    /** return new pid */
+    suspend fun doFollow(follower: String, following: String): Long? {
+        return followScope.async {
             followsDao?.insertFollow(FollowEntity(followingID = following, followerID = follower))
+            followsDao?.getFollowPID(followerID = follower, followingID = following)
+        }.await()
+    }
+
+    fun doUnFollow(pid: Long) {
+        followScope.launch {
+            followsDao?.deleteFollow(pid)
         }
     }
 
-    fun doUnFollow(follower: String, following: String) {
-        CoroutineScope(Dispatchers.Default).launch {
-            followsDao?.deleteFollow(followingID = following, followerID = follower)
-        }
-    }
-
-    suspend fun isFollowing(follower: String, following: String): Boolean {
-        return withContext(CoroutineScope(Dispatchers.Default).coroutineContext) {
-            followsDao?.getIsFollowing(follower, following) != 0
-        }
-    }
-
-    suspend fun getFollowersCount(userID: String): Int {
-        return CoroutineScope(Dispatchers.Default).async {
+    suspend fun getFollowersCount(userID: String): Long {
+        return followScope.async {
             followsDao?.getFollowersCount(userID)
         }.await() ?: 0
     }
-    suspend fun getFollowingsCount(userID: String): Int {
-        return CoroutineScope(Dispatchers.Default).async {
+    suspend fun getFollowingsCount(userID: String): Long {
+        return followScope.async {
             followsDao?.getFollowingsCount(userID)
         }.await() ?: 0
     }
 
     suspend fun getFollowings(userID: String): List<String> {
-        return CoroutineScope(Dispatchers.Default).async {
+        return followScope.async {
             followsDao?.getFollowings(userID) ?: listOf()
         }.await()
     }
 
     suspend fun getFollowers(userID: String): List<String> {
-        return CoroutineScope(Dispatchers.Default).async {
+        return followScope.async {
             followsDao?.getFollowers(userID) ?: listOf()
         }.await()
     }

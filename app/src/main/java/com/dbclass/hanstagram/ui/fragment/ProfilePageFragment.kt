@@ -27,12 +27,12 @@ import kotlinx.coroutines.launch
 
 class ProfilePageFragment : Fragment() {
     private val userViewModel: UserViewModel by activityViewModels()
-    private lateinit var isFollowingViewModel: IsFollowingViewModel
+    private lateinit var followViewModel: IsFollowingViewModel
     private lateinit var binding: FragmentProfilePageBinding
     private lateinit var activityEditedResult: ActivityResultLauncher<Intent>
-    private var postsCount = 0
-    private var followersCount = 0
-    private var followingsCount = 0
+    private var postsCount = 0L
+    private var followersCount = 0L
+    private var followingsCount = 0L
     private var ownerID: String? = null     // 프로필 주인 ID
     private var myID: String? = null     // 본인 ID
     override fun onCreateView(
@@ -43,7 +43,7 @@ class ProfilePageFragment : Fragment() {
         binding = FragmentProfilePageBinding.inflate(inflater, container, false)
         ownerID = arguments?.getString("user_id") ?: userViewModel.user.value?.id
         myID = userViewModel.user.value?.id
-        isFollowingViewModel = ViewModelProvider(this)[IsFollowingViewModel::class.java]
+        followViewModel = ViewModelProvider(this)[IsFollowingViewModel::class.java]
 
         val profileViewPagerFragmentAdapter = ProfileViewPagerFragmentAdapter(requireActivity()).apply {
             ownerID?.let { setProfileOwnerID(it) }
@@ -82,12 +82,12 @@ class ProfilePageFragment : Fragment() {
 
     private fun setViewCounts() {
         CoroutineScope(Dispatchers.Default).launch {
-            followingsCount = ownerID?.let { FollowRepository.getFollowingsCount(it) } ?: 0
             followersCount = ownerID?.let { FollowRepository.getFollowersCount(it) } ?: 0
+            followingsCount = ownerID?.let { FollowRepository.getFollowingsCount(it) } ?: 0
             postsCount = ownerID?.let { PostRepository.getPostsCount(it) } ?: 0
             CoroutineScope(Dispatchers.Main).launch {
-                binding.textFollowingCount.text = followingsCount.toString()
                 binding.textFollowerCount.text = followersCount.toString()
+                binding.textFollowingCount.text = followingsCount.toString()
                 binding.textPostCount.text = postsCount.toString()
             }
         }
@@ -156,26 +156,22 @@ class ProfilePageFragment : Fragment() {
                 (requireActivity() as MainActivity).finish()
             }
         } else {
-            isFollowingViewModel.initializeFollowingState(myID, ownerID)
-            isFollowingViewModel.isFollowing.observe(viewLifecycleOwner) {
-                if(isFollowingViewModel.observe_cuz_initialize) {   // 초기화때문에 발생한 observe 무시
-                    isFollowingViewModel.observe_cuz_initialize = false
-                    return@observe
-                }
-                if(it){
-                    Log.d("ProfilePageFragment", "팔로우 중")
+            followViewModel.initializeFollow(myID, ownerID)
+
+            followViewModel.followerCount.observe(viewLifecycleOwner) {
+                binding.textFollowerCount.text = it.toString()
+            }
+            followViewModel.followPID.observe(viewLifecycleOwner) {
+                if(it != null){
                     binding.buttonFollow.text = getString(R.string.text_following_now)
-                    binding.textFollowerCount.text = (++followersCount).toString()
                 } else {
-                    Log.d("ProfilePageFragment", "팔로우 중 X")
                     binding.buttonFollow.text = getString(R.string.text_follow)
-                    binding.textFollowerCount.text = (--followersCount).toString()
                 }
             }
 
             binding.buttonFollow.setOnClickListener {
                 if(myID != null && ownerID != null)
-                    isFollowingViewModel.follow(followFrom = myID!!, followTo = ownerID!!)
+                    followViewModel.follow(follower = myID!!, following = ownerID!!)
             }
 
             binding.buttonMessage.setOnClickListener {
