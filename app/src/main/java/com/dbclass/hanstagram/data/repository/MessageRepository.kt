@@ -28,15 +28,28 @@ object MessageRepository {
         }.await()
     }
 
-    suspend fun getAllMessages(userID: String): List<MessageEntity> {
-        return CoroutineScope(Dispatchers.Default).async {
-            messagesDao?.getAllOfUser(userID) ?: listOf()
-        }.await()
-    }
 
     suspend fun getUnreadMessages(userID: String): List<MessageEntity> {
         return CoroutineScope(Dispatchers.Default).async {
             messagesDao?.getUnreadMessages(userID) ?: listOf()
         }.await()
+    }
+
+    suspend fun getReceivedMessages(userID: String): List<MessageEntity> {
+        return CoroutineScope(Dispatchers.Default).async {
+            messagesDao?.getReceivedMessages(userID) ?: listOf()
+        }.await()
+    }
+
+    suspend fun getSentMessaged(userID: String): List<MessageEntity> {
+        return CoroutineScope(Dispatchers.Default).async {
+            messagesDao?.getSentMessages(userID) ?: listOf()
+        }.await()
+    }
+
+    fun setMessageReadStateTrue(pid: Long) {
+        CoroutineScope(Dispatchers.Default).launch {
+            messagesDao?.setReadStateTrue(pid)
+        }
     }
 }

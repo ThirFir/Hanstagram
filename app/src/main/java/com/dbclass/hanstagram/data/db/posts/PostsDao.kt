@@ -24,7 +24,7 @@ interface PostsDao {
     fun getFollowingPosts(id: String): List<PostEntity>
 
     @Query("select count(post_id) from posts where user_id = :userID")
-    fun getPostsCount(userID: String): Int
+    fun getPostsCount(userID: String): Long
 
     @Query("SELECT count(pid) from likes where post_id = :postID")
     fun getPostsLikesCount(postID: Long): Long
