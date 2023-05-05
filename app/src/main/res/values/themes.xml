@@ -14,5 +14,12 @@
         <item name="android:textColor">@color/black</item>
         <item name="android:textColorHint">#AFAFAF</item>
         <!-- Customize your theme here. -->
+        <item name="md_corner_radius">32dp</item>
+        <item name="android:editTextColor">@color/black</item>
+        <item name="android:editTextBackground">@null</item>
+
+        <item name="bottomSheetDialogTheme">@style/CommentBottomSheetDialog</item>
     </style>
+
+
 </resources>

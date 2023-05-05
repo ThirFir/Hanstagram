@@ -1,9 +1,6 @@
 package com.dbclass.hanstagram.data.db.comments
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Update
+import androidx.room.*
 
 @Dao
 interface CommentsDao {
@@ -16,4 +13,7 @@ interface CommentsDao {
 
     @Update
     fun updateComment(comment: CommentEntity)
+
+    @Query("select * from comments where post_id=:postID")
+    fun getComments(postID: Long): List<CommentEntity>
 }

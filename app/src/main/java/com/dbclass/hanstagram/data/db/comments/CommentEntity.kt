@@ -12,7 +12,7 @@ import com.dbclass.hanstagram.data.db.users.UserEntity
     ForeignKey(
         entity = PostEntity::class,
         parentColumns = ["post_id"],
-        childColumns = ["user_id"],
+        childColumns = ["post_id"],
         onDelete = CASCADE
     ), ForeignKey(
         entity = UserEntity::class,

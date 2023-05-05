@@ -39,4 +39,42 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <style name="text_nickname_small_style">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">12.5sp</item>
+    </style>
+
+    <style name="text_nickname_middle_style">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="post_icon_style">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+    </style>
+
+    <style name="small_profile_image_style">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+    </style>
+
+    <style name="edit_text_size">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">36dp</item>
+    </style>
+
+    <!-- Bottom Sheet Corner Radius -->
+    <style name="CommentBottomSheetDialog" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/CommentBottomSheet</item>
+    </style>
+    <style name="CommentBottomSheet" parent="Widget.MaterialComponents.BottomSheet">
+        <item name="shapeAppearanceOverlay">@style/CommentShapeAppearanceBottomSheetDialog</item>
+    </style>
+    <style name="CommentShapeAppearanceBottomSheetDialog">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">32dp</item>
+        <item name="cornerSizeTopRight">32dp</item>
+    </style>
 </resources>

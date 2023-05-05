@@ -6,6 +6,7 @@ import android.widget.Toast
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.messages.MessageEntity
 import com.dbclass.hanstagram.data.repository.MessageRepository
+import com.dbclass.hanstagram.data.utils.closeKeyboard
 import com.dbclass.hanstagram.databinding.ActivitySendMessageBinding
 
 class SendMessageActivity : AppCompatActivity() {
@@ -17,8 +18,10 @@ class SendMessageActivity : AppCompatActivity() {
 
         val toID = intent.getStringExtra("to_id")
         val fromID = intent.getStringExtra("from_id")
-        if(toID == null || fromID == null)
+        if(toID == null || fromID == null) {
+            Toast.makeText(this, "유저ID 로드에 실패하였습니다.", Toast.LENGTH_SHORT).show()
             finish()
+        }
 
         binding.textToId.text = toID
         binding.buttonSend.setOnClickListener {
@@ -27,8 +30,19 @@ class SendMessageActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             val content = binding.editTextMessageContent.text.toString()
-            if(fromID != null && toID != null)
-                MessageRepository.sendMessage(MessageEntity(fromID, toID, false, content, System.currentTimeMillis()))
+            closeKeyboard(binding.editTextMessageContent)
+            if(fromID != null && toID != null) {
+                MessageRepository.sendMessage(
+                    MessageEntity(
+                        fromID,
+                        toID,
+                        false,
+                        content,
+                        System.currentTimeMillis()
+                    )
+                )
+                Toast.makeText(this, "${toID}에게 메세지를 보냈습니다.", Toast.LENGTH_SHORT).show()
+            }
             finish()
         }
     }

@@ -5,6 +5,6 @@
     <item
         android:id="@+id/icon_message_box"
         android:title="message_box"
-        android:icon="@drawable/ic_email_24"
+        android:icon="@drawable/ic_email_48"
         app:showAsAction="always"/>
 </menu>

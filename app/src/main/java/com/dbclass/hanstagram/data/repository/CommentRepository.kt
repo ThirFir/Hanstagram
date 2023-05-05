@@ -6,6 +6,7 @@ import com.dbclass.hanstagram.data.db.comments.CommentEntity
 import com.dbclass.hanstagram.data.db.comments.CommentsDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 object CommentRepository {
@@ -33,5 +34,11 @@ object CommentRepository {
         CoroutineScope(Dispatchers.Default).launch {
             commentsDao?.updateComment(comment)
         }
+    }
+
+    suspend fun getComments(postID: Long): List<CommentEntity> {
+        return CoroutineScope(Dispatchers.Default).async {
+            commentsDao?.getComments(postID) ?: listOf()
+        }.await()
     }
 }

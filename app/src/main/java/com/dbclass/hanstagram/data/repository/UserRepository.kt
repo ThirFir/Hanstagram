@@ -80,4 +80,10 @@ object UserRepository {
             usersDao?.getProfileImage(userID)
         }.await()
     }
+
+    fun deleteUser(userID: String) {
+        CoroutineScope(Dispatchers.Default).launch {
+            usersDao?.deleteUser(userID)
+        }
+    }
 }

@@ -10,7 +10,9 @@
     <color name="light_gray">#AFAFAF</color>
     <color name="more_light_gray">#DAD8D8</color>
 
+    <color name="main_red">#FF3030</color>
     <color name="main_sky_blue">#00d2ff</color>
+    <color name="main_blue">#008EFF</color>
     <color name="main_light_purple">#928DAB</color>
     <color name="selected_text_blue">#2196F3</color>
 </resources>
