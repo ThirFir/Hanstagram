@@ -21,9 +21,9 @@ object LikeRepository {
         }
     }
 
-    fun cancelLike(like: LikeEntity) {
+    fun cancelLike(pid: Long) {
         CoroutineScope(Dispatchers.Default).launch {
-            likesDao?.deleteLike(like)
+            likesDao?.deleteLike(pid)
         }
     }
 }

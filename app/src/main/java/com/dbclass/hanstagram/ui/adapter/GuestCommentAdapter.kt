@@ -1,8 +1,18 @@
 package com.dbclass.hanstagram.ui.adapter
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -11,6 +21,7 @@ import com.dbclass.hanstagram.data.db.guests.GuestCommentEntity
 import com.dbclass.hanstagram.data.repository.GuestCommentRepository
 import com.dbclass.hanstagram.data.repository.UserRepository
 import com.dbclass.hanstagram.databinding.ItemGuestCommentBinding
+import com.dbclass.hanstagram.ui.activity.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,6 +35,7 @@ class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, p
 
     override fun getItemCount(): Int = guestComments.size
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         with((holder as GuestViewHolder).binding) {
             val comment = guestComments[position]
@@ -58,6 +70,7 @@ class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, p
         GuestCommentRepository.deleteComment(guestComments[position])
         guestComments.removeAt(position)
         notifyItemRemoved(position)
+        notifyItemRangeChanged(position, itemCount)
     }
     inner class GuestViewHolder(val binding: ItemGuestCommentBinding): RecyclerView.ViewHolder(binding.root)
 

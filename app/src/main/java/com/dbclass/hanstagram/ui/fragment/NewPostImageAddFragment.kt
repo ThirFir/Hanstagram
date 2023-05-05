@@ -1,12 +1,20 @@
 package com.dbclass.hanstagram.ui.fragment
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
@@ -25,6 +33,7 @@ class NewPostImageAddFragment : Fragment() {
     private var fourthURI: String = ""
     private var fifthURI: String = ""
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,6 +72,36 @@ class NewPostImageAddFragment : Fragment() {
 
             imageviewThumbnail.setOnClickListener {
                 selectedImageTab = 1
+                when {
+                    checkSelfPermission(requireContext(),
+                        Manifest.permission.READ_MEDIA_IMAGES
+                    ) == PackageManager.PERMISSION_GRANTED
+                    -> {
+                        Log.d("Permission","1")
+                        runGalleryAppWithResult()
+                    }
+
+                    shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)
+                    -> {
+                        Log.d("Permission","2")
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("권한 요청")
+                            .setMessage("이미지 선택을 위해 갤러리 접근 권한이 필요합니다")
+                            .setPositiveButton("동의하기") { _, _ ->
+                                ActivityCompat.requestPermissions(requireActivity(),
+                                    arrayOf(Manifest.permission.READ_MEDIA_IMAGES),
+                                    1000
+                                )
+                            }
+                            .setNegativeButton("취소하기") { _, _ -> }
+                            .create()
+                            .show()
+                    }
+                    else -> {
+                        Log.d("Permission","3")
+                        ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.READ_MEDIA_IMAGES), 1000)
+                    }
+                }
                 runGalleryAppWithResult()
             }
             imageviewSecond.setOnClickListener {
@@ -122,7 +161,7 @@ class NewPostImageAddFragment : Fragment() {
     private fun runGalleryAppWithResult() {
         val intent = Intent()
         intent.type = "image/*"
-        intent.action = Intent.ACTION_OPEN_DOCUMENT
+        intent.action = Intent.ACTION_PICK
         activityImageResult.launch(intent)
 
     }

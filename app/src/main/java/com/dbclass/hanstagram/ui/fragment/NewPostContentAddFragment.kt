@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.posts.PostEntity
 import com.dbclass.hanstagram.data.repository.PostRepository
+import com.dbclass.hanstagram.data.utils.closeKeyboard
 import com.dbclass.hanstagram.databinding.FragmentNewPostContentAddBinding
 import com.dbclass.hanstagram.ui.activity.NewPostActivity
 import kotlinx.coroutines.CoroutineScope
@@ -70,6 +71,7 @@ class NewPostContentAddFragment : Fragment() {
                             )
                         )
                     CoroutineScope(Dispatchers.Main).launch {
+                        requireContext().closeKeyboard(binding.editTextContent)
                         Toast.makeText(requireContext(), "게시글이 작성되었습니다", Toast.LENGTH_SHORT).show()
                         (requireActivity() as NewPostActivity).finish()
                     }

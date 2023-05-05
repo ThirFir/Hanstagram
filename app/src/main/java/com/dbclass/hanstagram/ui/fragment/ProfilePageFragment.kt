@@ -152,8 +152,9 @@ class ProfilePageFragment : Fragment() {
 
             // message버튼을 로그아웃 버튼으로 사용
             binding.buttonMessage.setOnClickListener {
-                startActivity(Intent(requireActivity(), LoginActivity::class.java))
-                (requireActivity() as MainActivity).finish()
+                startActivity(Intent(requireActivity(), LoginActivity::class.java).apply{
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                })
             }
         } else {
             followViewModel.initializeFollow(myID, ownerID)

@@ -13,9 +13,9 @@ import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.guests.GuestCommentEntity
 import com.dbclass.hanstagram.data.repository.GuestCommentRepository
+import com.dbclass.hanstagram.data.utils.closeKeyboard
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentGuestBookBinding
-import com.dbclass.hanstagram.ui.activity.MainActivity
 import com.dbclass.hanstagram.ui.adapter.GuestAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,8 +61,11 @@ class GuestBookFragment : Fragment() {
             (binding.recyclerviewGuestComments.adapter as GuestAdapter).addComment(
                 GuestCommentEntity(fromUserID, toUserID, comment, createdTime)
             )
+            requireContext().closeKeyboard(binding.editTextGuestComment)
             binding.editTextGuestComment.text.clear()
         }
+
+
         val layout = inflater.inflate(R.layout.item_guest_comment, container, false) as ConstraintLayout
         val view = layout.findViewById<ImageView>(R.id.image_guest_profile)
         userViewModel.user.observe(viewLifecycleOwner) {

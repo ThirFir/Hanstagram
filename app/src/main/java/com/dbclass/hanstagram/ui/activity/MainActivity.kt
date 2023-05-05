@@ -1,11 +1,19 @@
 package com.dbclass.hanstagram.ui.activity
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.dbclass.hanstagram.ui.fragment.PostsPageFragment
 import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
 import com.dbclass.hanstagram.R
@@ -21,6 +29,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val userViewModel: UserViewModel by viewModels()
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -69,7 +78,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
 
 }
