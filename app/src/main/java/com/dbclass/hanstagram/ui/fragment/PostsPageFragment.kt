@@ -34,7 +34,7 @@ class PostsPageFragment : Fragment() {
         CoroutineScope(Dispatchers.Default).launch {
             val posts = userViewModel.user.value?.id?.let { PostRepository.getAllPosts(0) }
             CoroutineScope(Dispatchers.Main).launch {
-                binding.recyclerviewPosts.adapter = PostAdapter(posts ?: listOf(), userViewModel.user.value?.id, requireContext())
+                binding.recyclerviewPosts.adapter = PostAdapter(posts ?: listOf(), userViewModel.user.value?.id)
             }
         }
 

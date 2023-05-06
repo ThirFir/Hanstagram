@@ -16,12 +16,12 @@
         android:layout_marginStart="12dp"
         android:hint="@string/text_input_content"
         android:background="@null"
-        app:layout_constraintEnd_toStartOf="@id/imageview_thumbnail"
+        app:layout_constraintEnd_toStartOf="@id/image_display"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageview_thumbnail"
+        android:id="@+id/image_display"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:src="@color/light_gray"

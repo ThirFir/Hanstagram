@@ -15,10 +15,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class PostCommentAdapter(private val postComments: MutableList<CommentEntity>, val postID: Long, val userID: String?, val context: Context):
+class PostCommentAdapter(private val postComments: MutableList<CommentEntity>, val postID: Long, val userID: String?):
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder
-        = PostCommentViewHolder(ItemPostCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+
+    private lateinit var context: Context
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        context = parent.context
+        return PostCommentViewHolder(ItemPostCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    }
 
     override fun getItemCount(): Int = postComments.size
 

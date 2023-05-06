@@ -17,11 +17,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class FoundUserAdapter(private val foundUsers: MutableList<UserEntity>, val context: Context) :
+class FoundUserAdapter(private val foundUsers: MutableList<UserEntity>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-        FountUserViewHolder(ItemFoundUserBinding.inflate(LayoutInflater.from(parent.context), parent ,false))
 
+    private lateinit var context: Context
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        context = parent.context
+        return FountUserViewHolder(ItemFoundUserBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    }
     override fun getItemCount() = foundUsers.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

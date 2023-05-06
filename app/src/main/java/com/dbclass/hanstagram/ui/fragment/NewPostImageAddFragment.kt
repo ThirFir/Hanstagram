@@ -27,7 +27,7 @@ class NewPostImageAddFragment : Fragment() {
 
     private lateinit var binding: FragmentNewPostImageAddBinding
     private lateinit var activityImageResult: ActivityResultLauncher<Intent>
-    private var thumbnailURI: String = ""
+    private var firstURI: String = ""
     private var secondURI: String = ""
     private var thirdURI: String = ""
     private var fourthURI: String = ""
@@ -46,31 +46,31 @@ class NewPostImageAddFragment : Fragment() {
                 if (it.resultCode != Activity.RESULT_OK) return@registerForActivityResult
                 when (selectedImageTab) {
                     1 -> {
-                        thumbnailURI = it.data?.data.toString()
-                        Glide.with(this).load(thumbnailURI).into(binding.imageviewThumbnail)
+                        firstURI = it.data?.data.toString()
+                        Glide.with(this).load(firstURI).into(binding.imageFirst)
                     }
                     2 -> {
                         secondURI = it.data?.data.toString()
-                        Glide.with(this).load(secondURI).into(binding.imageviewSecond)
+                        Glide.with(this).load(secondURI).into(binding.imageSecond)
                     }
                     3 -> {
                         thirdURI = it.data?.data.toString()
-                        Glide.with(this).load(thirdURI).into(binding.imageviewThird)
+                        Glide.with(this).load(thirdURI).into(binding.imageThird)
                     }
                     4 -> {
                         fourthURI = it.data?.data.toString()
-                        Glide.with(this).load(fourthURI).into(binding.imageviewFourth)
+                        Glide.with(this).load(fourthURI).into(binding.imageFourth)
                     }
                     5 -> {
                         fifthURI = it.data?.data.toString()
-                        Glide.with(this).load(fifthURI).into(binding.imageviewFifth)
+                        Glide.with(this).load(fifthURI).into(binding.imageFifth)
                     }
                 }
             }
 
         with(binding) {
 
-            imageviewThumbnail.setOnClickListener {
+            imageFirst.setOnClickListener {
                 selectedImageTab = 1
                 when {
                     checkSelfPermission(requireContext(),
@@ -104,19 +104,19 @@ class NewPostImageAddFragment : Fragment() {
                 }
                 runGalleryAppWithResult()
             }
-            imageviewSecond.setOnClickListener {
+            imageSecond.setOnClickListener {
                 selectedImageTab = 2
                 runGalleryAppWithResult()
             }
-            imageviewThird.setOnClickListener {
+            imageThird.setOnClickListener {
                 selectedImageTab = 3
                 runGalleryAppWithResult()
             }
-            imageviewFourth.setOnClickListener {
+            imageFourth.setOnClickListener {
                 selectedImageTab = 4
                 runGalleryAppWithResult()
             }
-            imageviewFifth.setOnClickListener {
+            imageFifth.setOnClickListener {
                 selectedImageTab = 5
                 runGalleryAppWithResult()
             }
@@ -138,10 +138,10 @@ class NewPostImageAddFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.icon_next_page -> {
-                if(thumbnailURI != "") {
+                if(firstURI != "") {
                     val action = NewPostImageAddFragmentDirections.actionNewPostImageAddFragmentToNewPostContentAddFragment()
                     action.arguments.run {
-                        putString("thumbnail_uri", thumbnailURI)
+                        putString("thumbnail_uri", firstURI)
                         putString("second_uri", secondURI)
                         putString("third_uri", thirdURI)
                         putString("fourth_uri", fourthURI)

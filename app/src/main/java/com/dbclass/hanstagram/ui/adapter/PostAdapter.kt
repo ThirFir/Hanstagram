@@ -42,10 +42,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.StringTokenizer
 
-class PostAdapter(private val posts: List<PostEntity>, private val myID: String?, val context: Context) :
+class PostAdapter(private val posts: List<PostEntity>, private val myID: String?) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder =
-        PostViewHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+
+    private lateinit var context: Context
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
+        context = parent.context
+        return PostViewHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

@@ -50,7 +50,7 @@ class PostCommentBottomSheet : BottomSheetDialogFragment() {
             val comments = postID?.let { CommentRepository.getComments(it) }
             CoroutineScope(Dispatchers.Main).launch {
                 binding.recyclerviewPostComments.adapter =
-                    PostCommentAdapter(comments as MutableList, postID, userViewModel.user.value?.id, requireContext())
+                    PostCommentAdapter(comments as MutableList, postID, userViewModel.user.value?.id)
                 binding.textButtonLeaveComment.setOnClickListener {
                     binding.editTextPostComment.text.ifEmpty {
                         Toast.makeText(requireContext(), "댓글을 입력해주세요", Toast.LENGTH_SHORT).show()

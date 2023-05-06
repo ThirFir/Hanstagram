@@ -28,11 +28,14 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, private val guestID: String?, val context: Context) :
+class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, private val guestID: String?) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-        GuestViewHolder(ItemGuestCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
+    private lateinit var context: Context
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        context = parent.context
+        return GuestViewHolder(ItemGuestCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    }
     override fun getItemCount(): Int = guestComments.size
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
