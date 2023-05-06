@@ -15,6 +15,9 @@ interface PostsDao {
     @Query("delete from posts where post_id = :postID")
     fun deletePost(postID: Long)
 
+    @Query("select * from posts where post_id=:postID")
+    fun getPost(postID: Long): PostEntity
+
     @Query("select * from posts")
     fun getAllPosts(): List<PostEntity>
 

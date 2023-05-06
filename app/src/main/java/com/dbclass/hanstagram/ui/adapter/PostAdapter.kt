@@ -1,23 +1,13 @@
 package com.dbclass.hanstagram.ui.adapter
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.requestPermissions
-import androidx.core.app.ActivityCompat.startActivity
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
@@ -31,12 +21,11 @@ import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.databinding.ItemPostBinding
 import com.dbclass.hanstagram.data.db.posts.PostEntity
 import com.dbclass.hanstagram.data.repository.UserRepository
+import com.dbclass.hanstagram.data.utils.getImageHeightWithWidthFully
+import com.dbclass.hanstagram.data.utils.startPostCommentActivity
 import com.dbclass.hanstagram.ui.activity.MainActivity
 import com.dbclass.hanstagram.ui.activity.PostCommentActivity
-import com.dbclass.hanstagram.ui.fragment.PostCommentBottomSheet
 import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.dialog.MaterialDialogs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -66,9 +55,8 @@ class PostAdapter(private val posts: List<PostEntity>, private val myID: String?
             }
         }
 
-
         postBinding.textContent.text = post.content
-        postBinding.imagePostMenu.setOnClickListener {
+        postBinding.iconPostMenu.setOnClickListener {
             MaterialDialog(context, BottomSheet(LayoutMode.WRAP_CONTENT)).show {
                 gridItems(items = listOf(
                         BasicGridItem(R.drawable.ic_siren_48, "신고"),
@@ -84,48 +72,29 @@ class PostAdapter(private val posts: List<PostEntity>, private val myID: String?
             }
 
         }
-        postBinding.imageHeart.setOnClickListener {
-            Glide.with(context).load(R.drawable.ic_heart_filled_100).into(postBinding.imageHeart)
+        postBinding.iconHeart.setOnClickListener {
+            Glide.with(context).load(R.drawable.ic_heart_filled_100).into(postBinding.iconHeart)
         }
-        postBinding.imageDislike.setOnClickListener {
+        postBinding.iconDislike.setOnClickListener {
             Glide.with(context).load(R.drawable.ic_disgusting_filled_100)
-                .into(postBinding.imageDislike)
+                .into(postBinding.iconDislike)
         }
 
-        postBinding.imageComment.setOnClickListener {
+        postBinding.iconComment.setOnClickListener {
             /*
             val commentBottomSheet = PostCommentBottomSheet().apply {
                 arguments = bundleOf("post_id" to post.postID)
             }
             commentBottomSheet.show((context as MainActivity).supportFragmentManager, commentBottomSheet.tag)*/
-            val intent = Intent(context, PostCommentActivity::class.java).apply {
-                putExtra("user_id", myID)
-                putExtra("post_id", post.postID)
-            }
-            context.startActivity(intent)
+            myID?.let {context.startPostCommentActivity(it, post.postID) }
         }
-        postBinding.imageReport.setOnClickListener {
+        postBinding.iconReport.setOnClickListener {
             // TODO 신고 - 매너 온도 하락 ?
         }
 
         val contentImages = StringTokenizer(post.images)
         val i1 = contentImages.nextToken()
-        val imageOptions = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-            BitmapFactory.decodeStream(
-                context.contentResolver.openInputStream(i1.toUri()),
-                null,
-                this
-            )
-        }
-
-
-        val imageWidth = imageOptions.outWidth
-        val imageHeight = imageOptions.outHeight
-        val displayMetrics = context.resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels
-        val scaleFactor = screenWidth.toFloat() / imageWidth
-        val scaleHeight = (imageHeight * scaleFactor).toInt()
+        val scaleHeight = context.getImageHeightWithWidthFully(i1)
         holder.binding.imageContent.layoutParams.height = scaleHeight
         Glide.with(context).load(i1).into(postBinding.imageContent)
 

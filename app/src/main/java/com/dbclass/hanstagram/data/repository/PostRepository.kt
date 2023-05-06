@@ -60,4 +60,12 @@ object PostRepository {
             postsDao?.getAllPosts() ?: listOf()
         }.await()
     }
+
+    suspend fun getPost(postID: Long?): PostEntity? {
+        return if(postID != null) {
+            CoroutineScope(Dispatchers.Default).async {
+                postsDao?.getPost(postID)
+            }.await()
+        } else null
+    }
 }

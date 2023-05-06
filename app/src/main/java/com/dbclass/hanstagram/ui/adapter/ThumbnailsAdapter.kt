@@ -3,12 +3,15 @@ package com.dbclass.hanstagram.ui.adapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.posts.PostEntity
 import com.dbclass.hanstagram.databinding.ItemThumbnailsBinding
+import com.dbclass.hanstagram.ui.activity.MainActivity
+import com.dbclass.hanstagram.ui.dialog.PostFragmentDialog
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import jp.wasabeef.glide.transformations.CropSquareTransformation
 
@@ -28,7 +31,11 @@ class ThumbnailsAdapter(private val posts: List<PostEntity>) :  RecyclerView.Ada
         Glide.with(context).load(post.images).error(R.drawable.ic_error_96).centerCrop()
             .override((holder as ThumbnailsViewHolder).binding.root.width).into(holder.binding.imageThumbnail)
         holder.binding.imageThumbnail.setOnClickListener {
-            // TODO : 게시물 Fragment Dialog
+            PostFragmentDialog().apply {
+                arguments = bundleOf("post_id" to post.postID)
+            }.show(
+                (context as MainActivity).supportFragmentManager, "PostDialog"
+            )
         }
     }
 

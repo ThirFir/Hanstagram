@@ -23,13 +23,14 @@ import kotlinx.coroutines.launch
 class ThumbnailsListFragment : Fragment() {
     private val userViewModel: UserViewModel by activityViewModels()
     private lateinit var binding: FragmentThumbnailsListBinding
-
+    private var ownerID: String? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentThumbnailsListBinding.inflate(inflater, container, false)
 
+        ownerID = arguments?.getString("owner_id") ?: userViewModel.user.value?.id
         val spanCount = 3
         binding.recyclerviewThumbnails.layoutManager = GridLayoutManager(requireContext(), spanCount)
         binding.recyclerviewThumbnails.addItemDecoration(
@@ -48,7 +49,7 @@ class ThumbnailsListFragment : Fragment() {
             }
         )
         CoroutineScope(Dispatchers.Default).launch {
-            val posts = PostRepository.getUserPosts(userViewModel.user.value?.id)
+            val posts = PostRepository.getUserPosts(ownerID)
             CoroutineScope(Dispatchers.Main).launch {
                 binding.recyclerviewThumbnails.adapter = ThumbnailsAdapter(posts)
             }
