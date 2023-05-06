@@ -29,7 +29,7 @@ class FindFragment : Fragment() {
         (requireActivity() as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
         setHasOptionsMenu(true)
         binding.recyclerviewFoundUsers.layoutManager = LinearLayoutManager(requireActivity())
-        binding.recyclerviewFoundUsers.adapter = FoundUserAdapter(mutableListOf(), requireContext())
+        binding.recyclerviewFoundUsers.adapter = FoundUserAdapter(mutableListOf())
 
         binding.imageButtonFind.setOnClickListener {
             binding.editTextFind.text.ifEmpty { return@setOnClickListener }

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -24,12 +25,13 @@
         app:layout_constraintTop_toTopOf="@+id/image_profile" />
 
     <ImageView
-        android:id="@+id/image_post_menu"
+        android:id="@+id/icon_post_menu"
         style="@style/post_icon_style"
-        android:src="@drawable/ic_menu_78"
         android:layout_margin="8dp"
+        android:src="@drawable/ic_menu_78"
+        app:layout_constraintBottom_toBottomOf="@+id/image_profile"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="@+id/image_profile" />
     <ImageView
         android:id="@+id/image_content"
         android:layout_width="match_parent"
@@ -41,6 +43,7 @@
         app:layout_constraintTop_toBottomOf="@+id/image_profile" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="12dp"
@@ -50,7 +53,7 @@
         app:layout_constraintTop_toBottomOf="@+id/image_content">
 
         <ImageView
-            android:id="@+id/image_heart"
+            android:id="@+id/icon_heart"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_heart_100"
@@ -58,33 +61,33 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/image_comment"
+            android:id="@+id/icon_comment"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="8dp"
             android:src="@drawable/ic_speech_bubble_50"
-            app:layout_constraintBottom_toBottomOf="@+id/image_heart"
-            app:layout_constraintStart_toEndOf="@id/image_heart"
-            app:layout_constraintTop_toTopOf="@+id/image_heart" />
+            app:layout_constraintBottom_toBottomOf="@+id/icon_heart"
+            app:layout_constraintStart_toEndOf="@id/icon_heart"
+            app:layout_constraintTop_toTopOf="@+id/icon_heart" />
 
         <ImageView
-            android:id="@+id/image_dislike"
+            android:id="@+id/icon_dislike"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="24dp"
             android:src="@drawable/ic_disgusting_100"
-            app:layout_constraintBottom_toBottomOf="@id/image_heart"
-            app:layout_constraintStart_toEndOf="@id/image_comment"
-            app:layout_constraintTop_toTopOf="@id/image_heart" />
+            app:layout_constraintBottom_toBottomOf="@id/icon_heart"
+            app:layout_constraintStart_toEndOf="@id/icon_comment"
+            app:layout_constraintTop_toTopOf="@id/icon_heart" />
 
         <ImageView
-            android:id="@+id/image_report"
+            android:id="@+id/icon_report"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_siren_99"
+            app:layout_constraintBottom_toBottomOf="@id/icon_heart"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/image_heart"
-            app:layout_constraintBottom_toBottomOf="@id/image_heart"/>
+            app:layout_constraintTop_toTopOf="@id/icon_heart" />
 
         <TextView
             android:id="@+id/text_content"
@@ -104,7 +107,7 @@
             android:textColor="@color/light_gray"
             app:layout_constraintBottom_toTopOf="@+id/text_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/image_heart" />
+            app:layout_constraintTop_toBottomOf="@+id/icon_heart" />
 
         <TextView
             android:id="@+id/text_comments_number"

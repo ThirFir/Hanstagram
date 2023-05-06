@@ -43,11 +43,7 @@ class GuestBookFragment : Fragment() {
                     LinearLayoutManager(requireContext())
                 if (guestComments != null)
                     binding.recyclerviewGuestComments.adapter =
-                        GuestAdapter(
-                            guestComments as MutableList<GuestCommentEntity>,
-                            userViewModel.user.value?.id,
-                            requireContext()
-                        )
+                        GuestAdapter(guestComments as MutableList<GuestCommentEntity>, userViewModel.user.value?.id)
             }
         }
 

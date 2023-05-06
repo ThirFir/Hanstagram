@@ -3,30 +3,41 @@ package com.dbclass.hanstagram.ui.adapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.posts.PostEntity
-import com.dbclass.hanstagram.databinding.ItemThumbnailsRowBinding
-import kotlin.math.roundToInt
+import com.dbclass.hanstagram.databinding.ItemThumbnailsBinding
+import com.dbclass.hanstagram.ui.activity.MainActivity
+import com.dbclass.hanstagram.ui.dialog.PostFragmentDialog
+import jp.wasabeef.glide.transformations.CropCircleTransformation
+import jp.wasabeef.glide.transformations.CropSquareTransformation
 
-class ThumbnailsAdapter(private val posts: List<PostEntity>, private val context: Context) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder
-        = ThumbnailsViewHolder(ItemThumbnailsRowBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+class ThumbnailsAdapter(private val posts: List<PostEntity>) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    override fun getItemCount(): Int = kotlin.math.ceil((posts.size / 3.0)).roundToInt()
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val pos1 = position * 3
-        val pos2 = position * 3 + 1
-        val pos3 = position * 3 + 2
-        val thumbnailsBinding = (holder as ThumbnailsViewHolder).binding
-
-        Glide.with(context).load(posts[pos1].images).into(thumbnailsBinding.imageFirstColumn)
-        if(pos2 < posts.size)
-            Glide.with(context).load(posts[pos2].images).into(thumbnailsBinding.imageSecondColumn)
-        if(pos3 < posts.size)
-            Glide.with(context).load(posts[pos3].images).into(thumbnailsBinding.imageThirdColumn)
+    private lateinit var context: Context
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        context = parent.context
+        return ThumbnailsViewHolder(ItemThumbnailsBinding.inflate(LayoutInflater.from(context), parent, false))
     }
 
-    inner class ThumbnailsViewHolder(val binding: ItemThumbnailsRowBinding): RecyclerView.ViewHolder(binding.root)
+    override fun getItemCount(): Int = posts.size
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val post = posts[position]
+
+        Glide.with(context).load(post.images).error(R.drawable.ic_error_96).centerCrop()
+            .override((holder as ThumbnailsViewHolder).binding.root.width).into(holder.binding.imageThumbnail)
+        holder.binding.imageThumbnail.setOnClickListener {
+            PostFragmentDialog().apply {
+                arguments = bundleOf("post_id" to post.postID)
+            }.show(
+                (context as MainActivity).supportFragmentManager, "PostDialog"
+            )
+        }
+    }
+
+    inner class ThumbnailsViewHolder(val binding: ItemThumbnailsBinding): RecyclerView.ViewHolder(binding.root)
 }

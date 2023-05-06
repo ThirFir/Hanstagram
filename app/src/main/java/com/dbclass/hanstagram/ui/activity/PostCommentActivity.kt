@@ -47,7 +47,7 @@ class PostCommentActivity : AppCompatActivity() {
 
             CoroutineScope(Dispatchers.Main).launch {
                 binding.recyclerviewPostComments.adapter =
-                    PostCommentAdapter(comments as MutableList, postID, userID, this@PostCommentActivity)
+                    PostCommentAdapter(comments as MutableList, postID, userID)
                 binding.textButtonLeaveComment.setOnClickListener {
                     binding.editTextPostComment.text.ifEmpty {
                         Toast.makeText(this@PostCommentActivity, "댓글을 입력해주세요", Toast.LENGTH_SHORT).show()

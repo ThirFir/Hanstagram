@@ -15,8 +15,14 @@ interface PostsDao {
     @Query("delete from posts where post_id = :postID")
     fun deletePost(postID: Long)
 
+    @Query("select * from posts where post_id=:postID")
+    fun getPost(postID: Long): PostEntity
+
     @Query("select * from posts")
     fun getAllPosts(): List<PostEntity>
+
+    @Query("select * from posts where user_id=:userID")
+    fun getUserPosts(userID: String): List<PostEntity>
 
     @Query("SELECT * FROM posts WHERE user_id IN " +
             "(SELECT following_id FROM follows WHERE follower_id=:id) " +

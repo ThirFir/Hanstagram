@@ -8,7 +8,7 @@
 
 
     <ImageView
-        android:id="@+id/imageview_thumbnail"
+        android:id="@+id/image_first"
         style="@style/post_image_size"
         android:src="@drawable/ic_add_96"
         app:layout_constraintEnd_toEndOf="parent"
@@ -16,41 +16,41 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageview_second"
+        android:id="@+id/image_second"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        app:layout_constraintTop_toBottomOf="@id/imageview_thumbnail"
-        app:layout_constraintEnd_toStartOf="@id/imageview_third"
+        app:layout_constraintTop_toBottomOf="@id/image_first"
+        app:layout_constraintEnd_toStartOf="@id/image_third"
         app:layout_constraintStart_toStartOf="parent"
         android:src="@drawable/ic_add_96"/>
 
     <ImageView
-        android:id="@+id/imageview_third"
+        android:id="@+id/image_third"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        app:layout_constraintTop_toTopOf="@id/imageview_second"
-        app:layout_constraintBottom_toBottomOf="@id/imageview_second"
-        app:layout_constraintStart_toEndOf="@id/imageview_second"
-        app:layout_constraintEnd_toStartOf="@id/imageview_fourth"
+        app:layout_constraintTop_toTopOf="@id/image_second"
+        app:layout_constraintBottom_toBottomOf="@id/image_second"
+        app:layout_constraintStart_toEndOf="@id/image_second"
+        app:layout_constraintEnd_toStartOf="@id/image_fourth"
         android:src="@drawable/ic_add_96"/>
 
     <ImageView
-        android:id="@+id/imageview_fourth"
+        android:id="@+id/image_fourth"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        app:layout_constraintTop_toTopOf="@id/imageview_second"
-        app:layout_constraintBottom_toBottomOf="@id/imageview_second"
-        app:layout_constraintStart_toEndOf="@id/imageview_third"
-        app:layout_constraintEnd_toStartOf="@id/imageview_fifth"
+        app:layout_constraintTop_toTopOf="@id/image_second"
+        app:layout_constraintBottom_toBottomOf="@id/image_second"
+        app:layout_constraintStart_toEndOf="@id/image_third"
+        app:layout_constraintEnd_toStartOf="@id/image_fifth"
         android:src="@drawable/ic_add_96"/>
     <ImageView
-        android:id="@+id/imageview_fifth"
+        android:id="@+id/image_fifth"
         android:layout_width="0dp"
         android:layout_height="60dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/imageview_fourth"
-        app:layout_constraintTop_toTopOf="@id/imageview_second"
-        app:layout_constraintBottom_toBottomOf="@id/imageview_second"
+        app:layout_constraintStart_toEndOf="@id/image_fourth"
+        app:layout_constraintTop_toTopOf="@id/image_second"
+        app:layout_constraintBottom_toBottomOf="@id/image_second"
         android:src="@drawable/ic_add_96"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

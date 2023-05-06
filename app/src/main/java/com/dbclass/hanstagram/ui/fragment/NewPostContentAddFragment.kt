@@ -88,6 +88,6 @@ class NewPostContentAddFragment : Fragment() {
         thirdURI = arguments?.getString("third_uri") ?: ""
         fourthURI = arguments?.getString("fourth_uri") ?: ""
         fifthURI = arguments?.getString("fifth_uri") ?: ""
-        Glide.with(requireContext()).load(thumbnailURI).into(binding.imageviewThumbnail)
+        Glide.with(requireContext()).load(thumbnailURI).into(binding.imageDisplay)
     }
 }
