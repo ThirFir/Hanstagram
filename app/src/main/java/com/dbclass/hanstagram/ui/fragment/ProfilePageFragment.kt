@@ -8,9 +8,11 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.dbclass.hanstagram.FollowUsersFragment
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentProfilePageBinding
@@ -76,6 +78,17 @@ class ProfilePageFragment : Fragment() {
         (requireActivity() as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
         setHasOptionsMenu(true)
 
+        binding.wrapperTextFollowers.setOnClickListener {
+            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_content, FollowUsersFragment().apply {
+                arguments = bundleOf("user_id" to ownerID, "state" to "followers")
+            }).commit()
+        }
+        binding.wrapperTextFollowings.setOnClickListener {
+            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_content, FollowUsersFragment().apply {
+                arguments = bundleOf("user_id" to ownerID, "state" to "followings")
+            }).commit()
+        }
+
         return binding.root
     }
 
@@ -97,8 +110,8 @@ class ProfilePageFragment : Fragment() {
 
         if (isMyProfile()) {
             Glide.with(requireContext()).load(userViewModel.user.value?.profileImage)
-                .error(R.drawable.baseline_account_circle_24)
-                .placeholder(R.drawable.baseline_account_circle_24)
+                .error(R.drawable.ic_account_96)
+                .placeholder(R.drawable.ic_account_96)
                 .into(binding.imageProfile)
 
 
@@ -110,8 +123,8 @@ class ProfilePageFragment : Fragment() {
                     textFollowerCount.text
                     Glide.with(this@ProfilePageFragment)
                         .load(userViewModel.user.value?.profileImage)
-                        .error(R.drawable.baseline_account_circle_24)
-                        .placeholder(R.drawable.baseline_account_circle_24)
+                        .error(R.drawable.ic_account_96)
+                        .placeholder(R.drawable.ic_account_96)
                         .into(imageProfile)
                 }
             }
@@ -125,8 +138,8 @@ class ProfilePageFragment : Fragment() {
                     binding.textNickname.text = user?.nickname
                     binding.textContent.text = user?.caption
                     Glide.with(requireContext()).load(user?.profileImage)
-                        .error(R.drawable.baseline_account_circle_24)
-                        .placeholder(R.drawable.baseline_account_circle_24)
+                        .error(R.drawable.ic_account_96)
+                        .placeholder(R.drawable.ic_account_96)
                         .into(binding.imageProfile)
                 }
             }

@@ -11,39 +11,37 @@
     android:paddingVertical="8dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/image_follow_profile"
         style="@style/middle_profile_image_style"
-        android:id="@+id/image_profile"
         android:src="@drawable/ic_account_96"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        style="@style/text_nickname_middle_style"
-        android:id="@+id/text_found_id"
+        style="@style/text_nickname_small_style"
+        android:id="@+id/text_follow_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="found id"
         android:textStyle="bold"
-        android:layout_marginTop="3dp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintStart_toEndOf="@id/image_profile"
-        app:layout_constraintTop_toTopOf="@id/image_profile"/>
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/image_follow_profile"
+        app:layout_constraintTop_toTopOf="@id/image_follow_profile"/>
 
 
     <TextView
-        android:id="@+id/text_nickname_of_id"
+        android:id="@+id/text_follow_nickname_of_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="nickname.of.id"
         android:layout_marginTop="4dp"
-        app:layout_constraintStart_toStartOf="@id/text_found_id"
-        app:layout_constraintTop_toBottomOf="@id/text_found_id"/>
+        app:layout_constraintStart_toStartOf="@id/text_follow_id"
+        app:layout_constraintTop_toBottomOf="@id/text_follow_id"/>
 
     <Button
-        android:id="@+id/button_toggle_follow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/image_profile"
+        app:layout_constraintBottom_toBottomOf="@+id/image_follow_profile"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/image_profile" />
+        app:layout_constraintTop_toTopOf="@+id/image_follow_profile" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -41,4 +41,10 @@ object CommentRepository {
             commentsDao?.getComments(postID) ?: listOf()
         }.await()
     }
+
+    suspend fun getCommentsCount(postID: Long): Long {
+        return CoroutineScope(Dispatchers.Default).async {
+            commentsDao?.getCommentsCount(postID) ?: 0L
+        }.await()
+    }
 }

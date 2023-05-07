@@ -42,7 +42,7 @@ class PostCommentBottomSheet : BottomSheetDialogFragment() {
         CoroutineScope(Dispatchers.Default).launch {
             val image = UserRepository.getProfileImage(userViewModel.user.value?.id ?: return@launch)
             CoroutineScope(Dispatchers.Main).launch {
-                Glide.with(requireContext()).load(image).error(R.drawable.baseline_account_circle_48).into(binding.imageProfile)
+                Glide.with(requireContext()).load(image).error(R.drawable.ic_account_96).into(binding.imageProfile)
             }
         }
 

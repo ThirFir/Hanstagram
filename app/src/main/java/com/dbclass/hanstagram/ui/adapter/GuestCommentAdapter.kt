@@ -56,7 +56,7 @@ class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, p
                 val image = UserRepository.getProfileImage(comment.guestUserID)
                 CoroutineScope(Dispatchers.Main).launch {
                     image?.let {
-                        Glide.with(context).load(image).error(R.drawable.baseline_account_circle_24).into(imageGuestProfile)
+                        Glide.with(context).load(image).error(R.drawable.ic_account_96).into(imageGuestProfile)
                     }
                 }
             }

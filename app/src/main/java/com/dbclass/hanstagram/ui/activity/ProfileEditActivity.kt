@@ -49,7 +49,7 @@ class ProfileEditActivity : AppCompatActivity() {
 
                 imageURI = it.data?.data.toString()
                 Glide.with(this@ProfileEditActivity).load(imageURI)
-                    .error(R.drawable.baseline_account_circle_24).into(binding.imageProfile)
+                    .error(R.drawable.ic_account_96).into(binding.imageProfile)
             }
 
         with(binding) {
@@ -59,7 +59,7 @@ class ProfileEditActivity : AppCompatActivity() {
             if (initialCaption != "")
                 editTextCaption.setText(initialCaption)
             Glide.with(this@ProfileEditActivity).load(imageURI)
-                .error(R.drawable.baseline_account_circle_24).into(imageProfile)
+                .error(R.drawable.ic_account_96).into(imageProfile)
 
             profileEditToolbar.setTitle(R.string.special_app_name)
             setSupportActionBar(profileEditToolbar)

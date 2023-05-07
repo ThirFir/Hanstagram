@@ -37,7 +37,7 @@ class PostCommentActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.Default).launch {
             val profileImage = UserRepository.getProfileImage(userID ?: return@launch)
             CoroutineScope(Dispatchers.Main).launch {
-                Glide.with(this@PostCommentActivity).load(profileImage).error(R.drawable.baseline_account_circle_48).into(binding.imageProfile)
+                Glide.with(this@PostCommentActivity).load(profileImage).error(R.drawable.ic_account_96).into(binding.imageProfile)
             }
         }
 

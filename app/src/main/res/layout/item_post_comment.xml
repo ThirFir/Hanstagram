@@ -10,7 +10,7 @@
         android:id="@+id/image_profile"
         style="@style/small_profile_image_style"
         android:layout_marginTop="10dp"
-        android:src="@drawable/baseline_account_circle_24"
+        android:src="@drawable/ic_account_96"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

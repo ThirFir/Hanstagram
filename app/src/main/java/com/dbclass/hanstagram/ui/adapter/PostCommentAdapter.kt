@@ -41,7 +41,7 @@ class PostCommentAdapter(private val postComments: MutableList<CommentEntity>, v
             CoroutineScope(Dispatchers.Default).launch {
                 val image = UserRepository.getProfileImage(postComment.userID)
                 CoroutineScope(Dispatchers.Main).launch {
-                    Glide.with(context).load(image).error(R.drawable.baseline_account_circle_48).into(imageProfile)
+                    Glide.with(context).load(image).error(R.drawable.ic_account_96).into(imageProfile)
                 }
             }
         }
