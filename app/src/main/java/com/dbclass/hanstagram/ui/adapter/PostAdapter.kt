@@ -1,14 +1,12 @@
 package com.dbclass.hanstagram.ui.adapter
 
 import android.content.Context
-import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
 import com.afollestad.materialdialogs.LayoutMode
@@ -18,20 +16,24 @@ import com.afollestad.materialdialogs.bottomsheets.BottomSheet
 import com.afollestad.materialdialogs.bottomsheets.gridItems
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
+import com.dbclass.hanstagram.data.db.dislikes.DislikeEntity
+import com.dbclass.hanstagram.data.db.likes.LikeEntity
 import com.dbclass.hanstagram.databinding.ItemPostBinding
 import com.dbclass.hanstagram.data.db.posts.PostEntity
+import com.dbclass.hanstagram.data.repository.CommentRepository
+import com.dbclass.hanstagram.data.repository.DislikeRepository
+import com.dbclass.hanstagram.data.repository.LikeRepository
 import com.dbclass.hanstagram.data.repository.UserRepository
 import com.dbclass.hanstagram.data.utils.getImageHeightWithWidthFully
 import com.dbclass.hanstagram.data.utils.startPostCommentActivity
 import com.dbclass.hanstagram.ui.activity.MainActivity
-import com.dbclass.hanstagram.ui.activity.PostCommentActivity
 import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.StringTokenizer
 
-class PostAdapter(private val posts: List<PostEntity>, private val myID: String?) :
+class PostAdapter(private val posts: List<PostEntity>, private val myID: String?, private val rootWidth: Int = 0) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var context: Context
@@ -48,10 +50,12 @@ class PostAdapter(private val posts: List<PostEntity>, private val myID: String?
         CoroutineScope(Dispatchers.Default).launch {
             val nick = UserRepository.getNickname(post.userID)
             val profileImage = UserRepository.getProfileImage(post.userID)
+            val commentsCount = CommentRepository.getCommentsCount(post.postID)
             CoroutineScope(Dispatchers.Main).launch {
                 postBinding.textNickname.text = nick ?: post.userID
-                Glide.with(context).load(profileImage).error(R.drawable.baseline_account_circle_24)
+                Glide.with(context).load(profileImage).error(R.drawable.ic_account_96)
                     .into(postBinding.imageProfile)
+                postBinding.textCommentsCount.text = commentsCount.toString()
             }
         }
 
@@ -67,37 +71,20 @@ class PostAdapter(private val posts: List<PostEntity>, private val myID: String?
                     Toast.makeText(context, "dddddd", Toast.LENGTH_SHORT).show()
 
                 }
-
-
             }
+        }
 
-        }
-        postBinding.iconHeart.setOnClickListener {
-            Glide.with(context).load(R.drawable.ic_heart_filled_100).into(postBinding.iconHeart)
-        }
-        postBinding.iconDislike.setOnClickListener {
-            Glide.with(context).load(R.drawable.ic_disgusting_filled_100)
-                .into(postBinding.iconDislike)
-        }
+        setDislikeListener(holder.binding, post)
+        setLikeListener(holder.binding, post)
 
         postBinding.iconComment.setOnClickListener {
-            /*
-            val commentBottomSheet = PostCommentBottomSheet().apply {
-                arguments = bundleOf("post_id" to post.postID)
-            }
-            commentBottomSheet.show((context as MainActivity).supportFragmentManager, commentBottomSheet.tag)*/
             myID?.let {context.startPostCommentActivity(it, post.postID) }
         }
         postBinding.iconReport.setOnClickListener {
             // TODO 신고 - 매너 온도 하락 ?
         }
 
-        val contentImages = StringTokenizer(post.images)
-        val i1 = contentImages.nextToken()
-        val scaleHeight = context.getImageHeightWithWidthFully(i1)
-        holder.binding.imageContent.layoutParams.height = scaleHeight
-        Glide.with(context).load(i1).into(postBinding.imageContent)
-
+        setContentImageSize(holder.binding, post)
 
         postBinding.textNickname.setOnClickListener {
             val profilePageFragment = ProfilePageFragment().apply {
@@ -108,7 +95,91 @@ class PostAdapter(private val posts: List<PostEntity>, private val myID: String?
                 profilePageFragment
             ).commit()
         }
+    }
 
+    private fun setDislikeListener(binding: ItemPostBinding, post: PostEntity) {
+        CoroutineScope(Dispatchers.Default).launch {
+            var dislikesCount = DislikeRepository.getDislikesCount(post.postID)
+            if (myID != null) {
+                var dislike = DislikeRepository.getDislike(myID, post.postID)
+                if(dislike == null) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        Glide.with(context).load(R.drawable.ic_disgusting_100).into(binding.iconDislike)
+                    }
+                } else {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        Glide.with(context).load(R.drawable.ic_disgusting_filled_100).into(binding.iconDislike)
+                    }
+                }
+                CoroutineScope(Dispatchers.Main).launch {
+                    binding.textDislikesCount.text = dislikesCount.toString()
+                    binding.iconDislike.setOnClickListener {
+                        if (dislike == null) {
+                            CoroutineScope(Dispatchers.Default).launch {
+                                dislike = DislikeRepository.doDislike(DislikeEntity(myID, post.postID))
+                            }
+                            Glide.with(context).load(R.drawable.ic_disgusting_filled_100)
+                                .into(binding.iconDislike)
+                            binding.textDislikesCount.text = (++dislikesCount).toString()
+                        } else {
+                            CoroutineScope(Dispatchers.Default).launch {
+                                Log.d("ddddddddd", dislike!!.pid.toString() + " ddddd ")
+                                DislikeRepository.cancelDislike(dislike!!.pid)
+                                dislike = null
+                            }
+                            Glide.with(context).load(R.drawable.ic_disgusting_100)
+                                .into(binding.iconDislike)
+                            binding.textDislikesCount.text = (--dislikesCount).toString()
+                        }
+                    }
+                }
+            }
+        }
+    }
+    private fun setLikeListener(binding: ItemPostBinding, post: PostEntity) {
+        CoroutineScope(Dispatchers.Default).launch {
+            var likesCount = LikeRepository.getLikesCount(post.postID)
+            if (myID != null) {
+                var like = LikeRepository.getLike(myID, post.postID)
+                if(like == null) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        Glide.with(context).load(R.drawable.ic_heart_100).into(binding.iconHeart)
+                    }
+                } else {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        Glide.with(context).load(R.drawable.ic_heart_filled_100).into(binding.iconHeart)
+                    }
+                }
+                CoroutineScope(Dispatchers.Main).launch {
+                    binding.textLikesCount.text = likesCount.toString()
+                    binding.iconHeart.setOnClickListener {
+                        if (like == null) {
+                            CoroutineScope(Dispatchers.Default).launch {
+                                like = LikeRepository.doLike(LikeEntity(myID, post.postID))
+                            }
+                            Glide.with(context).load(R.drawable.ic_heart_filled_100)
+                                .into(binding.iconHeart)
+                            binding.textLikesCount.text = (++likesCount).toString()
+                        } else {
+                            CoroutineScope(Dispatchers.Default).launch {
+                                LikeRepository.cancelLike(like!!.pid)
+                                like = null
+                            }
+                            Glide.with(context).load(R.drawable.ic_heart_100)
+                                .into(binding.iconHeart)
+                            binding.textLikesCount.text = (--likesCount).toString()
+                        }
+                    }
+                }
+            }
+        }
+    }
+    private fun setContentImageSize(binding: ItemPostBinding, post: PostEntity) {
+        val contentImages = StringTokenizer(post.images)
+        val i1 = contentImages.nextToken()
+        val scaleHeight = context.getImageHeightWithWidthFully(i1, rootWidth)
+        binding.imageContent.layoutParams.height = scaleHeight
+        Glide.with(context).load(i1).into(binding.imageContent)
     }
 
     override fun getItemCount(): Int = posts.size

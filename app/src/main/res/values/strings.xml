@@ -60,4 +60,8 @@
 
     <string name="alert_withdrawal">정말로 탈퇴하시겠습니까?</string>
     <string name="toast_success_withdrawal">탈퇴가 완료되었습니다</string>
+    <string name="text_like">좋아요</string>
+    <string name="text_comment">댓글</string>
+    <string name="text_dog">개</string>
+    <string name="text_dislike">싫어요</string>
 </resources>

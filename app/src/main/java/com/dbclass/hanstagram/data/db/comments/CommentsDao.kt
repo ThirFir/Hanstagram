@@ -16,4 +16,7 @@ interface CommentsDao {
 
     @Query("select * from comments where post_id=:postID")
     fun getComments(postID: Long): List<CommentEntity>
+
+    @Query("SELECT count(pid) from comments where post_id = :postID")
+    fun getCommentsCount(postID: Long): Long
 }

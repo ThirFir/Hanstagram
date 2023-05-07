@@ -4,6 +4,7 @@ import android.content.Context
 import com.dbclass.hanstagram.data.db.HanstagramDatabase
 import com.dbclass.hanstagram.data.db.follows.FollowEntity
 import com.dbclass.hanstagram.data.db.follows.FollowsDao
+import com.dbclass.hanstagram.data.db.users.UserEntity
 import kotlinx.coroutines.*
 
 object FollowRepository {
@@ -45,15 +46,17 @@ object FollowRepository {
         }.await() ?: 0
     }
 
-    suspend fun getFollowings(userID: String): List<String> {
-        return followScope.async {
+    suspend fun getFollowings(userID: String?): List<UserEntity> {
+        return if (userID != null) followScope.async {
             followsDao?.getFollowings(userID) ?: listOf()
         }.await()
+        else listOf()
     }
 
-    suspend fun getFollowers(userID: String): List<String> {
-        return followScope.async {
+    suspend fun getFollowers(userID: String?): List<UserEntity> {
+        return if (userID != null) followScope.async {
             followsDao?.getFollowers(userID) ?: listOf()
         }.await()
+        else listOf()
     }
 }
