@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
+import com.dbclass.hanstagram.data.utils.getImageHeightWithWidthFully
 import com.dbclass.hanstagram.databinding.FragmentNewPostImageAddBinding
 import com.dbclass.hanstagram.ui.activity.NewPostActivity
 
@@ -47,6 +48,8 @@ class NewPostImageAddFragment : Fragment() {
                 when (selectedImageTab) {
                     1 -> {
                         firstURI = it.data?.data.toString()
+                        val scaleHeight = requireContext().getImageHeightWithWidthFully(firstURI)
+                        binding.imageFirst.layoutParams.height = scaleHeight
                         Glide.with(this).load(firstURI).into(binding.imageFirst)
                     }
                     2 -> {
@@ -87,13 +90,13 @@ class NewPostImageAddFragment : Fragment() {
                         AlertDialog.Builder(requireContext())
                             .setTitle("권한 요청")
                             .setMessage("이미지 선택을 위해 갤러리 접근 권한이 필요합니다")
-                            .setPositiveButton("동의하기") { _, _ ->
+                            .setPositiveButton("동의") { _, _ ->
                                 ActivityCompat.requestPermissions(requireActivity(),
                                     arrayOf(Manifest.permission.READ_MEDIA_IMAGES),
                                     1000
                                 )
                             }
-                            .setNegativeButton("취소하기") { _, _ -> }
+                            .setNegativeButton("취소") { _, _ -> }
                             .create()
                             .show()
                     }

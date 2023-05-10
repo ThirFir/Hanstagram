@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.messages.MessageEntity
 import com.dbclass.hanstagram.data.repository.MessageRepository
+import com.dbclass.hanstagram.data.utils.getFormattedDate
 import com.dbclass.hanstagram.databinding.ItemMessageBinding
 import com.dbclass.hanstagram.databinding.ItemMessageExpandableBinding
 import com.skydoves.expandablelayout.ExpandableLayout
@@ -25,12 +26,12 @@ class MessageAdapter(private var messages: MutableList<MessageEntity>, private v
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = messages[position]
         (holder as MessageViewHolder).binding.run {
-            textSentTime.text = message.createdTime.toString()
+            textSentTime.text = getFormattedDate(message.createdTime)
             textMessage.text = message.content.toString()
             if(myID == message.fromUserID)
-                textId.text = "To : " + message.toUserID
+                textId.text = "To - " + message.toUserID
             else
-                textId.text = "From : " + message.fromUserID
+                textId.text = "From - " + message.fromUserID
         }
     }
 

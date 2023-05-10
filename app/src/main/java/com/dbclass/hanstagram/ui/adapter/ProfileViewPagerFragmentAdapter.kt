@@ -12,9 +12,7 @@ class ProfileViewPagerFragmentAdapter(fragmentActivity: FragmentActivity): Fragm
     private val fragments: List<Fragment> by lazy{
         listOf(ThumbnailsListFragment().apply {
             arguments = bundleOf("owner_id" to ownerID)
-        }, GuestBookFragment().apply {
-            arguments = bundleOf("owner_id" to ownerID)
-        })
+        }, GuestBookFragment.newInstance(ownerID))
     }
     private lateinit var ownerID: String
     override fun getItemCount(): Int = fragments.size

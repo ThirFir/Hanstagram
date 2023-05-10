@@ -3,7 +3,6 @@ package com.dbclass.hanstagram.ui.fragment
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.activity.result.ActivityResultLauncher
@@ -12,7 +11,6 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
-import com.dbclass.hanstagram.FollowUsersFragment
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentProfilePageBinding
@@ -22,12 +20,13 @@ import com.dbclass.hanstagram.data.repository.UserRepository
 import com.dbclass.hanstagram.data.viewmodel.IsFollowingViewModel
 import com.dbclass.hanstagram.ui.activity.*
 import com.dbclass.hanstagram.ui.adapter.ProfileViewPagerFragmentAdapter
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ProfilePageFragment : Fragment() {
+class ProfilePageFragment private constructor(): Fragment() {
     private val userViewModel: UserViewModel by activityViewModels()
     private lateinit var followViewModel: IsFollowingViewModel
     private lateinit var binding: FragmentProfilePageBinding
@@ -37,6 +36,18 @@ class ProfilePageFragment : Fragment() {
     private var followingsCount = 0L
     private var ownerID: String? = null     // 프로필 주인 ID
     private var myID: String? = null     // 본인 ID
+
+    companion object {
+        fun newInstance(ownerID: String?): ProfilePageFragment{
+            val args = Bundle().apply {
+                putString("user_id", ownerID)
+            }
+
+            val fragment = ProfilePageFragment()
+            fragment.arguments = args
+            return fragment
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -217,5 +228,10 @@ class ProfilePageFragment : Fragment() {
             }
             else -> false
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        //requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView).selectedItemId = R.id.item_profile
     }
 }

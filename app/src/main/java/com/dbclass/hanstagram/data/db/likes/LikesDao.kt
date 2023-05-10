@@ -7,7 +7,6 @@ import androidx.room.Query
 
 @Dao
 interface LikesDao {
-
     @Insert
     fun insertLike(like: LikeEntity)
 

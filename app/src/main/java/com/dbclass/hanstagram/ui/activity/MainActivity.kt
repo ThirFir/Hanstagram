@@ -1,19 +1,13 @@
 package com.dbclass.hanstagram.ui.activity
 
-import android.Manifest
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.dbclass.hanstagram.ui.fragment.PostsPageFragment
 import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
 import com.dbclass.hanstagram.R
@@ -21,7 +15,7 @@ import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.repository.UserRepository
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.ActivityMainBinding
-import com.dbclass.hanstagram.ui.fragment.FindFragment
+import com.dbclass.hanstagram.ui.fragment.FindPageFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,12 +23,31 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val userViewModel: UserViewModel by viewModels()
+    private lateinit var postsPageFragment: PostsPageFragment
+    private lateinit var findPageFragment: FindPageFragment
+    private lateinit var profilePageFragment: ProfilePageFragment
+    private var prevSelectedItem: Int = 0
+    private var currentSelectedItem: Int = 0
+
+    private val backPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if(supportFragmentManager.backStackEntryCount > 0) {
+                supportFragmentManager.popBackStack()
+                binding.bottomNavigationView.menu.findItem(prevSelectedItem)?.isChecked = true
+            }
+            else finish()
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
+        postsPageFragment = PostsPageFragment.newInstance()
+        findPageFragment = FindPageFragment.newInstance()
+        // profilePageFragment = ProfilePageFragment.newInstance(userViewModel.user.value?.id)
 
+        onBackPressedDispatcher.addCallback(this, backPressedCallback)
 
         CoroutineScope(Dispatchers.Default).launch {
             val userID = intent.getStringExtra("user_id")
@@ -48,7 +61,7 @@ class MainActivity : AppCompatActivity() {
 
                 binding.mainToolbar.setTitle(R.string.special_app_name)
                 setSupportActionBar(binding.mainToolbar)
-                supportFragmentManager.beginTransaction().add(R.id.fragment_content, PostsPageFragment()).commit()
+                supportFragmentManager.beginTransaction().add(R.id.fragment_content, postsPageFragment).commit()
             }
         }
     }
@@ -56,28 +69,36 @@ class MainActivity : AppCompatActivity() {
     private fun setBottomNavigationOperation() {
         binding.bottomNavigationView.run {
             setOnItemSelectedListener { item ->
+                Log.d("Prev", prevSelectedItem.toString())
+                Log.d("Curr", currentSelectedItem.toString())
+                prevSelectedItem = currentSelectedItem
                 when(item.itemId) {
                     R.id.item_posts -> {
-                        supportFragmentManager.beginTransaction().replace(R.id.fragment_content, PostsPageFragment()).commit()
+                        currentSelectedItem = R.id.item_posts
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_content, postsPageFragment).addToBackStack(null).commit()
                         true
                     }
                     R.id.item_find -> {
-                        supportFragmentManager.beginTransaction().replace(R.id.fragment_content, FindFragment()).commit()
+                        currentSelectedItem = R.id.item_find
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_content, findPageFragment).addToBackStack(null).commit()
                         true
                     }
                     R.id.item_profile -> {
-                        val profilePageFragment = ProfilePageFragment()
-                        supportFragmentManager.beginTransaction().replace(R.id.fragment_content, profilePageFragment).commit()
+                        currentSelectedItem = R.id.item_profile
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_content, ProfilePageFragment.newInstance(userViewModel.user.value?.id)).addToBackStack(null).commit()
                         true
                     }
                     else -> {
-                        supportFragmentManager.beginTransaction().replace(R.id.fragment_content, PostsPageFragment()).commit()
+                        currentSelectedItem = R.id.item_posts
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_content, postsPageFragment).addToBackStack(null).commit()
                         true
                     }
                 }
             }
         }
     }
-
-
 }

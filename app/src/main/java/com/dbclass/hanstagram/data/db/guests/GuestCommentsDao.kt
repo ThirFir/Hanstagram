@@ -7,7 +7,6 @@ import androidx.room.Query
 
 @Dao
 interface GuestCommentsDao {
-
     @Insert
     fun insertGuest(guestComment: GuestCommentEntity)
 

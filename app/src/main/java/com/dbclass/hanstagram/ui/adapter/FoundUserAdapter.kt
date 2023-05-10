@@ -76,7 +76,7 @@ class FoundUserAdapter(private val foundUsers: MutableList<UserEntity>, private 
                 .error(R.drawable.ic_account_96).into(imageProfile)
             itemFoundUser.setOnClickListener {
                 (context as MainActivity).supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_content, ProfilePageFragment().apply {
+                    .replace(R.id.fragment_content, ProfilePageFragment.newInstance(null).apply {
                         arguments = bundleOf("user_id" to foundUsers[position].id)
                     }).commit()
             }
@@ -94,7 +94,6 @@ class FoundUserAdapter(private val foundUsers: MutableList<UserEntity>, private 
             val foundUsers = UserRepository.findUsers(input)
             CoroutineScope(Dispatchers.Main).launch {
                 updateFoundUsers(foundUsers)
-                Log.d("dddddddddd", foundUsers.toString())
             }
         }
     }

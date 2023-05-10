@@ -8,7 +8,6 @@ interface PostsDao {
     @Insert
     fun insertPost(post: PostEntity)
 
-
     @Update
     fun updatePost(post: PostEntity)
 

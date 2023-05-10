@@ -20,6 +20,7 @@ import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.guests.GuestCommentEntity
 import com.dbclass.hanstagram.data.repository.GuestCommentRepository
 import com.dbclass.hanstagram.data.repository.UserRepository
+import com.dbclass.hanstagram.data.utils.getFormattedDate
 import com.dbclass.hanstagram.databinding.ItemGuestCommentBinding
 import com.dbclass.hanstagram.ui.activity.MainActivity
 import kotlinx.coroutines.CoroutineScope
@@ -44,13 +45,12 @@ class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, p
             val comment = guestComments[position]
             textGuestId.text = comment.guestUserID
             textGuestComment.text = comment.comment
-            textEditDate.text = SimpleDateFormat("yyyy-MMM-dd HH:mm").format(Date(comment.createdTime))
+            textEditDate.text = getFormattedDate(comment.createdTime)
             textButtonDelete.isVisible = false
             if (guestID == comment.guestUserID || guestID == comment.ownerUserID)
                 textButtonDelete.isVisible = true
             textButtonDelete.setOnClickListener {
                 deleteComment(position)
-                GuestCommentRepository.deleteComment(comment)
             }
             CoroutineScope(Dispatchers.Default).launch {
                 val image = UserRepository.getProfileImage(comment.guestUserID)
