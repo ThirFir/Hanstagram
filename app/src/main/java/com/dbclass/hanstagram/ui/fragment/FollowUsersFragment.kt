@@ -1,4 +1,4 @@
-package com.dbclass.hanstagram
+package com.dbclass.hanstagram.ui.fragment
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

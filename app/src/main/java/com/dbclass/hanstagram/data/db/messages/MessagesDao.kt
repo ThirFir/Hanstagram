@@ -7,7 +7,6 @@ import androidx.room.Query
 
 @Dao
 interface MessagesDao {
-
     @Insert
     fun insertMessage(message: MessageEntity)
 

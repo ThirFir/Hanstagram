@@ -32,7 +32,8 @@
         app:layout_constraintBottom_toBottomOf="@+id/image_profile"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/image_profile" />
-    <ImageView
+
+ <!--   <ImageView
         android:id="@+id/image_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,7 +41,17 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/image_profile" />
+        app:layout_constraintTop_toBottomOf="@+id/image_profile" />-->
+
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/image_content_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image_profile"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
@@ -50,7 +61,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/image_content">
+        app:layout_constraintTop_toBottomOf="@+id/image_content_viewpager">
 
         <ImageView
             android:id="@+id/icon_heart"

@@ -14,14 +14,24 @@ import com.dbclass.hanstagram.data.repository.MessageRepository
 import com.dbclass.hanstagram.data.repository.PostRepository
 import com.dbclass.hanstagram.ui.activity.MainActivity
 import com.dbclass.hanstagram.ui.activity.MessageBoxActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class PostsPageFragment : Fragment() {
+class PostsPageFragment private constructor(): Fragment() {
 
     private val userViewModel: UserViewModel by activityViewModels()
 
+    companion object {
+        fun newInstance(): PostsPageFragment {
+            val args = Bundle()
+
+            val fragment = PostsPageFragment()
+            fragment.arguments = args
+            return fragment
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,7 +44,7 @@ class PostsPageFragment : Fragment() {
         CoroutineScope(Dispatchers.Default).launch {
             val posts = userViewModel.user.value?.id?.let { PostRepository.getAllPosts(0) }
             CoroutineScope(Dispatchers.Main).launch {
-                binding.recyclerviewPosts.adapter = PostAdapter(posts ?: listOf(), userViewModel.user.value?.id)
+                binding.recyclerviewPosts.adapter = PostAdapter(posts ?: listOf(), userViewModel.user.value?.id, requireContext())
             }
         }
 
@@ -74,4 +84,8 @@ class PostsPageFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        //requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView).selectedItemId = R.id.item_posts
+    }
 }

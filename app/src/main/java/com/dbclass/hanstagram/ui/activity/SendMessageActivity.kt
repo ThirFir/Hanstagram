@@ -23,7 +23,7 @@ class SendMessageActivity : AppCompatActivity() {
             finish()
         }
 
-        binding.textToId.text = toID
+        binding.textToId.text = "To - $toID"
         binding.buttonSend.setOnClickListener {
             binding.editTextMessageContent.text.ifEmpty {
                 Toast.makeText(this, R.string.toast_input_content, Toast.LENGTH_SHORT).show()

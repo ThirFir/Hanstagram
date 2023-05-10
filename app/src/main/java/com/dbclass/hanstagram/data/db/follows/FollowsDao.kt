@@ -27,12 +27,6 @@ interface FollowsDao {
     @Query("select pid from follows where follower_id = :follower and following_id = :following")
     fun getIsFollowing(follower: String, following: String) : Int
 
-    /*@Query("select following_id from follows where follower_id = :id")
-    fun getFollowings(id: String): List<String>?   // id가 팔로우 중인 사람 return*/
-
-    /*@Query("select follower_id from follows where following_id = :id")    // id를 팔로우 중인 사람 return
-    fun getFollowers(id: String): List<String>?*/
-
     @Query("select * from users where id in (select follower_id from follows where following_id = :id)")
     fun getFollowers(id: String): List<UserEntity>?
 

@@ -7,19 +7,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dbclass.hanstagram.R
-import com.dbclass.hanstagram.data.repository.UserRepository
 import com.dbclass.hanstagram.databinding.FragmentFindBinding
-import com.dbclass.hanstagram.databinding.ItemFoundUserBinding
 import com.dbclass.hanstagram.ui.activity.MainActivity
 import com.dbclass.hanstagram.ui.adapter.FoundUserAdapter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
-class FindFragment : Fragment() {
+class FindPageFragment private constructor() : Fragment() {
     private lateinit var binding: FragmentFindBinding
 
+    companion object {
+        fun newInstance(): FindPageFragment {
+            val args = Bundle()
+
+            val fragment = FindPageFragment()
+            fragment.arguments = args
+            return fragment
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -38,5 +43,9 @@ class FindFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        //requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView).selectedItemId = R.id.item_find
+    }
 
 }

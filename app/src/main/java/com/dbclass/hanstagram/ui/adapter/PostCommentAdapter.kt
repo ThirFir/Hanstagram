@@ -1,6 +1,7 @@
 package com.dbclass.hanstagram.ui.adapter
 
 import android.content.Context
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -10,6 +11,8 @@ import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.comments.CommentEntity
 import com.dbclass.hanstagram.data.repository.CommentRepository
 import com.dbclass.hanstagram.data.repository.UserRepository
+import com.dbclass.hanstagram.data.utils.getFormattedDate
+import com.dbclass.hanstagram.data.utils.showKeyboard
 import com.dbclass.hanstagram.databinding.ItemPostCommentBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,10 +34,39 @@ class PostCommentAdapter(private val postComments: MutableList<CommentEntity>, v
         with((holder as PostCommentViewHolder).binding){
             textGuestComment.text = postComment.content
             textGuestId.text = postComment.userID
-            textEditDate.text = postComment.createdTime.toString()
+            textEditDate.text = getFormattedDate(postComment.createdTime)
 
-            if(userID != null && postComment.userID != userID)
+            editTextComment.isVisible = false
+            buttonEditComment.isVisible = false
+
+            if(userID != null && postComment.userID != userID) {
                 textButtonDelete.isVisible = false
+                textButtonEdit.isVisible = false
+            }
+
+            textButtonEdit.setOnClickListener {
+                textGuestComment.isVisible = false
+                textEditDate.isVisible = false
+                textButtonDelete.isVisible = false
+                editTextComment.isVisible = true
+                buttonEditComment.isVisible = true
+
+                editTextComment.setText(textGuestComment.text)
+                editTextComment.requestFocus()
+                context.showKeyboard(editTextComment)
+
+                buttonEditComment.setOnClickListener {
+                    val newContent = editTextComment.text
+                    editComment(position, newContent)
+
+                    buttonEditComment.isVisible = false
+                    editTextComment.isVisible = false
+                    textGuestComment.isVisible = true
+                    textEditDate.isVisible = true
+                    textButtonDelete.isVisible = true
+                }
+            }
+
             textButtonDelete.setOnClickListener {
                 deleteComment(position)
             }
@@ -59,6 +91,13 @@ class PostCommentAdapter(private val postComments: MutableList<CommentEntity>, v
         postComments.removeAt(pos)
         notifyItemRemoved(pos)
         notifyItemRangeChanged(pos, itemCount)
+    }
+
+    private fun editComment(pos: Int, content: Editable) {
+        val editedComment = CommentEntity(postID, postComments[pos].userID, content.toString(), postComments[pos].createdTime, postComments[pos].pid)
+        CommentRepository.updateComment(editedComment)
+        postComments[pos] = editedComment
+        notifyItemChanged(pos)
     }
 
     inner class PostCommentViewHolder(val binding: ItemPostCommentBinding): RecyclerView.ViewHolder(binding.root)

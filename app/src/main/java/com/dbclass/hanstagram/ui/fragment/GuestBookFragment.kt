@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -22,11 +23,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class GuestBookFragment : Fragment() {
+class GuestBookFragment private constructor() : Fragment() {
     private val userViewModel: UserViewModel by activityViewModels()
     private lateinit var binding: FragmentGuestBookBinding
     private var ownerID: String? = null
 
+    companion object {
+        fun newInstance(ownerID: String): GuestBookFragment {
+            val args = bundleOf("owerID" to ownerID)
+
+            val fragment = GuestBookFragment()
+            fragment.arguments = args
+            return fragment
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

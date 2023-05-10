@@ -61,7 +61,7 @@ class PostFragmentDialog : DialogFragment() {
                         binding.recyclerviewOnePost.adapter =
                             PostAdapter(
                                 listOf(post!!),
-                                userViewModel.user.value?.id,
+                                userViewModel.user.value?.id, requireContext(),
                                 binding.root.width + 1
                             )
                         view.viewTreeObserver.removeOnGlobalLayoutListener(this)
