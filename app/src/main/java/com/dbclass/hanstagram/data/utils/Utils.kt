@@ -52,6 +52,7 @@ fun getFormattedDate(time: Long): String =
 
 fun getImageList(imageURIs: String): List<String> {
     // TODO : URI SLICE
-    val image = mutableListOf<String>()
-    return listOf(imageURIs)
+    val images = imageURIs.split(',')
+
+    return listOf(images)
 }
