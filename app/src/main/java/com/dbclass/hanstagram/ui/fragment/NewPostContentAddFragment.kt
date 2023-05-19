@@ -1,5 +1,6 @@
 package com.dbclass.hanstagram.ui.fragment
 
+import android.app.Activity.RESULT_OK
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -7,10 +8,12 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.posts.PostEntity
+import com.dbclass.hanstagram.data.repository.post.PostRepository
 import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
 import com.dbclass.hanstagram.data.utils.closeKeyboard
 import com.dbclass.hanstagram.databinding.FragmentNewPostContentAddBinding
 import com.dbclass.hanstagram.ui.activity.NewPostActivity
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,6 +26,9 @@ class NewPostContentAddFragment : Fragment() {
     private var thirdURI: String = ""
     private var fourthURI: String = ""
     private var fifthURI: String = ""
+    private val postRepository: PostRepository = PostRepositoryImpl
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,7 +53,7 @@ class NewPostContentAddFragment : Fragment() {
         return when (item.itemId) {
             R.id.icon_add_complete_new_post -> {
                 val userID = (requireActivity() as NewPostActivity).intent.getStringExtra("user_id")
-                CoroutineScope(Dispatchers.Default).launch {
+                uiScope.launch {
                     var images = thumbnailURI
                     if(secondURI != "")
                         images += ",$secondURI"
@@ -58,7 +64,7 @@ class NewPostContentAddFragment : Fragment() {
                     if(fifthURI != "")
                         images += ",$fifthURI"
                     if (userID != null)
-                        PostRepositoryImpl.addPost(
+                        postRepository.addPost(
                             PostEntity(
                                 userID = userID,
                                 content = binding.editTextContent.text.toString(),
@@ -66,11 +72,11 @@ class NewPostContentAddFragment : Fragment() {
                                 createdTime = System.currentTimeMillis()
                             )
                         )
-                    CoroutineScope(Dispatchers.Main).launch {
-                        requireContext().closeKeyboard(binding.editTextContent)
-                        Toast.makeText(requireContext(), "게시글이 작성되었습니다", Toast.LENGTH_SHORT).show()
-                        (requireActivity() as NewPostActivity).finish()
-                    }
+                    requireContext().closeKeyboard(binding.editTextContent)
+                    Toast.makeText(requireContext(), "게시글이 작성되었습니다", Toast.LENGTH_SHORT).show()
+                    requireActivity().setResult(RESULT_OK)
+                    (requireActivity() as NewPostActivity).finish()
+
                 }
                 true
             }

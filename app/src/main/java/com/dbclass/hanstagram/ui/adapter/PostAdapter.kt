@@ -33,6 +33,7 @@ import com.dbclass.hanstagram.data.utils.getImageList
 import com.dbclass.hanstagram.data.utils.startPostCommentActivity
 import com.dbclass.hanstagram.ui.activity.MainActivity
 import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,6 +50,10 @@ class PostAdapter(
     private val dislikeRepository: DislikeRepository = DislikeRepositoryImpl
     private val likeRepository: LikeRepository = LikeRepositoryImpl
     private val userRepository: UserRepository = UserRepositoryImpl
+
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         return PostViewHolder(
             ItemPostBinding.inflate(
@@ -65,7 +70,7 @@ class PostAdapter(
         val post = postsWithUsers[position].first
         val postOwner = postsWithUsers[position].second
 
-        CoroutineScope(Dispatchers.Main).launch {
+        uiScope.launch {
             val commentsCount = commentRepository.getCommentsCount(post.postID)
 
             postBinding.textNickname.text = postOwner.nickname
@@ -117,32 +122,31 @@ class PostAdapter(
         post: PostEntity,
         postOwner: UserEntity
     ) {
-        CoroutineScope(Dispatchers.Main).launch {
+        uiScope.launch {
             var dislikesCount = dislikeRepository.getDislikesCount(post.postID)
             if (myID != null) {
                 var dislike = dislikeRepository.getDislike(myID, post.postID)
                 if (dislike == null) {
-                    userRepository.updateTemperature(postOwner.id, postOwner.temperature - 1f)
                     Glide.with(this@PostAdapter.context).load(R.drawable.ic_disgusting_100)
                         .into(binding.iconDislike)
                 } else {
-                    userRepository.updateTemperature(postOwner.id, postOwner.temperature + 1f)
                     Glide.with(this@PostAdapter.context).load(R.drawable.ic_disgusting_filled_100)
                         .into(binding.iconDislike)
                 }
                 binding.textDislikesCount.text = dislikesCount.toString()
 
                 binding.iconDislike.setOnClickListener {
-                    CoroutineScope(Dispatchers.Main).launch {
+                    uiScope.launch {
                         if (dislike == null) {
                             dislike = dislikeRepository.doDislike(DislikeEntity(myID, post.postID))
-
+                            userRepository.updateTemperature(postOwner.id, postOwner.temperature - 1f)
                             Glide.with(this@PostAdapter.context)
                                 .load(R.drawable.ic_disgusting_filled_100)
                                 .into(binding.iconDislike)
                             binding.textDislikesCount.text = (++dislikesCount).toString()
                         } else {
                             dislikeRepository.cancelDislike(dislike!!.pid)
+                            userRepository.updateTemperature(postOwner.id, postOwner.temperature + 1f)
                             dislike = null
 
                             Glide.with(this@PostAdapter.context).load(R.drawable.ic_disgusting_100)
@@ -157,25 +161,24 @@ class PostAdapter(
     }
 
     private fun setLikeListener(binding: ItemPostBinding, post: PostEntity, postOwner: UserEntity) {
-        CoroutineScope(Dispatchers.Main).launch {
+        uiScope.launch {
             var likesCount = likeRepository.getLikesCount(post.postID)
             if (myID != null) {
                 var like = likeRepository.getLike(myID, post.postID)
                 if (like == null) {
-                    userRepository.updateTemperature(postOwner.id, postOwner.temperature + 1f)
                     Glide.with(this@PostAdapter.context).load(R.drawable.ic_heart_100)
                         .into(binding.iconHeart)
                 } else {
-                    userRepository.updateTemperature(postOwner.id, postOwner.temperature - 1f)
                     Glide.with(this@PostAdapter.context).load(R.drawable.ic_heart_filled_100)
                         .into(binding.iconHeart)
                 }
                 binding.textLikesCount.text = likesCount.toString()
 
                 binding.iconHeart.setOnClickListener {
-                    CoroutineScope(Dispatchers.Main).launch {
+                    uiScope.launch {
                         if (like == null) {
                             like = likeRepository.doLike(LikeEntity(myID, post.postID))
+                            userRepository.updateTemperature(postOwner.id, postOwner.temperature + 1f)
 
                             Glide.with(this@PostAdapter.context)
                                 .load(R.drawable.ic_heart_filled_100)
@@ -183,6 +186,7 @@ class PostAdapter(
                             binding.textLikesCount.text = (++likesCount).toString()
                         } else {
                             likeRepository.cancelLike(like!!.pid)
+                            userRepository.updateTemperature(postOwner.id, postOwner.temperature - 1f)
                             like = null
 
                             Glide.with(this@PostAdapter.context).load(R.drawable.ic_heart_100)

@@ -10,6 +10,7 @@ abstract class FollowRepository: Repository {
     abstract suspend fun getFollowPID(follower: String, following: String): Long?
     abstract suspend fun doFollow(follower: String, following: String): Long?
     abstract suspend fun doUnFollow(pid: Long)
+    abstract suspend fun doUnFollow(follower: String, following: String)
     abstract suspend fun getFollowersCount(userID: String): Long
     abstract suspend fun getFollowingsCount(userID: String): Long
     abstract suspend fun getFollowings(userID: String?): List<UserEntity>

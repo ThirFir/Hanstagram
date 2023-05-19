@@ -48,8 +48,6 @@ class NewPostImageAddFragment : Fragment() {
                 when (selectedImageTab) {
                     1 -> {
                         firstURI = it.data?.data.toString()
-                        val scaleHeight = requireContext().getImageHeightWithWidthFully(firstURI)
-                        binding.imageFirst.layoutParams.height = scaleHeight
                         Glide.with(this).load(firstURI).into(binding.imageFirst)
                     }
                     2 -> {

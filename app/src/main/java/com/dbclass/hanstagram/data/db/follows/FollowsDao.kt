@@ -15,6 +15,9 @@ interface FollowsDao {
     @Query("delete from follows where pid = :pid")
     suspend fun deleteFollow(pid: Long)
 
+    @Query("delete from follows where follower_id=:followerID and following_id=:followingID")
+    suspend fun deleteFollow(followerID: String, followingID: String)
+
     @Query("select pid from follows where follower_id=:followerID and following_id=:followingID")
     suspend fun getFollowPID(followerID: String, followingID: String): Long?
 

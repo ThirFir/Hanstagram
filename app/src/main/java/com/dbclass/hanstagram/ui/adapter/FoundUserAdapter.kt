@@ -16,6 +16,7 @@ import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
 import com.dbclass.hanstagram.databinding.ItemFoundUserBinding
 import com.dbclass.hanstagram.ui.activity.MainActivity
 import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,12 +25,14 @@ class FoundUserAdapter(
     private val foundUsers: MutableList<UserEntity>,
     private val isButtonFollowVisible: Boolean = false,
     private val myID: String? = null
-) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var context: Context
     private val followRepository: FollowRepository = FollowRepositoryImpl
     private val userRepository: UserRepository = UserRepositoryImpl
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
         return FoundUserViewHolder(
@@ -51,7 +54,7 @@ class FoundUserAdapter(
                     return@run
                 }
                 isVisible = isButtonFollowVisible
-                CoroutineScope(Dispatchers.Main).launch {
+                uiScope.launch {
                     if (myID != null) {
                         var followPID: Long? =
                             followRepository.getFollowPID(myID, foundUsers[position].id)
@@ -62,7 +65,7 @@ class FoundUserAdapter(
                         }
 
                         setOnClickListener {
-                            CoroutineScope(Dispatchers.Main).launch {
+                            uiScope.launch {
                                 if (followPID == null) {
                                     followPID = followRepository.doFollow(myID, foundUsers[position].id)
                                     text = context.getString(R.string.text_following_now)
@@ -98,7 +101,7 @@ class FoundUserAdapter(
     }
 
     fun findUsers(input: String) {
-        CoroutineScope(Dispatchers.Main).launch {
+        uiScope.launch {
             val foundUsers = userRepository.findUsers(input)
             updateFoundUsers(foundUsers)
         }

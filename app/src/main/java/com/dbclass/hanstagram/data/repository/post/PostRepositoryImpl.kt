@@ -5,6 +5,7 @@ import com.dbclass.hanstagram.data.db.HanstagramDatabase
 import com.dbclass.hanstagram.data.db.posts.PostEntity
 import com.dbclass.hanstagram.data.db.posts.PostsDao
 import com.dbclass.hanstagram.data.db.users.UserEntity
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -12,39 +13,42 @@ import kotlinx.coroutines.withContext
 
 object PostRepositoryImpl : PostRepository() {
 
+    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val dbScope: CoroutineScope = CoroutineScope(defaultDispatcher)
+
     override fun init(appContext: Context) {
-        CoroutineScope(Dispatchers.Default).launch {
+        dbScope.launch {
             dao = HanstagramDatabase.getInstance(appContext)?.postsDao()
         }
     }
 
     override suspend fun addPost(post: PostEntity) {
-        withContext(CoroutineScope(Dispatchers.Default).coroutineContext) {
+        withContext(dbScope.coroutineContext) {
             dao?.insertPost(post)
         }
     }
 
     override suspend fun updatePost(post: PostEntity) {
-        withContext(CoroutineScope(Dispatchers.Default).coroutineContext) {
+        withContext(dbScope.coroutineContext) {
             dao?.updatePost(post)
         }
     }
 
     override suspend fun deletePost(postID: Long) {
-        withContext(CoroutineScope(Dispatchers.Default).coroutineContext) {
+        withContext(dbScope.coroutineContext) {
             dao?.deletePost(postID)
         }
     }
 
     override suspend fun getPostsCount(userID: String): Long {
-        return withContext(CoroutineScope(Dispatchers.Default).coroutineContext) {
+        return withContext(dbScope.coroutineContext) {
             dao?.getPostsCount(userID)
         } ?: 0
     }
 
     override suspend fun getUserPosts(userID: String?): List<PostEntity> {
         return if(userID != null) {
-            withContext(CoroutineScope(Dispatchers.Default).coroutineContext) {
+            withContext(dbScope.coroutineContext) {
                 dao?.getUserPosts(userID) ?: listOf()
             }
         } else listOf()
@@ -52,7 +56,7 @@ object PostRepositoryImpl : PostRepository() {
 
     override suspend fun getFollowingPostsWithUsers(userID: String?): Map<PostEntity, UserEntity> {
         return if(userID != null) {
-            withContext(CoroutineScope(Dispatchers.Default).coroutineContext) {
+            withContext(dbScope.coroutineContext) {
                 dao?.getFollowingPostsWithUser(userID) ?: mapOf()
             }
         } else mapOf()
@@ -60,14 +64,14 @@ object PostRepositoryImpl : PostRepository() {
 
 
     override suspend fun getAllPostsWithUsers(limit: Int): Map<PostEntity, UserEntity> {
-        return withContext(CoroutineScope(Dispatchers.Default).coroutineContext) {
+        return withContext(dbScope.coroutineContext) {
             dao?.getAllPostsWithUser() ?: mapOf()
         }
     }
 
     override suspend fun getPostWithUser(postID: Long?): Map<PostEntity, UserEntity>? {
         return if (postID != null) {
-            withContext(CoroutineScope(Dispatchers.Default).coroutineContext) {
+            withContext(dbScope.coroutineContext) {
                 dao?.getPostWithUser(postID)
             }
         } else null

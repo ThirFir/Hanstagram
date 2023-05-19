@@ -10,6 +10,7 @@ import com.dbclass.hanstagram.data.repository.message.MessageRepository
 import com.dbclass.hanstagram.data.repository.message.MessageRepositoryImpl
 import com.dbclass.hanstagram.databinding.ActivityMessageBoxBinding
 import com.dbclass.hanstagram.ui.adapter.MessageAdapter
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,6 +22,8 @@ class MessageBoxActivity : AppCompatActivity() {
     private var sentMessages = listOf<MessageEntity>()
     private var unreadMessages = listOf<MessageEntity>()
     private val messageRepository: MessageRepository = MessageRepositoryImpl
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,26 +42,27 @@ class MessageBoxActivity : AppCompatActivity() {
         binding.textReceivedMessage.isSelected = true
         binding.recyclerviewMessageBox.layoutManager = LinearLayoutManager(this)
 
-        CoroutineScope(Dispatchers.Default).launch {
+        uiScope.launch {
             receivedMessages = messageRepository.getReceivedMessages(userID) as MutableList
-            sentMessages = messageRepository.getSentMessaged(userID) as MutableList
-            unreadMessages = messageRepository.getUnreadMessages(userID) as MutableList
+            // unreadMessages = messageRepository.getUnreadMessages(userID) as MutableList
 
-            CoroutineScope(Dispatchers.Main).launch {
-                binding.recyclerviewMessageBox.adapter = MessageAdapter(receivedMessages as MutableList, userID)
-                binding.textReceivedMessage.setOnClickListener {
-                    (binding.recyclerviewMessageBox.adapter as MessageAdapter).updateMessages(receivedMessages)
-                    binding.textReceivedMessage.isSelected = true
-                    binding.textSentMessage.isSelected = false
-                }
-                /*binding.textUnreadMessage.setOnClickListener {
-                    (binding.recyclerviewMessageBox.adapter as MessageAdapter).updateMessages(unreadMessages)
-                }*/
-                binding.textSentMessage.setOnClickListener {
-                    (binding.recyclerviewMessageBox.adapter as MessageAdapter).updateMessages(sentMessages)
-                    binding.textReceivedMessage.isSelected = false
-                    binding.textSentMessage.isSelected = true
-                }
+            binding.recyclerviewMessageBox.adapter =
+                MessageAdapter(receivedMessages as MutableList, userID)
+            binding.textReceivedMessage.setOnClickListener {
+                (binding.recyclerviewMessageBox.adapter as MessageAdapter)
+                    .updateMessages(receivedMessages)
+                binding.textReceivedMessage.isSelected = true
+                binding.textSentMessage.isSelected = false
+            }
+        }
+
+        uiScope.launch {
+            sentMessages = messageRepository.getSentMessaged(userID) as MutableList
+            binding.textSentMessage.setOnClickListener {
+                (binding.recyclerviewMessageBox.adapter as MessageAdapter)
+                    .updateMessages(sentMessages)
+                binding.textReceivedMessage.isSelected = false
+                binding.textSentMessage.isSelected = true
             }
         }
     }
