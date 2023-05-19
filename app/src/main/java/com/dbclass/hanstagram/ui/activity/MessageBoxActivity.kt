@@ -6,7 +6,8 @@ import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.messages.MessageEntity
-import com.dbclass.hanstagram.data.repository.MessageRepository
+import com.dbclass.hanstagram.data.repository.message.MessageRepository
+import com.dbclass.hanstagram.data.repository.message.MessageRepositoryImpl
 import com.dbclass.hanstagram.databinding.ActivityMessageBoxBinding
 import com.dbclass.hanstagram.ui.adapter.MessageAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -19,6 +20,7 @@ class MessageBoxActivity : AppCompatActivity() {
     private var receivedMessages = listOf<MessageEntity>()
     private var sentMessages = listOf<MessageEntity>()
     private var unreadMessages = listOf<MessageEntity>()
+    private val messageRepository: MessageRepository = MessageRepositoryImpl
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,9 +40,9 @@ class MessageBoxActivity : AppCompatActivity() {
         binding.recyclerviewMessageBox.layoutManager = LinearLayoutManager(this)
 
         CoroutineScope(Dispatchers.Default).launch {
-            receivedMessages = MessageRepository.getReceivedMessages(userID) as MutableList
-            sentMessages = MessageRepository.getSentMessaged(userID) as MutableList
-            unreadMessages = MessageRepository.getUnreadMessages(userID) as MutableList
+            receivedMessages = messageRepository.getReceivedMessages(userID) as MutableList
+            sentMessages = messageRepository.getSentMessaged(userID) as MutableList
+            unreadMessages = messageRepository.getUnreadMessages(userID) as MutableList
 
             CoroutineScope(Dispatchers.Main).launch {
                 binding.recyclerviewMessageBox.adapter = MessageAdapter(receivedMessages as MutableList, userID)

@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.posts.PostEntity
+import com.dbclass.hanstagram.data.utils.getImageList
 import com.dbclass.hanstagram.databinding.ItemThumbnailsBinding
 import com.dbclass.hanstagram.ui.activity.MainActivity
 import com.dbclass.hanstagram.ui.dialog.PostFragmentDialog
@@ -28,7 +29,7 @@ class ThumbnailsAdapter(private val posts: List<PostEntity>) :  RecyclerView.Ada
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val post = posts[position]
 
-        Glide.with(context).load(post.images).error(R.drawable.ic_error_96).centerCrop()
+        Glide.with(context).load(getImageList(post.images)[0]).error(R.drawable.ic_error_96).centerCrop()
             .override((holder as ThumbnailsViewHolder).binding.root.width).into(holder.binding.imageThumbnail)
         holder.binding.imageThumbnail.setOnClickListener {
             PostFragmentDialog().apply {

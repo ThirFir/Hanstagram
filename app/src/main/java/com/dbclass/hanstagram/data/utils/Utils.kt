@@ -3,7 +3,6 @@ package com.dbclass.hanstagram.data.utils
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.core.net.toUri
@@ -51,8 +50,5 @@ fun getFormattedDate(time: Long): String =
     SimpleDateFormat("yyyy-MM-dd kk:mm", Locale("ko", "KR")).format(Date(time))
 
 fun getImageList(imageURIs: String): List<String> {
-    // TODO : URI SLICE
-    val images = imageURIs.split(',')
-
-    return listOf(images)
+    return imageURIs.split(',')
 }

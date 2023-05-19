@@ -12,15 +12,16 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
+import com.dbclass.hanstagram.data.repository.follow.FollowRepository
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentProfilePageBinding
-import com.dbclass.hanstagram.data.repository.FollowRepository
-import com.dbclass.hanstagram.data.repository.PostRepository
-import com.dbclass.hanstagram.data.repository.UserRepository
+import com.dbclass.hanstagram.data.repository.follow.FollowRepositoryImpl
+import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
+import com.dbclass.hanstagram.data.repository.user.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
 import com.dbclass.hanstagram.data.viewmodel.IsFollowingViewModel
 import com.dbclass.hanstagram.ui.activity.*
 import com.dbclass.hanstagram.ui.adapter.ProfileViewPagerFragmentAdapter
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,8 @@ class ProfilePageFragment private constructor(): Fragment() {
     private lateinit var followViewModel: IsFollowingViewModel
     private lateinit var binding: FragmentProfilePageBinding
     private lateinit var activityEditedResult: ActivityResultLauncher<Intent>
+    private val followRepository : FollowRepository = FollowRepositoryImpl
+    private val userRepository: UserRepository = UserRepositoryImpl
     private var postsCount = 0L
     private var followersCount = 0L
     private var followingsCount = 0L
@@ -106,9 +109,9 @@ class ProfilePageFragment private constructor(): Fragment() {
 
     private fun setViewCounts() {
         CoroutineScope(Dispatchers.Default).launch {
-            followersCount = ownerID?.let { FollowRepository.getFollowersCount(it) } ?: 0
-            followingsCount = ownerID?.let { FollowRepository.getFollowingsCount(it) } ?: 0
-            postsCount = ownerID?.let { PostRepository.getPostsCount(it) } ?: 0
+            followersCount = ownerID?.let { followRepository.getFollowersCount(it) } ?: 0
+            followingsCount = ownerID?.let { followRepository.getFollowingsCount(it) } ?: 0
+            postsCount = ownerID?.let { PostRepositoryImpl.getPostsCount(it) } ?: 0
             CoroutineScope(Dispatchers.Main).launch {
                 binding.textFollowerCount.text = followersCount.toString()
                 binding.textFollowingCount.text = followingsCount.toString()
@@ -128,12 +131,11 @@ class ProfilePageFragment private constructor(): Fragment() {
 
             userViewModel.user.observe(viewLifecycleOwner) {
                 binding.run {
-                    textNickname.text = userViewModel.user.value?.nickname
-                    textContent.text = userViewModel.user.value?.caption
-                    textFollowingCount.text        // TODO : followerID = id 인 count
-                    textFollowerCount.text
+                    textNickname.text = it.nickname
+                    textContent.text = it.caption
+                    textTemperature.text = it.temperature.toString()
                     Glide.with(this@ProfilePageFragment)
-                        .load(userViewModel.user.value?.profileImage)
+                        .load(it.profileImage)
                         .error(R.drawable.ic_account_96)
                         .placeholder(R.drawable.ic_account_96)
                         .into(imageProfile)
@@ -143,7 +145,7 @@ class ProfilePageFragment private constructor(): Fragment() {
 
             // 타인 프로필
             CoroutineScope(Dispatchers.Default).launch {
-                val user = ownerID?.let { UserRepository.getUser(it) }
+                val user = ownerID?.let { userRepository.getUser(it) }
 
                 CoroutineScope(Dispatchers.Main).launch {
                     binding.textNickname.text = user?.nickname

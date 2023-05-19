@@ -10,13 +10,13 @@ import com.dbclass.hanstagram.data.db.likes.LikeEntity
 interface DislikesDao {
 
     @Insert
-    fun insertDislike(dislike: DislikeEntity)
+    suspend fun insertDislike(dislike: DislikeEntity)
 
     @Query("delete from dislikes where pid=:pid")
-    fun deleteDislike(pid: Long)
+    suspend fun deleteDislike(pid: Long)
 
     @Query("select * from dislikes where user_id=:userID and post_id=:postID")
-    fun getDislike(userID: String, postID: Long): DislikeEntity
+    suspend fun getDislike(userID: String, postID: Long): DislikeEntity
     @Query("SELECT count(pid) from dislikes where post_id = :postID")
-    fun getDislikesCount(postID: Long): Long
+    suspend fun getDislikesCount(postID: Long): Long
 }

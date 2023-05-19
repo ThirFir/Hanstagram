@@ -13,7 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.guests.GuestCommentEntity
-import com.dbclass.hanstagram.data.repository.GuestCommentRepository
+import com.dbclass.hanstagram.data.repository.guest.GuestCommentRepository
+import com.dbclass.hanstagram.data.repository.guest.GuestCommentRepositoryImpl
 import com.dbclass.hanstagram.data.utils.closeKeyboard
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentGuestBookBinding
@@ -25,6 +26,7 @@ import kotlinx.coroutines.launch
 
 class GuestBookFragment private constructor() : Fragment() {
     private val userViewModel: UserViewModel by activityViewModels()
+    private val guestCommentRepository: GuestCommentRepository = GuestCommentRepositoryImpl
     private lateinit var binding: FragmentGuestBookBinding
     private var ownerID: String? = null
 
@@ -46,7 +48,7 @@ class GuestBookFragment private constructor() : Fragment() {
         ownerID = arguments?.getString("owner_id") ?: userViewModel.user.value?.id
 
         CoroutineScope(Dispatchers.Default).launch {
-            val guestComments = ownerID?.let { GuestCommentRepository.getGuestComments(it) }
+            val guestComments = ownerID?.let { guestCommentRepository.getGuestComments(it) }
 
             CoroutineScope(Dispatchers.Main).launch {
                 binding.recyclerviewGuestComments.layoutManager =

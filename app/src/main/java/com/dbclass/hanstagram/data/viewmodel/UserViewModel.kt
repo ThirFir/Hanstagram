@@ -4,16 +4,23 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.dbclass.hanstagram.data.db.users.UserEntity
-import com.dbclass.hanstagram.data.repository.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class UserViewModel : ViewModel() {
     private val _user = MutableLiveData<UserEntity>()
+    private val userRepository: UserRepository = UserRepositoryImpl
     val user: LiveData<UserEntity>
         get() = _user
 
     fun createUser(user: UserEntity) {
         setUser(user)
-        UserRepository.createUser(user)
+        CoroutineScope(Dispatchers.Main).launch {
+            userRepository.createUser(user)
+        }
     }
 
     fun setUser(user: UserEntity) {
@@ -25,8 +32,11 @@ class UserViewModel : ViewModel() {
             profileImage = uri
         } ?: return
         _user.value = updatedUser
-        if (user.value?.id != null)
-            UserRepository.updateProfileImage(user.value?.id!!, uri)
+        if (user.value?.id != null) {
+            CoroutineScope(Dispatchers.Main).launch {
+                userRepository.updateProfileImage(user.value?.id!!, uri)
+            }
+        }
     }
 
     fun setNickname(nickname: String) {
@@ -34,18 +44,23 @@ class UserViewModel : ViewModel() {
             this.nickname = nickname
         } ?: return
         _user.value = updatedUser
-        if (user.value?.id != null)
-            UserRepository.updateNickname(user.value?.id!!, nickname)
+        if (user.value?.id != null) {
+            CoroutineScope(Dispatchers.Main).launch {
+                userRepository.updateNickname(user.value?.id!!, nickname)
+            }
+        }
     }
 
-    fun setTemperature(t: Float) {
+    fun setTemperature(delta: Float) {
         val updatedUser = user.value?.apply {
-            temperature = t
+            temperature += delta
         } ?: return
         _user.value = updatedUser
-        if (user.value?.id != null)
-            UserRepository.updateTemperature(user.value?.id!!, t)
-
+        if (user.value?.id != null) {
+            CoroutineScope(Dispatchers.Main).launch {
+                userRepository.updateTemperature(user.value?.id!!, user.value?.temperature!!)
+            }
+        }
     }
 
     fun setCaption(caption: String) {
@@ -53,8 +68,11 @@ class UserViewModel : ViewModel() {
             this.caption = caption
         } ?: return
         _user.value = updatedUser
-        if (user.value?.id != null)
-            UserRepository.updateCaption(user.value?.id!!, caption)
+        if (user.value?.id != null) {
+            CoroutineScope(Dispatchers.Main).launch {
+                userRepository.updateCaption(user.value?.id!!, caption)
+            }
+        }
     }
 
 }

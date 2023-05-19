@@ -6,17 +6,17 @@ import androidx.room.*
 interface CommentsDao {
 
     @Insert
-    fun insertComment(comment: CommentEntity)
+    suspend fun insertComment(comment: CommentEntity)
 
     @Delete
-    fun deleteComment(comment: CommentEntity)
+    suspend fun deleteComment(comment: CommentEntity)
 
     @Update
-    fun updateComment(comment: CommentEntity)
+    suspend fun updateComment(comment: CommentEntity)
 
     @Query("select * from comments where post_id=:postID")
-    fun getComments(postID: Long): List<CommentEntity>
+    suspend fun getComments(postID: Long): List<CommentEntity>
 
     @Query("SELECT count(pid) from comments where post_id = :postID")
-    fun getCommentsCount(postID: Long): Long
+    suspend fun getCommentsCount(postID: Long): Long
 }

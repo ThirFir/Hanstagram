@@ -3,35 +3,41 @@ package com.dbclass.hanstagram.ui.fragment
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dbclass.hanstagram.R
+import com.dbclass.hanstagram.data.db.posts.PostEntity
+import com.dbclass.hanstagram.data.repository.message.MessageRepository
 import com.dbclass.hanstagram.ui.adapter.PostAdapter
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentPostsPageBinding
-import com.dbclass.hanstagram.data.repository.MessageRepository
-import com.dbclass.hanstagram.data.repository.PostRepository
+import com.dbclass.hanstagram.data.repository.message.MessageRepositoryImpl
+import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
 import com.dbclass.hanstagram.ui.activity.MainActivity
 import com.dbclass.hanstagram.ui.activity.MessageBoxActivity
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class PostsPageFragment private constructor(): Fragment() {
+class PostsPageFragment private constructor() : Fragment() {
 
     private val userViewModel: UserViewModel by activityViewModels()
+    private val messageRepository: MessageRepository = MessageRepositoryImpl
 
     companion object {
-        fun newInstance(): PostsPageFragment {
-            val args = Bundle()
+        val ALL: Int = 1000
+        val FOLLOW: Int = 1001
+        fun newInstance(id: Int): PostsPageFragment {
+            val args = bundleOf("id" to id)
 
             val fragment = PostsPageFragment()
             fragment.arguments = args
             return fragment
         }
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,9 +48,16 @@ class PostsPageFragment private constructor(): Fragment() {
         binding.recyclerviewPosts.layoutManager = LinearLayoutManager(context)
 
         CoroutineScope(Dispatchers.Default).launch {
-            val posts = userViewModel.user.value?.id?.let { PostRepository.getAllPosts(0) }
+            val id = arguments?.getInt("id") ?: 100
+            val posts =
+                if (id == ALL) userViewModel.user.value?.id?.let { PostRepositoryImpl.getAllPostsWithUsers(0) }
+                else userViewModel.user.value?.id?.let { PostRepositoryImpl.getFollowingPostsWithUsers(it) }
+
+            val a =  mapOf(PostEntity(userID = "", content = null, images = "", createdTime = 0, postID = 0) to 3)
+
             CoroutineScope(Dispatchers.Main).launch {
-                binding.recyclerviewPosts.adapter = PostAdapter(posts ?: listOf(), userViewModel.user.value?.id, requireContext())
+                binding.recyclerviewPosts.adapter =
+                    PostAdapter(posts?.toList() ?: listOf(), userViewModel.user.value?.id, requireContext())
             }
         }
 
@@ -57,10 +70,10 @@ class PostsPageFragment private constructor(): Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         CoroutineScope(Dispatchers.Default).launch {
             val newMessageExists = userViewModel.user.value?.id?.let {
-                MessageRepository.getHasUnreadMessage(it)
+                messageRepository.getHasUnreadMessage(it)
             }
             CoroutineScope(Dispatchers.Main).launch {
-                if(newMessageExists != null && !newMessageExists)
+                if (newMessageExists != null && !newMessageExists)
                     inflater.inflate(R.menu.post_frag_app_bar_menu, menu)
                 else
                     inflater.inflate(R.menu.post_frag_app_bar_menu, menu)
@@ -71,7 +84,7 @@ class PostsPageFragment private constructor(): Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
+        return when (item.itemId) {
             R.id.icon_message_box -> {
                 val intent = Intent(requireActivity(), MessageBoxActivity::class.java).apply {
                     putExtra("user_id", userViewModel.user.value?.id)

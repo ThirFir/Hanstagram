@@ -10,8 +10,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
-import com.dbclass.hanstagram.data.repository.CommentRepository
-import com.dbclass.hanstagram.data.repository.UserRepository
+import com.dbclass.hanstagram.data.repository.comment.CommentRepository
+import com.dbclass.hanstagram.data.repository.comment.CommentRepositoryImpl
+import com.dbclass.hanstagram.data.repository.user.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentPostCommentBottomSheetBinding
 import com.dbclass.hanstagram.ui.adapter.PostCommentAdapter
@@ -22,6 +24,8 @@ import kotlinx.coroutines.launch
 
 class PostCommentBottomSheet : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentPostCommentBottomSheetBinding
+    private val commentRepository: CommentRepository = CommentRepositoryImpl
+    private val userRepository: UserRepository = UserRepositoryImpl
     private val userViewModel: UserViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -40,14 +44,14 @@ class PostCommentBottomSheet : BottomSheetDialogFragment() {
 
 
         CoroutineScope(Dispatchers.Default).launch {
-            val image = UserRepository.getProfileImage(userViewModel.user.value?.id ?: return@launch)
+            val image = userRepository.getProfileImage(userViewModel.user.value?.id ?: return@launch)
             CoroutineScope(Dispatchers.Main).launch {
                 Glide.with(requireContext()).load(image).error(R.drawable.ic_account_96).into(binding.imageProfile)
             }
         }
 
         CoroutineScope(Dispatchers.Default).launch {
-            val comments = postID?.let { CommentRepository.getComments(it) }
+            val comments = postID?.let { commentRepository.getComments(it) }
             CoroutineScope(Dispatchers.Main).launch {
                 binding.recyclerviewPostComments.adapter =
                     PostCommentAdapter(comments as MutableList, postID, userViewModel.user.value?.id)

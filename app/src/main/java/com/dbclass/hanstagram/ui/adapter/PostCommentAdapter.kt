@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.comments.CommentEntity
-import com.dbclass.hanstagram.data.repository.CommentRepository
-import com.dbclass.hanstagram.data.repository.UserRepository
+import com.dbclass.hanstagram.data.repository.comment.CommentRepository
+import com.dbclass.hanstagram.data.repository.comment.CommentRepositoryImpl
+import com.dbclass.hanstagram.data.repository.user.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
 import com.dbclass.hanstagram.data.utils.getFormattedDate
 import com.dbclass.hanstagram.data.utils.showKeyboard
 import com.dbclass.hanstagram.databinding.ItemPostCommentBinding
@@ -22,6 +24,8 @@ class PostCommentAdapter(private val postComments: MutableList<CommentEntity>, v
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var context: Context
+    private val commentRepository: CommentRepository = CommentRepositoryImpl
+    private val userRepository: UserRepository = UserRepositoryImpl
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
         return PostCommentViewHolder(ItemPostCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -70,34 +74,43 @@ class PostCommentAdapter(private val postComments: MutableList<CommentEntity>, v
             textButtonDelete.setOnClickListener {
                 deleteComment(position)
             }
-            CoroutineScope(Dispatchers.Default).launch {
-                val image = UserRepository.getProfileImage(postComment.userID)
-                CoroutineScope(Dispatchers.Main).launch {
-                    Glide.with(context).load(image).error(R.drawable.ic_account_96).into(imageProfile)
-                }
+            CoroutineScope(Dispatchers.Main).launch {
+                val image = userRepository.getProfileImage(postComment.userID)
+                Glide.with(context).load(image).error(R.drawable.ic_account_96).into(imageProfile)
             }
         }
     }
 
     fun addComment(userID: String, content: String) {
-        val newComment = CommentEntity(postID, userID, content, System.currentTimeMillis())
-        CommentRepository.leaveComment(newComment)
-        postComments.add(newComment)
-        notifyItemInserted(postComments.size - 1)
+        CoroutineScope(Dispatchers.Main).launch {
+            val newComment = CommentEntity(postID, userID, content, System.currentTimeMillis())
+            commentRepository.leaveComment(newComment)
+            postComments.add(newComment)
+            notifyItemInserted(postComments.size - 1)
+        }
     }
 
     private fun deleteComment(pos: Int) {
-        CommentRepository.deleteComment(postComments[pos])
-        postComments.removeAt(pos)
-        notifyItemRemoved(pos)
-        notifyItemRangeChanged(pos, itemCount)
+        CoroutineScope(Dispatchers.Main).launch {
+            commentRepository.deleteComment(postComments[pos])
+            postComments.removeAt(pos)
+            notifyItemRemoved(pos)
+            notifyItemRangeChanged(pos, itemCount)
+        }
     }
-
     private fun editComment(pos: Int, content: Editable) {
-        val editedComment = CommentEntity(postID, postComments[pos].userID, content.toString(), postComments[pos].createdTime, postComments[pos].pid)
-        CommentRepository.updateComment(editedComment)
-        postComments[pos] = editedComment
-        notifyItemChanged(pos)
+        CoroutineScope(Dispatchers.Main).launch {
+            val editedComment = CommentEntity(
+                postID,
+                postComments[pos].userID,
+                content.toString(),
+                postComments[pos].createdTime,
+                postComments[pos].pid
+            )
+            commentRepository.updateComment(editedComment)
+            postComments[pos] = editedComment
+            notifyItemChanged(pos)
+        }
     }
 
     inner class PostCommentViewHolder(val binding: ItemPostCommentBinding): RecyclerView.ViewHolder(binding.root)

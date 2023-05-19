@@ -7,11 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.dbclass.hanstagram.data.repository.PostRepository
+import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentThumbnailsListBinding
 import com.dbclass.hanstagram.ui.adapter.ThumbnailsAdapter
@@ -49,7 +47,7 @@ class ThumbnailsListFragment : Fragment() {
             }
         )
         CoroutineScope(Dispatchers.Default).launch {
-            val posts = PostRepository.getUserPosts(ownerID)
+            val posts = PostRepositoryImpl.getUserPosts(ownerID)
             CoroutineScope(Dispatchers.Main).launch {
                 binding.recyclerviewThumbnails.adapter = ThumbnailsAdapter(posts)
             }
