@@ -19,6 +19,7 @@ import com.dbclass.hanstagram.data.utils.closeKeyboard
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentGuestBookBinding
 import com.dbclass.hanstagram.ui.adapter.GuestAdapter
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,6 +30,8 @@ class GuestBookFragment private constructor() : Fragment() {
     private val guestCommentRepository: GuestCommentRepository = GuestCommentRepositoryImpl
     private lateinit var binding: FragmentGuestBookBinding
     private var ownerID: String? = null
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
 
     companion object {
         fun newInstance(ownerID: String): GuestBookFragment {
@@ -47,16 +50,18 @@ class GuestBookFragment private constructor() : Fragment() {
 
         ownerID = arguments?.getString("owner_id") ?: userViewModel.user.value?.id
 
-        CoroutineScope(Dispatchers.Default).launch {
+        uiScope.launch {
             val guestComments = ownerID?.let { guestCommentRepository.getGuestComments(it) }
 
-            CoroutineScope(Dispatchers.Main).launch {
-                binding.recyclerviewGuestComments.layoutManager =
-                    LinearLayoutManager(requireContext())
-                if (guestComments != null)
-                    binding.recyclerviewGuestComments.adapter =
-                        GuestAdapter(guestComments as MutableList<GuestCommentEntity>, userViewModel.user.value?.id)
-            }
+            binding.recyclerviewGuestComments.layoutManager =
+                LinearLayoutManager(requireContext())
+            if (guestComments != null)
+                binding.recyclerviewGuestComments.adapter =
+                    GuestAdapter(
+                        guestComments as MutableList<GuestCommentEntity>,
+                        userViewModel.user.value?.id
+                    )
+
         }
 
         binding.buttonAddGuestComment.setOnClickListener {

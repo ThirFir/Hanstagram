@@ -8,40 +8,54 @@ import androidx.fragment.app.Fragment
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.os.bundleOf
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.MutableLiveData
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.repository.follow.FollowRepository
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentProfilePageBinding
 import com.dbclass.hanstagram.data.repository.follow.FollowRepositoryImpl
+import com.dbclass.hanstagram.data.repository.post.PostRepository
 import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
 import com.dbclass.hanstagram.data.repository.user.UserRepository
 import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
-import com.dbclass.hanstagram.data.viewmodel.IsFollowingViewModel
 import com.dbclass.hanstagram.ui.activity.*
 import com.dbclass.hanstagram.ui.adapter.ProfileViewPagerFragmentAdapter
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ProfilePageFragment private constructor(): Fragment() {
+class ProfilePageFragment private constructor() : Fragment() {
     private val userViewModel: UserViewModel by activityViewModels()
-    private lateinit var followViewModel: IsFollowingViewModel
+
     private lateinit var binding: FragmentProfilePageBinding
+
     private lateinit var activityEditedResult: ActivityResultLauncher<Intent>
-    private val followRepository : FollowRepository = FollowRepositoryImpl
+    private lateinit var newPostAddedResult: ActivityResultLauncher<Intent>
+
+    private val followRepository: FollowRepository = FollowRepositoryImpl
     private val userRepository: UserRepository = UserRepositoryImpl
-    private var postsCount = 0L
-    private var followersCount = 0L
-    private var followingsCount = 0L
+    private val postRepository: PostRepository = PostRepositoryImpl
+
     private var ownerID: String? = null     // 프로필 주인 ID
     private var myID: String? = null     // 본인 ID
 
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
+
+    val postsCount = MutableLiveData<Long>()
+    val followersCount = MutableLiveData<Long>()
+    val followingsCount = MutableLiveData<Long>()
+    val followState = MutableLiveData<String>()
+    val temperature = MutableLiveData<Float>()
+
     companion object {
-        fun newInstance(ownerID: String?): ProfilePageFragment{
+        fun newInstance(ownerID: String?): ProfilePageFragment {
             val args = Bundle().apply {
                 putString("user_id", ownerID)
             }
@@ -51,24 +65,21 @@ class ProfilePageFragment private constructor(): Fragment() {
             return fragment
         }
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        binding = FragmentProfilePageBinding.inflate(inflater, container, false)
+        // binding = FragmentProfilePageBinding.inflate(inflater, container, false)
+        binding =
+            DataBindingUtil.inflate<FragmentProfilePageBinding?>(
+                inflater, R.layout.fragment_profile_page, container, false).apply {
+                    profilePageFragment = this@ProfilePageFragment
+                    lifecycleOwner = this@ProfilePageFragment
+                }
         ownerID = arguments?.getString("user_id") ?: userViewModel.user.value?.id
         myID = userViewModel.user.value?.id
-        followViewModel = ViewModelProvider(this)[IsFollowingViewModel::class.java]
 
-        val profileViewPagerFragmentAdapter = ProfileViewPagerFragmentAdapter(requireActivity()).apply {
-            ownerID?.let { setProfileOwnerID(it) }
-        }
-        binding.viewpagerOfProfile.adapter = profileViewPagerFragmentAdapter
-        val tabIcons = listOf(R.drawable.ic_page_48, R.drawable.ic_comments_48)
-        TabLayoutMediator(binding.tabLayout, binding.viewpagerOfProfile) { tab, pos ->
-            tab.setIcon(tabIcons[pos])
-        }.attach()
 
         activityEditedResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -85,55 +96,89 @@ class ProfilePageFragment private constructor(): Fragment() {
                 }
             }
 
+        newPostAddedResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == RESULT_OK) {
+                    parentFragmentManager.beginTransaction()
+                        .replace(
+                            R.id.fragment_content,
+                            PostsPageFragment.newInstance(PostsPageFragment.ALL)
+                        )
+                        .commit()
+                    requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+                        .selectedItemId = R.id.item_posts
+                }
+            }
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val profileViewPagerFragmentAdapter =
+            ProfileViewPagerFragmentAdapter(requireActivity()).apply {
+                ownerID?.let { setProfileOwnerID(it) }
+            }
+        binding.viewpagerOfProfile.adapter = profileViewPagerFragmentAdapter
+        val tabIcons = listOf(R.drawable.ic_page_48, R.drawable.ic_comments_48)
+        TabLayoutMediator(binding.tabLayout, binding.viewpagerOfProfile) { tab, pos ->
+            tab.setIcon(tabIcons[pos])
+        }.attach()
+
+
         setViewButtonState()
         setViewProfileInfo()
-        setViewCounts()
+        setViewData()
 
         (requireActivity() as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
         setHasOptionsMenu(true)
 
         binding.wrapperTextFollowers.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_content, FollowUsersFragment().apply {
-                arguments = bundleOf("user_id" to ownerID, "state" to "followers")
-            }).commit()
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_content, FollowUsersFragment().apply {
+                    arguments = bundleOf("user_id" to ownerID, "state" to "followers")
+                }).commit()
         }
         binding.wrapperTextFollowings.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment_content, FollowUsersFragment().apply {
-                arguments = bundleOf("user_id" to ownerID, "state" to "followings")
-            }).commit()
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_content, FollowUsersFragment().apply {
+                    arguments = bundleOf("user_id" to ownerID, "state" to "followings")
+                }).commit()
         }
-
-        return binding.root
     }
 
-
-    private fun setViewCounts() {
-        CoroutineScope(Dispatchers.Default).launch {
-            followersCount = ownerID?.let { followRepository.getFollowersCount(it) } ?: 0
-            followingsCount = ownerID?.let { followRepository.getFollowingsCount(it) } ?: 0
-            postsCount = ownerID?.let { PostRepositoryImpl.getPostsCount(it) } ?: 0
-            CoroutineScope(Dispatchers.Main).launch {
-                binding.textFollowerCount.text = followersCount.toString()
-                binding.textFollowingCount.text = followingsCount.toString()
-                binding.textPostCount.text = postsCount.toString()
-            }
+    private fun setViewData() {
+        uiScope.launch {
+            postsCount.value = ownerID?.let { postRepository.getPostsCount(it) } ?: 0
+            followersCount.value = ownerID?.let { followRepository.getFollowersCount(it) } ?: 0
+            followingsCount.value = ownerID?.let { followRepository.getFollowingsCount(it) } ?: 0
+            temperature.value = ownerID?.let { userRepository.getTemperature(it) } ?: 0f
+            followState.value = ownerID?.let {
+                if(isMyProfile()) getString(R.string.text_edit_profile)
+                else {
+                    if (followRepository.getFollowPID(
+                            follower = myID!!,
+                            following = ownerID!!
+                        ) == null
+                    ) getString(R.string.text_follow)
+                    else getString(R.string.text_following_now)
+                }
+            } ?: "NULL"
         }
     }
 
     private fun setViewProfileInfo() {
-
         if (isMyProfile()) {
             Glide.with(requireContext()).load(userViewModel.user.value?.profileImage)
                 .error(R.drawable.ic_account_96)
                 .placeholder(R.drawable.ic_account_96)
                 .into(binding.imageProfile)
 
-
             userViewModel.user.observe(viewLifecycleOwner) {
                 binding.run {
                     textNickname.text = it.nickname
                     textContent.text = it.caption
-                    textTemperature.text = it.temperature.toString()
                     Glide.with(this@ProfilePageFragment)
                         .load(it.profileImage)
                         .error(R.drawable.ic_account_96)
@@ -141,20 +186,16 @@ class ProfilePageFragment private constructor(): Fragment() {
                         .into(imageProfile)
                 }
             }
-        } else {
-
-            // 타인 프로필
-            CoroutineScope(Dispatchers.Default).launch {
+        } else {     // 타인 프로필
+            uiScope.launch {
                 val user = ownerID?.let { userRepository.getUser(it) }
+                binding.textNickname.text = user?.nickname
+                binding.textContent.text = user?.caption
+                Glide.with(requireContext()).load(user?.profileImage)
+                    .error(R.drawable.ic_account_96)
+                    .placeholder(R.drawable.ic_account_96)
+                    .into(binding.imageProfile)
 
-                CoroutineScope(Dispatchers.Main).launch {
-                    binding.textNickname.text = user?.nickname
-                    binding.textContent.text = user?.caption
-                    Glide.with(requireContext()).load(user?.profileImage)
-                        .error(R.drawable.ic_account_96)
-                        .placeholder(R.drawable.ic_account_96)
-                        .into(binding.imageProfile)
-                }
             }
         }
     }
@@ -162,7 +203,6 @@ class ProfilePageFragment private constructor(): Fragment() {
     private fun setViewButtonState() {
 
         if (isMyProfile()) {
-            binding.buttonFollow.text = getString(R.string.text_edit_profile)
             binding.buttonMessage.text = getString(R.string.text_logout)
 
             // follow버튼을 프로필 편집 버튼으로 사용
@@ -178,27 +218,26 @@ class ProfilePageFragment private constructor(): Fragment() {
 
             // message버튼을 로그아웃 버튼으로 사용
             binding.buttonMessage.setOnClickListener {
-                startActivity(Intent(requireActivity(), LoginActivity::class.java).apply{
+                startActivity(Intent(requireActivity(), LoginActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 })
             }
         } else {
-            followViewModel.initializeFollow(myID, ownerID)
-
-            followViewModel.followerCount.observe(viewLifecycleOwner) {
-                binding.textFollowerCount.text = it.toString()
-            }
-            followViewModel.followPID.observe(viewLifecycleOwner) {
-                if(it != null){
-                    binding.buttonFollow.text = getString(R.string.text_following_now)
-                } else {
-                    binding.buttonFollow.text = getString(R.string.text_follow)
-                }
-            }
-
             binding.buttonFollow.setOnClickListener {
-                if(myID != null && ownerID != null)
-                    followViewModel.follow(follower = myID!!, following = ownerID!!)
+                uiScope.launch {
+                    if (myID != null && ownerID != null) {
+                        if(followRepository.getFollowPID(follower = myID!!, following = ownerID!!) == null) {
+                            followRepository.doFollow(follower = myID!!, following = ownerID!!)
+                            followState.value = getString(R.string.text_following_now)
+                            followersCount.value = followersCount.value?.plus(1)
+                        } else {
+                            followRepository.doUnFollow(follower = myID!!, following = ownerID!!)
+                            followState.value = getString(R.string.text_follow)
+                            followersCount.value = followersCount.value?.minus(1)
+                        }
+                        binding.invalidateAll()
+                    }
+                }
             }
 
             binding.buttonMessage.setOnClickListener {
@@ -225,15 +264,12 @@ class ProfilePageFragment private constructor(): Fragment() {
                 val intent = Intent(requireActivity(), NewPostActivity::class.java).apply {
                     putExtra("user_id", userViewModel.user.value?.id)
                 }
-                startActivity(intent)
+                newPostAddedResult.launch(intent)
                 true
             }
+
             else -> false
         }
     }
-
-    override fun onResume() {
-        super.onResume()
-        //requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView).selectedItemId = R.id.item_profile
-    }
 }
+

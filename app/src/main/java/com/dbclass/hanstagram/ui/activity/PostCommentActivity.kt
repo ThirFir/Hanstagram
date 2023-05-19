@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.dbclass.hanstagram.data.utils.closeKeyboard
+import kotlinx.coroutines.CoroutineDispatcher
 
 class PostCommentActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPostCommentBinding
@@ -23,6 +24,9 @@ class PostCommentActivity : AppCompatActivity() {
     private val userRepository: UserRepository = UserRepositoryImpl
     private var userID: String? = null
     private var postID: Long = 0L
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPostCommentBinding.inflate(layoutInflater)
@@ -35,33 +39,33 @@ class PostCommentActivity : AppCompatActivity() {
         setSupportActionBar(binding.postCommentToolbar)
 
 
-        CoroutineScope(Dispatchers.Default).launch {
+        uiScope.launch {
             val profileImage = userRepository.getProfileImage(userID ?: return@launch)
-            CoroutineScope(Dispatchers.Main).launch {
-                Glide.with(this@PostCommentActivity).load(profileImage).error(R.drawable.ic_account_96).into(binding.imageProfile)
-            }
+            Glide.with(this@PostCommentActivity).load(profileImage).error(R.drawable.ic_account_96)
+                .into(binding.imageProfile)
+
         }
 
         binding.recyclerviewPostComments.layoutManager = LinearLayoutManager(this)
-        CoroutineScope(Dispatchers.Default).launch {
+        uiScope.launch {
             val comments = commentRepository.getComments(postID)
 
-            CoroutineScope(Dispatchers.Main).launch {
-                binding.recyclerviewPostComments.adapter =
-                    PostCommentAdapter(comments as MutableList, postID, userID)
-                binding.textButtonLeaveComment.setOnClickListener {
-                    binding.editTextPostComment.text.ifEmpty {
-                        Toast.makeText(this@PostCommentActivity, "댓글을 입력해주세요", Toast.LENGTH_SHORT).show()
-                        return@setOnClickListener
-                    }
-                    this@PostCommentActivity.closeKeyboard(binding.editTextPostComment)
-                    (binding.recyclerviewPostComments.adapter as PostCommentAdapter).addComment(
-                        userID ?: return@setOnClickListener,
-                        binding.editTextPostComment.text.toString()
-                    )
-                    binding.editTextPostComment.setText("")
+            binding.recyclerviewPostComments.adapter =
+                PostCommentAdapter(comments as MutableList, postID, userID)
+            binding.textButtonLeaveComment.setOnClickListener {
+                binding.editTextPostComment.text.ifEmpty {
+                    Toast.makeText(this@PostCommentActivity, "댓글을 입력해주세요", Toast.LENGTH_SHORT)
+                        .show()
+                    return@setOnClickListener
                 }
+                this@PostCommentActivity.closeKeyboard(binding.editTextPostComment)
+                (binding.recyclerviewPostComments.adapter as PostCommentAdapter).addComment(
+                    userID ?: return@setOnClickListener,
+                    binding.editTextPostComment.text.toString()
+                )
+                binding.editTextPostComment.setText("")
             }
         }
+
     }
 }

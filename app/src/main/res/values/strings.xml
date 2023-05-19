@@ -64,4 +64,7 @@
     <string name="text_comment">댓글</string>
     <string name="text_dog">개</string>
     <string name="text_dislike">싫어요</string>
+    <string name="text_post">게시물</string>
+    <string name="text_follower">팔로워</string>
+    <string name="text_following">팔로잉</string>
 </resources>

@@ -13,6 +13,7 @@ import com.dbclass.hanstagram.data.repository.follow.FollowRepositoryImpl
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentFollowUsersBinding
 import com.dbclass.hanstagram.ui.adapter.FoundUserAdapter
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,6 +23,9 @@ class FollowUsersFragment : Fragment() {
     private lateinit var binding: FragmentFollowUsersBinding
     private val userViewModel: UserViewModel by activityViewModels()
     private val followRepository: FollowRepository = FollowRepositoryImpl
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,16 +38,15 @@ class FollowUsersFragment : Fragment() {
         val state = arguments?.getString("state")
         binding.recyclerviewFollowUsers.layoutManager = LinearLayoutManager(requireContext())
 
-        CoroutineScope(Dispatchers.Default).launch {
+        uiScope.launch {
             var followUsers = listOf<UserEntity>()
             if (state == "followers")
                 followUsers = followRepository.getFollowers(userID)
             else if(state == "followings")
                 followUsers = followRepository.getFollowings(userID)
-            CoroutineScope(Dispatchers.Main).launch {
-                binding.recyclerviewFollowUsers.adapter =
-                    FoundUserAdapter(followUsers as MutableList, true, userViewModel.user.value?.id)
-            }
+            binding.recyclerviewFollowUsers.adapter =
+                FoundUserAdapter(followUsers as MutableList, true, userViewModel.user.value?.id)
+
         }
 
         return binding.root

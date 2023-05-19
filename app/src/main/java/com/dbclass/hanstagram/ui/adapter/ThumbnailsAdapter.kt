@@ -16,9 +16,10 @@ import com.dbclass.hanstagram.ui.dialog.PostFragmentDialog
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import jp.wasabeef.glide.transformations.CropSquareTransformation
 
-class ThumbnailsAdapter(private val posts: List<PostEntity>) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ThumbnailsAdapter(private val posts: List<PostEntity>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var context: Context
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
         return ThumbnailsViewHolder(ItemThumbnailsBinding.inflate(LayoutInflater.from(context), parent, false))

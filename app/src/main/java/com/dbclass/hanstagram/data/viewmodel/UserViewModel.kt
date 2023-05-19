@@ -3,9 +3,11 @@ package com.dbclass.hanstagram.data.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.repository.user.UserRepository
 import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +20,7 @@ class UserViewModel : ViewModel() {
 
     fun createUser(user: UserEntity) {
         setUser(user)
-        CoroutineScope(Dispatchers.Main).launch {
+        viewModelScope.launch {
             userRepository.createUser(user)
         }
     }
@@ -33,7 +35,7 @@ class UserViewModel : ViewModel() {
         } ?: return
         _user.value = updatedUser
         if (user.value?.id != null) {
-            CoroutineScope(Dispatchers.Main).launch {
+            viewModelScope.launch {
                 userRepository.updateProfileImage(user.value?.id!!, uri)
             }
         }
@@ -45,7 +47,7 @@ class UserViewModel : ViewModel() {
         } ?: return
         _user.value = updatedUser
         if (user.value?.id != null) {
-            CoroutineScope(Dispatchers.Main).launch {
+            viewModelScope.launch {
                 userRepository.updateNickname(user.value?.id!!, nickname)
             }
         }
@@ -57,7 +59,7 @@ class UserViewModel : ViewModel() {
         } ?: return
         _user.value = updatedUser
         if (user.value?.id != null) {
-            CoroutineScope(Dispatchers.Main).launch {
+            viewModelScope.launch {
                 userRepository.updateTemperature(user.value?.id!!, user.value?.temperature!!)
             }
         }
@@ -69,10 +71,9 @@ class UserViewModel : ViewModel() {
         } ?: return
         _user.value = updatedUser
         if (user.value?.id != null) {
-            CoroutineScope(Dispatchers.Main).launch {
+            viewModelScope.launch {
                 userRepository.updateCaption(user.value?.id!!, caption)
             }
         }
     }
-
 }

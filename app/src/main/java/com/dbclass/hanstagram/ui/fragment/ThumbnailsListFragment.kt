@@ -9,10 +9,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.dbclass.hanstagram.data.repository.post.PostRepository
 import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentThumbnailsListBinding
 import com.dbclass.hanstagram.ui.adapter.ThumbnailsAdapter
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,7 +22,10 @@ import kotlinx.coroutines.launch
 
 class ThumbnailsListFragment : Fragment() {
     private val userViewModel: UserViewModel by activityViewModels()
+    private val postRepository: PostRepository = PostRepositoryImpl
     private lateinit var binding: FragmentThumbnailsListBinding
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
     private var ownerID: String? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,11 +51,9 @@ class ThumbnailsListFragment : Fragment() {
                 }
             }
         )
-        CoroutineScope(Dispatchers.Default).launch {
-            val posts = PostRepositoryImpl.getUserPosts(ownerID)
-            CoroutineScope(Dispatchers.Main).launch {
-                binding.recyclerviewThumbnails.adapter = ThumbnailsAdapter(posts)
-            }
+        uiScope.launch {
+            val posts = postRepository.getUserPosts(ownerID)
+            binding.recyclerviewThumbnails.adapter = ThumbnailsAdapter(posts)
         }
 
         return binding.root

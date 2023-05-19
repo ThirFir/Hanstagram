@@ -18,6 +18,7 @@ import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentPostCommentBottomSheetBinding
 import com.dbclass.hanstagram.ui.adapter.PostCommentAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,6 +28,8 @@ class PostCommentBottomSheet : BottomSheetDialogFragment() {
     private val commentRepository: CommentRepository = CommentRepositoryImpl
     private val userRepository: UserRepository = UserRepositoryImpl
     private val userViewModel: UserViewModel by activityViewModels()
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,30 +46,31 @@ class PostCommentBottomSheet : BottomSheetDialogFragment() {
         }
 
 
-        CoroutineScope(Dispatchers.Default).launch {
-            val image = userRepository.getProfileImage(userViewModel.user.value?.id ?: return@launch)
-            CoroutineScope(Dispatchers.Main).launch {
-                Glide.with(requireContext()).load(image).error(R.drawable.ic_account_96).into(binding.imageProfile)
-            }
+        uiScope.launch {
+            val image =
+                userRepository.getProfileImage(userViewModel.user.value?.id ?: return@launch)
+            Glide.with(requireContext()).load(image).error(R.drawable.ic_account_96)
+                .into(binding.imageProfile)
+
         }
 
-        CoroutineScope(Dispatchers.Default).launch {
+        uiScope.launch {
             val comments = postID?.let { commentRepository.getComments(it) }
-            CoroutineScope(Dispatchers.Main).launch {
-                binding.recyclerviewPostComments.adapter =
-                    PostCommentAdapter(comments as MutableList, postID, userViewModel.user.value?.id)
-                binding.textButtonLeaveComment.setOnClickListener {
-                    binding.editTextPostComment.text.ifEmpty {
-                        Toast.makeText(requireContext(), "댓글을 입력해주세요", Toast.LENGTH_SHORT).show()
-                        return@setOnClickListener
-                    }
-                    (binding.recyclerviewPostComments.adapter as PostCommentAdapter).addComment(
-                        userViewModel.user.value?.id ?: return@setOnClickListener,
-                        binding.editTextPostComment.text.toString()
-                    )
-                    binding.editTextPostComment.setText("")
+
+            binding.recyclerviewPostComments.adapter =
+                PostCommentAdapter(comments as MutableList, postID, userViewModel.user.value?.id)
+            binding.textButtonLeaveComment.setOnClickListener {
+                binding.editTextPostComment.text.ifEmpty {
+                    Toast.makeText(requireContext(), "댓글을 입력해주세요", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
                 }
+                (binding.recyclerviewPostComments.adapter as PostCommentAdapter).addComment(
+                    userViewModel.user.value?.id ?: return@setOnClickListener,
+                    binding.editTextPostComment.text.toString()
+                )
+                binding.editTextPostComment.setText("")
             }
+
         }
 
         return binding.root

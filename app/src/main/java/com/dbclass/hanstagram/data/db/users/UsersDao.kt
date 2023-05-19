@@ -46,4 +46,6 @@ interface UsersDao {
     @Query("update users set department = :department where id = :id")
     suspend fun updateDepartment(id: String, department: String)
 
+    @Query("select temperature from users where id=:id")
+    suspend fun getTemperature(id: String): Float
 }

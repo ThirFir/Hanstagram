@@ -20,4 +20,5 @@ abstract class UserRepository : Repository {
     abstract suspend fun getNickname(userID: String): String?
     abstract suspend fun getProfileImage(userID: String): String?
     abstract suspend fun deleteUser(userID: String)
+    abstract suspend fun getTemperature(userID: String): Float
 }

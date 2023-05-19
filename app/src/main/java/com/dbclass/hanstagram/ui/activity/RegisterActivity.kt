@@ -8,6 +8,7 @@ import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
 import com.dbclass.hanstagram.databinding.ActivityRegisterBinding
 import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.repository.user.UserRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,6 +16,8 @@ import kotlinx.coroutines.launch
 class RegisterActivity : AppCompatActivity() {
 
     private val userRepository: UserRepository = UserRepositoryImpl
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,15 +48,13 @@ class RegisterActivity : AppCompatActivity() {
                     createdTime = System.currentTimeMillis(),
                     email = email.toString()
                 )
-                CoroutineScope(Dispatchers.Default).launch {
+                uiScope.launch {
                     userRepository.createUser(user)
-                    CoroutineScope(Dispatchers.Main).launch {
-                        Toast.makeText(
-                            this@RegisterActivity,
-                            R.string.toast_create_account,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    Toast.makeText(
+                        this@RegisterActivity,
+                        R.string.toast_create_account,
+                        Toast.LENGTH_SHORT
+                    ).show()
                     finish()
                 }
             }

@@ -8,15 +8,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dbclass.hanstagram.R
-import com.dbclass.hanstagram.data.db.posts.PostEntity
 import com.dbclass.hanstagram.data.repository.message.MessageRepository
 import com.dbclass.hanstagram.ui.adapter.PostAdapter
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentPostsPageBinding
 import com.dbclass.hanstagram.data.repository.message.MessageRepositoryImpl
+import com.dbclass.hanstagram.data.repository.post.PostRepository
 import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
 import com.dbclass.hanstagram.ui.activity.MainActivity
 import com.dbclass.hanstagram.ui.activity.MessageBoxActivity
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,12 +26,15 @@ class PostsPageFragment private constructor() : Fragment() {
 
     private val userViewModel: UserViewModel by activityViewModels()
     private val messageRepository: MessageRepository = MessageRepositoryImpl
+    private val postRepository: PostRepository = PostRepositoryImpl
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
 
     companion object {
         val ALL: Int = 1000
         val FOLLOW: Int = 1001
-        fun newInstance(id: Int): PostsPageFragment {
-            val args = bundleOf("id" to id)
+        fun newInstance(load: Int): PostsPageFragment {
+            val args = bundleOf("load" to load)
 
             val fragment = PostsPageFragment()
             fragment.arguments = args
@@ -47,18 +51,15 @@ class PostsPageFragment private constructor() : Fragment() {
 
         binding.recyclerviewPosts.layoutManager = LinearLayoutManager(context)
 
-        CoroutineScope(Dispatchers.Default).launch {
-            val id = arguments?.getInt("id") ?: 100
-            val posts =
-                if (id == ALL) userViewModel.user.value?.id?.let { PostRepositoryImpl.getAllPostsWithUsers(0) }
-                else userViewModel.user.value?.id?.let { PostRepositoryImpl.getFollowingPostsWithUsers(it) }
+        uiScope.launch {
+            val load = arguments?.getInt("load") ?: 100
+            val postsWithUser =
+                if (load == ALL) userViewModel.user.value?.id?.let { postRepository.getAllPostsWithUsers(0) }
+                else userViewModel.user.value?.id?.let { postRepository.getFollowingPostsWithUsers(it) }
 
-            val a =  mapOf(PostEntity(userID = "", content = null, images = "", createdTime = 0, postID = 0) to 3)
+            binding.recyclerviewPosts.adapter =
+                PostAdapter(postsWithUser?.toList() ?: listOf(), userViewModel.user.value?.id, requireContext())
 
-            CoroutineScope(Dispatchers.Main).launch {
-                binding.recyclerviewPosts.adapter =
-                    PostAdapter(posts?.toList() ?: listOf(), userViewModel.user.value?.id, requireContext())
-            }
         }
 
         (requireActivity() as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -68,16 +69,15 @@ class PostsPageFragment private constructor() : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        CoroutineScope(Dispatchers.Default).launch {
+        uiScope.launch {
             val newMessageExists = userViewModel.user.value?.id?.let {
                 messageRepository.getHasUnreadMessage(it)
             }
-            CoroutineScope(Dispatchers.Main).launch {
-                if (newMessageExists != null && !newMessageExists)
-                    inflater.inflate(R.menu.post_frag_app_bar_menu, menu)
-                else
-                    inflater.inflate(R.menu.post_frag_app_bar_menu, menu)
-            }
+            if (newMessageExists != null && !newMessageExists)  // TODO : New Message Icon
+                inflater.inflate(R.menu.post_frag_app_bar_menu, menu)
+            else
+                inflater.inflate(R.menu.post_frag_app_bar_menu, menu)
+
         }
 
         super.onCreateOptionsMenu(menu, inflater)
