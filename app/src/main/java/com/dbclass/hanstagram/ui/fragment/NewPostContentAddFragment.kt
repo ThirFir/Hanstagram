@@ -1,17 +1,13 @@
 package com.dbclass.hanstagram.ui.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.core.view.MenuProvider
-import androidx.lifecycle.Lifecycle
-import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.posts.PostEntity
-import com.dbclass.hanstagram.data.repository.PostRepository
+import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
 import com.dbclass.hanstagram.data.utils.closeKeyboard
 import com.dbclass.hanstagram.databinding.FragmentNewPostContentAddBinding
 import com.dbclass.hanstagram.ui.activity.NewPostActivity
@@ -62,7 +58,7 @@ class NewPostContentAddFragment : Fragment() {
                     if(fifthURI != "")
                         images += ",$fifthURI"
                     if (userID != null)
-                        PostRepository.addPost(
+                        PostRepositoryImpl.addPost(
                             PostEntity(
                                 userID = userID,
                                 content = binding.editTextContent.text.toString(),

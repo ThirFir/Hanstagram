@@ -15,12 +15,14 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
-import com.dbclass.hanstagram.data.repository.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
 import com.dbclass.hanstagram.databinding.ActivityProfileEditBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ProfileEditActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProfileEditBinding
@@ -29,6 +31,7 @@ class ProfileEditActivity : AppCompatActivity() {
     private var initialNickname: String = ""
     private var initialCaption: String = ""
     private lateinit var activityImageResult: ActivityResultLauncher<Intent>
+    private val userRepository: UserRepository = UserRepositoryImpl
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,13 +105,19 @@ class ProfileEditActivity : AppCompatActivity() {
                     .setTitle(getString(R.string.text_user_withdrawal))
                     .setMessage(getString(R.string.alert_withdrawal))
                     .setPositiveButton(getString(R.string.text_ok)) { _, _ ->
-                        val intent =
-                            Intent(this@ProfileEditActivity, LoginActivity::class.java).apply {
-                                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                            }
-                        Toast.makeText(this@ProfileEditActivity, getString(R.string.toast_success_withdrawal), Toast.LENGTH_SHORT).show()
-                        startActivity(intent)
-                        UserRepository.deleteUser(userID)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            userRepository.deleteUser(userID)
+                            val intent =
+                                Intent(this@ProfileEditActivity, LoginActivity::class.java).apply {
+                                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                }
+                            Toast.makeText(
+                                this@ProfileEditActivity,
+                                getString(R.string.toast_success_withdrawal),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            startActivity(intent)
+                        }
                     }
                     .setNegativeButton(getString(R.string.text_cancel)) { _, _ -> }
                     .create().show()
@@ -153,20 +162,22 @@ class ProfileEditActivity : AppCompatActivity() {
                 }
                 val editedNickname = binding.editTextNickname.text.toString()
                 val editedCaption = binding.editTextCaption.text.toString()
-                UserRepository.run {
-                    updateNickname(id = userID, nickname = editedNickname)
-                    updateCaption(id = userID, caption = editedCaption)
-                    updateProfileImage(userID, imageURI)
-                }
-                Toast.makeText(this, R.string.toast_edit_profile, Toast.LENGTH_SHORT).show()
+                CoroutineScope(Dispatchers.Main).launch {
+                    userRepository.run {
+                        updateNickname(id = userID, nickname = editedNickname)
+                        updateCaption(id = userID, caption = editedCaption)
+                        updateProfileImage(userID, imageURI)
+                    }
+                    Toast.makeText(this@ProfileEditActivity, R.string.toast_edit_profile, Toast.LENGTH_SHORT).show()
 
-                val returnIntent = Intent(this, MainActivity::class.java).apply {
-                    putExtra("image_uri", imageURI)
-                    putExtra("nickname", editedNickname)
-                    putExtra("caption", editedCaption)
+                    val returnIntent = Intent(this@ProfileEditActivity, MainActivity::class.java).apply {
+                        putExtra("image_uri", imageURI)
+                        putExtra("nickname", editedNickname)
+                        putExtra("caption", editedCaption)
+                    }
+                    setResult(RESULT_OK, returnIntent)
+                    finish()
                 }
-                setResult(RESULT_OK, returnIntent)
-                finish()
             }
         }
         return super.onOptionsItemSelected(item)

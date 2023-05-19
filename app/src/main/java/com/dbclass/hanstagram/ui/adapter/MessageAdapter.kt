@@ -1,19 +1,11 @@
 package com.dbclass.hanstagram.ui.adapter
 
-import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.messages.MessageEntity
-import com.dbclass.hanstagram.data.repository.MessageRepository
 import com.dbclass.hanstagram.data.utils.getFormattedDate
 import com.dbclass.hanstagram.databinding.ItemMessageBinding
-import com.dbclass.hanstagram.databinding.ItemMessageExpandableBinding
-import com.skydoves.expandablelayout.ExpandableLayout
-import com.skydoves.expandablelayout.expandableLayout
 
 class MessageAdapter(private var messages: MutableList<MessageEntity>, private val myID: String) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {

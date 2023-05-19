@@ -5,12 +5,17 @@ import android.os.Bundle
 import android.widget.Toast
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.messages.MessageEntity
-import com.dbclass.hanstagram.data.repository.MessageRepository
+import com.dbclass.hanstagram.data.repository.message.MessageRepository
+import com.dbclass.hanstagram.data.repository.message.MessageRepositoryImpl
 import com.dbclass.hanstagram.data.utils.closeKeyboard
 import com.dbclass.hanstagram.databinding.ActivitySendMessageBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SendMessageActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySendMessageBinding
+    private val messageRepository: MessageRepository = MessageRepositoryImpl
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySendMessageBinding.inflate(layoutInflater)
@@ -32,16 +37,18 @@ class SendMessageActivity : AppCompatActivity() {
             val content = binding.editTextMessageContent.text.toString()
             closeKeyboard(binding.editTextMessageContent)
             if(fromID != null && toID != null) {
-                MessageRepository.sendMessage(
-                    MessageEntity(
-                        fromID,
-                        toID,
-                        false,
-                        content,
-                        System.currentTimeMillis()
+                CoroutineScope(Dispatchers.Main).launch {
+                    messageRepository.sendMessage(
+                        MessageEntity(
+                            fromID,
+                            toID,
+                            false,
+                            content,
+                            System.currentTimeMillis()
+                        )
                     )
-                )
-                Toast.makeText(this, "${toID}에게 메세지를 보냈습니다.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SendMessageActivity, "${toID}에게 메세지를 보냈습니다.", Toast.LENGTH_SHORT).show()
+                }
             }
             finish()
         }

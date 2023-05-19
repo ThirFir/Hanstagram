@@ -113,6 +113,18 @@
         app:layout_constraintStart_toStartOf="@id/text_nickname"
         app:layout_constraintTop_toBottomOf="@id/text_nickname" />
 
+    <TextView
+        android:id="@+id/text_temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="36.5"
+        android:textColor="@color/temperature_green"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/button_follow"
+        app:layout_constraintStart_toStartOf="@id/image_profile"
+        app:layout_constraintTop_toBottomOf="@id/text_content" />
+
     <Button
         android:id="@+id/button_follow"
         android:layout_width="0dp"
@@ -120,8 +132,8 @@
         android:layout_marginHorizontal="4dp"
         android:text="@string/text_follow"
         app:layout_constraintEnd_toStartOf="@+id/button_message"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@id/text_content"
+        android:layout_marginStart="12dp"
+        app:layout_constraintStart_toEndOf="@id/text_temperature"
         app:layout_constraintTop_toBottomOf="@id/text_content" />
 
     <Button

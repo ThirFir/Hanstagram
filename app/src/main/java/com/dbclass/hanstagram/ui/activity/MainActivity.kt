@@ -7,12 +7,12 @@ import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.fragment.app.Fragment
 import com.dbclass.hanstagram.ui.fragment.PostsPageFragment
 import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.users.UserEntity
-import com.dbclass.hanstagram.data.repository.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.ActivityMainBinding
 import com.dbclass.hanstagram.ui.fragment.FindPageFragment
@@ -23,7 +23,9 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val userViewModel: UserViewModel by viewModels()
+    private val userRepository: UserRepository = UserRepositoryImpl
     private lateinit var postsPageFragment: PostsPageFragment
+    private lateinit var followersPostsPageFragment: PostsPageFragment
     private lateinit var findPageFragment: FindPageFragment
     private lateinit var profilePageFragment: ProfilePageFragment
     private var prevSelectedItem: Int = 0
@@ -43,17 +45,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        postsPageFragment = PostsPageFragment.newInstance()
+        postsPageFragment = PostsPageFragment.newInstance(PostsPageFragment.ALL)
+        followersPostsPageFragment = PostsPageFragment.newInstance(PostsPageFragment.FOLLOW)
         findPageFragment = FindPageFragment.newInstance()
         // profilePageFragment = ProfilePageFragment.newInstance(userViewModel.user.value?.id)
 
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
-
         CoroutineScope(Dispatchers.Default).launch {
             val userID = intent.getStringExtra("user_id")
             var user: UserEntity? = null
             if(userID != null)
-                user = UserRepository.getUser(userID)
+                user = userRepository.getUser(userID)
             CoroutineScope(Dispatchers.Main).launch {
                 user?.let { userViewModel.setUser(it) }
                 setContentView(binding.root)
@@ -77,6 +79,12 @@ class MainActivity : AppCompatActivity() {
                         currentSelectedItem = R.id.item_posts
                         supportFragmentManager.beginTransaction()
                             .replace(R.id.fragment_content, postsPageFragment).addToBackStack(null).commit()
+                        true
+                    }
+                    R.id.item_followers_posts -> {
+                        currentSelectedItem = R.id.item_followers_posts
+                        supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_content, followersPostsPageFragment).addToBackStack(null).commit()
                         true
                     }
                     R.id.item_find -> {

@@ -1,38 +1,32 @@
 package com.dbclass.hanstagram.ui.adapter
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat.requestPermissions
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
-import androidx.core.content.ContextCompat.checkSelfPermission
-import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.guests.GuestCommentEntity
-import com.dbclass.hanstagram.data.repository.GuestCommentRepository
-import com.dbclass.hanstagram.data.repository.UserRepository
+import com.dbclass.hanstagram.data.repository.guest.GuestCommentRepository
+import com.dbclass.hanstagram.data.repository.guest.GuestCommentRepositoryImpl
+import com.dbclass.hanstagram.data.repository.user.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
 import com.dbclass.hanstagram.data.utils.getFormattedDate
 import com.dbclass.hanstagram.databinding.ItemGuestCommentBinding
-import com.dbclass.hanstagram.ui.activity.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.*
 
 class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, private val guestID: String?) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var context: Context
+    private val guestCommentRepository: GuestCommentRepository = GuestCommentRepositoryImpl
+    private val userRepository: UserRepository = UserRepositoryImpl
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
         return GuestViewHolder(ItemGuestCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -52,28 +46,31 @@ class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, p
             textButtonDelete.setOnClickListener {
                 deleteComment(position)
             }
-            CoroutineScope(Dispatchers.Default).launch {
-                val image = UserRepository.getProfileImage(comment.guestUserID)
-                CoroutineScope(Dispatchers.Main).launch {
-                    image?.let {
-                        Glide.with(context).load(image).error(R.drawable.ic_account_96).into(imageGuestProfile)
-                    }
+            CoroutineScope(Dispatchers.Main).launch {
+                val image = userRepository.getProfileImage(comment.guestUserID)
+                image?.let {
+                    Glide.with(context).load(image).error(R.drawable.ic_account_96).into(imageGuestProfile)
                 }
+
             }
         }
     }
 
     fun addComment(guestComment: GuestCommentEntity) {
-        GuestCommentRepository.addComment(guestComment)
-        guestComments.add(0, guestComment)
-        notifyItemInserted(0)
+        CoroutineScope(Dispatchers.Main).launch {
+            guestCommentRepository.addComment(guestComment)
+            guestComments.add(0, guestComment)
+            notifyItemInserted(0)
+        }
     }
 
     fun deleteComment(position: Int) {
-        GuestCommentRepository.deleteComment(guestComments[position])
-        guestComments.removeAt(position)
-        notifyItemRemoved(position)
-        notifyItemRangeChanged(position, itemCount)
+        CoroutineScope(Dispatchers.Main).launch {
+            guestCommentRepository.deleteComment(guestComments[position])
+            guestComments.removeAt(position)
+            notifyItemRemoved(position)
+            notifyItemRangeChanged(position, itemCount)
+        }
     }
     inner class GuestViewHolder(val binding: ItemGuestCommentBinding): RecyclerView.ViewHolder(binding.root)
 

@@ -15,4 +15,8 @@
     <color name="main_blue">#008EFF</color>
     <color name="main_light_purple">#928DAB</color>
     <color name="selected_text_blue">#2196F3</color>
+
+    <color name="temperature_green">#73A13E</color>
+    <color name="temperature_red">#F32E2E</color>
+    <color name="temperature_gray">#ACACAC</color>
 </resources>

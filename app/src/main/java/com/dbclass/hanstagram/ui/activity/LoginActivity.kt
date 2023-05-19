@@ -6,13 +6,23 @@ import android.os.Bundle
 import android.widget.Toast
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.databinding.ActivityLoginBinding
-import com.dbclass.hanstagram.data.db.HanstagramDatabase
-import com.dbclass.hanstagram.data.repository.*
+import com.dbclass.hanstagram.data.repository.comment.CommentRepositoryImpl
+import com.dbclass.hanstagram.data.repository.dislike.DislikeRepositoryImpl
+import com.dbclass.hanstagram.data.repository.follow.FollowRepositoryImpl
+import com.dbclass.hanstagram.data.repository.guest.GuestCommentRepositoryImpl
+import com.dbclass.hanstagram.data.repository.like.LikeRepositoryImpl
+import com.dbclass.hanstagram.data.repository.message.MessageRepositoryImpl
+import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
+import com.dbclass.hanstagram.data.repository.user.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
+
+    private val userRepository: UserRepository = UserRepositoryImpl
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -30,30 +40,29 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, R.string.toast_input_password, Toast.LENGTH_SHORT).show()
             } else {
                 // 로그인 시도 (내부 DB)
-                CoroutineScope(Dispatchers.Default).launch {
-                    val db = HanstagramDatabase.getInstance(this@LoginActivity)
-                    val user = db?.usersDao()?.getUser(id)
+                CoroutineScope(Dispatchers.Main).launch {
+                    val user = userRepository.getUser(id)
                     if (user == null) {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            Toast.makeText(this@LoginActivity, R.string.toast_no_exist_id, Toast.LENGTH_SHORT).show()
-                        }
+                        Toast.makeText(
+                            this@LoginActivity,
+                            R.string.toast_no_exist_id,
+                            Toast.LENGTH_SHORT
+                        ).show()
+
                     } else {
-                        if(id == user.id && password == user.password) { // Login Success
-                            CoroutineScope(Dispatchers.Main).launch {
-                                val mainIntent = Intent(this@LoginActivity, MainActivity::class.java).apply {
+                        if (id == user.id && password == user.password) { // Login Success
+                            val mainIntent =
+                                Intent(this@LoginActivity, MainActivity::class.java).apply {
                                     putExtra("user_id", id)
                                 }
-                                startActivity(mainIntent)
-                                finish()
-                            }
+                            startActivity(mainIntent)
+                            finish()
                         } else {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                Toast.makeText(
-                                    this@LoginActivity,
-                                    R.string.toast_wrong_account,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            Toast.makeText(
+                                this@LoginActivity,
+                                R.string.toast_wrong_account,
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
@@ -66,17 +75,15 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun initializeVariables() {
-        CoroutineScope(Dispatchers.Default).launch {
-            with(applicationContext) {
-                UserRepository.init(this)
-                PostRepository.init(this)
-                LikeRepository.init(this)
-                FollowRepository.init(this)
-                DislikeRepository.init(this)
-                CommentRepository.init(this)
-                GuestCommentRepository.init(this)
-                MessageRepository.init(this)
-            }
+        applicationContext.run {
+            UserRepositoryImpl.init(this)
+            PostRepositoryImpl.init(this)
+            LikeRepositoryImpl.init(this)
+            FollowRepositoryImpl.init(this)
+            DislikeRepositoryImpl.init(this)
+            CommentRepositoryImpl.init(this)
+            GuestCommentRepositoryImpl.init(this)
+            MessageRepositoryImpl.init(this)
         }
     }
 }

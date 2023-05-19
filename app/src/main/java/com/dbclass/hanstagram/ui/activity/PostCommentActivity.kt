@@ -1,16 +1,15 @@
 package com.dbclass.hanstagram.ui.activity
 
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
-import com.dbclass.hanstagram.data.repository.CommentRepository
-import com.dbclass.hanstagram.data.repository.UserRepository
+import com.dbclass.hanstagram.data.repository.comment.CommentRepository
+import com.dbclass.hanstagram.data.repository.comment.CommentRepositoryImpl
+import com.dbclass.hanstagram.data.repository.user.UserRepository
+import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
 import com.dbclass.hanstagram.databinding.ActivityPostCommentBinding
 import com.dbclass.hanstagram.ui.adapter.PostCommentAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +19,8 @@ import com.dbclass.hanstagram.data.utils.closeKeyboard
 
 class PostCommentActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPostCommentBinding
+    private val commentRepository: CommentRepository = CommentRepositoryImpl
+    private val userRepository: UserRepository = UserRepositoryImpl
     private var userID: String? = null
     private var postID: Long = 0L
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +36,7 @@ class PostCommentActivity : AppCompatActivity() {
 
 
         CoroutineScope(Dispatchers.Default).launch {
-            val profileImage = UserRepository.getProfileImage(userID ?: return@launch)
+            val profileImage = userRepository.getProfileImage(userID ?: return@launch)
             CoroutineScope(Dispatchers.Main).launch {
                 Glide.with(this@PostCommentActivity).load(profileImage).error(R.drawable.ic_account_96).into(binding.imageProfile)
             }
@@ -43,7 +44,7 @@ class PostCommentActivity : AppCompatActivity() {
 
         binding.recyclerviewPostComments.layoutManager = LinearLayoutManager(this)
         CoroutineScope(Dispatchers.Default).launch {
-            val comments = CommentRepository.getComments(postID)
+            val comments = commentRepository.getComments(postID)
 
             CoroutineScope(Dispatchers.Main).launch {
                 binding.recyclerviewPostComments.adapter =

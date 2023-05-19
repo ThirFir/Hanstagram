@@ -6,6 +6,11 @@
         android:icon="@drawable/baseline_home_24"
         android:title="posts_page" />
     <item
+        android:id="@+id/item_followers_posts"
+        android:enabled="true"
+        android:icon="@drawable/baseline_cruelty_free_96"
+        android:title="followers_posts_page"/>
+    <item
         android:id="@+id/item_find"
         android:enabled="true"
         android:icon="@drawable/baseline_search_48"

@@ -1,42 +1,43 @@
 package com.dbclass.hanstagram.data.db.posts
 
 import androidx.room.*
+import com.dbclass.hanstagram.data.db.users.UserEntity
 
 @Dao
 interface PostsDao {
 
     @Insert
-    fun insertPost(post: PostEntity)
+    suspend fun insertPost(post: PostEntity)
 
     @Update
-    fun updatePost(post: PostEntity)
+    suspend fun updatePost(post: PostEntity)
 
     @Query("delete from posts where post_id = :postID")
-    fun deletePost(postID: Long)
+    suspend fun deletePost(postID: Long)
 
-    @Query("select * from posts where post_id=:postID")
-    fun getPost(postID: Long): PostEntity
+    @Query("select * from posts inner join users on posts.user_id = users.id where post_id=:postID")
+    suspend fun getPostWithUser(postID: Long): Map<PostEntity, UserEntity>
 
-    @Query("select * from posts")
-    fun getAllPosts(): List<PostEntity>
+    @Query("select * from posts inner join users on posts.user_id = users.id order by posts.created_time desc")
+    suspend fun getAllPostsWithUser(): Map<PostEntity, UserEntity>
 
     @Query("select * from posts where user_id=:userID")
-    fun getUserPosts(userID: String): List<PostEntity>
-
-    @Query("SELECT * FROM posts WHERE user_id IN " +
-            "(SELECT following_id FROM follows WHERE follower_id=:id) " +
-            "order by posts.created_time desc")
-    fun getFollowingPosts(id: String): List<PostEntity>
+    suspend fun getUserPosts(userID: String): List<PostEntity>
+    @Query(
+        "select * from posts inner join users on posts.user_id = users.id where user_id in " +
+                "(select following_id from follows where follower_id=:id) order by posts.created_time desc")
+    suspend fun getFollowingPostsWithUser(id: String): Map<PostEntity, UserEntity>
 
     @Query("select count(post_id) from posts where user_id = :userID")
-    fun getPostsCount(userID: String): Long
+    suspend fun getPostsCount(userID: String): Long
 
     @Query("SELECT count(pid) from likes where post_id = :postID")
-    fun getPostsLikesCount(postID: Long): Long
+    suspend fun getPostsLikesCount(postID: Long): Long
 
     @Query("SELECT count(pid) from dislikes where post_id = :postID")
-    fun getPostsDislikesCount(postID: Long): Long
+    suspend fun getPostsDislikesCount(postID: Long): Long
 
     @Query("SELECT count(pid) from comments where post_id = :postID")
-    fun getPostsCommentsCount(postID: Long): Long
+    suspend fun getPostsCommentsCount(postID: Long): Long
+
 }

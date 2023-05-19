@@ -9,40 +9,41 @@ interface UsersDao {
 
 
     @Insert(onConflict = OnConflictStrategy.NONE)
-    fun insertUser(user: UserEntity)
+    suspend fun insertUser(user: UserEntity)
 
     @Query("select * from users")
-    fun getAll(): List<UserEntity>
+    suspend fun getAll(): List<UserEntity>
 
     @Query("select * from users where id = :id")
-    fun getUser(id: String): UserEntity
+    suspend fun getUser(id: String): UserEntity
 
     @Query("select nickname from users where id = :id")
-    fun getNickname(id: String): String
+    suspend fun getNickname(id: String): String
 
     @Query("select profile_image from users where id = :id")
-    fun getProfileImage(id: String): String
+    suspend fun getProfileImage(id: String): String
 
     @Query("SELECT * from users where id like :input")
-    fun getContainingInputUsers(input: String): List<UserEntity>
+    suspend fun getContainingInputUsers(input: String): List<UserEntity>
     @Query("delete from users where id = :id")
-    fun deleteUser(id: String)
+    suspend fun deleteUser(id: String)
 
     @Query("update users set password = :password where id = :id")
-    fun updatePassword(id: String, password: String)
+    suspend fun updatePassword(id: String, password: String)
 
     @Query("update users set nickname = :nickname where id = :id")
-    fun updateNickname(id: String, nickname: String)
+    suspend fun updateNickname(id: String, nickname: String)
 
     @Query("update users set temperature = :t where id = :id")
-    fun updateTemperature(id: String, t: Float)
+    suspend fun updateTemperature(id: String, t: Float)
 
     @Query("update users set profile_image = :uri where id = :id")
-    fun updateProfileImage(id: String, uri: String)
+    suspend fun updateProfileImage(id: String, uri: String)
 
     @Query("update users set caption = :caption where id = :id")
-    fun updateCaption(id: String, caption: String)
+    suspend fun updateCaption(id: String, caption: String)
 
     @Query("update users set department = :department where id = :id")
-    fun updateDepartment(id: String, department: String)
+    suspend fun updateDepartment(id: String, department: String)
+
 }
