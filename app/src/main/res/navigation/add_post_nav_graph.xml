@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/new_post_nav_graph"
+    app:startDestination="@id/PostImageAddFragment">
+
+
+    <fragment
+        android:id="@+id/PostImageAddFragment"
+        android:name="com.dbclass.hanstagram.ui.fragment.PostImageAddFragment"
+        android:label="fragment_new_post_image_add"
+        tools:layout="@layout/fragment_post_image_add" >
+        <action
+            android:id="@+id/action_addPostImageAddFragment_to_addPostContentAddFragment"
+            app:destination="@id/PostContentAddFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/PostContentAddFragment"
+        android:name="com.dbclass.hanstagram.ui.fragment.PostContentAddFragment"
+        android:label="fragment_new_post_content_add"
+        tools:layout="@layout/fragment_post_content_add" />
+</navigation>

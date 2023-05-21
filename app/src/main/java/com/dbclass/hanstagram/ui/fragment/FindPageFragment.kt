@@ -33,6 +33,13 @@ class FindPageFragment private constructor() : Fragment() {
 
         (requireActivity() as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
         setHasOptionsMenu(true)
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         binding.recyclerviewFoundUsers.layoutManager = LinearLayoutManager(requireActivity())
         binding.recyclerviewFoundUsers.adapter = FoundUserAdapter(mutableListOf())
 
@@ -40,7 +47,6 @@ class FindPageFragment private constructor() : Fragment() {
             binding.editTextFind.text.ifEmpty { return@setOnClickListener }
             (binding.recyclerviewFoundUsers.adapter as FoundUserAdapter).findUsers(binding.editTextFind.text.toString())
         }
-        return binding.root
     }
 
     override fun onResume() {

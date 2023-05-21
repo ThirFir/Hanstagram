@@ -18,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class FollowUsersFragment : Fragment() {
+class FollowUsersFragment private constructor(): Fragment() {
 
     private lateinit var binding: FragmentFollowUsersBinding
     private val userViewModel: UserViewModel by activityViewModels()
@@ -26,16 +26,25 @@ class FollowUsersFragment : Fragment() {
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
     private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
 
+    private var userID: String? = null
+    private var state: String? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentFollowUsersBinding.inflate(inflater, container, false)
 
-        val userID = arguments?.getString("user_id")
-
         /** state : "followers" or "followings" */
-        val state = arguments?.getString("state")
+        state = arguments?.getString("state")
+        userID = arguments?.getString("user_id")
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         binding.recyclerviewFollowUsers.layoutManager = LinearLayoutManager(requireContext())
 
         uiScope.launch {
@@ -48,9 +57,19 @@ class FollowUsersFragment : Fragment() {
                 FoundUserAdapter(followUsers as MutableList, true, userViewModel.user.value?.id)
 
         }
-
-        return binding.root
     }
 
+    companion object {
 
+        fun newInstance(state: String, userID: String): FollowUsersFragment {
+            val args = Bundle().apply {
+                putString("state", state)
+                putString("user_id", userID)
+            }
+
+            val fragment = FollowUsersFragment()
+            fragment.arguments = args
+            return fragment
+        }
+    }
 }

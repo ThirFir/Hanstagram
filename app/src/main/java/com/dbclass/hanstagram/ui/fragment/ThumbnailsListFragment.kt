@@ -34,6 +34,13 @@ class ThumbnailsListFragment : Fragment() {
         binding = FragmentThumbnailsListBinding.inflate(inflater, container, false)
 
         ownerID = arguments?.getString("owner_id") ?: userViewModel.user.value?.id
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         val spanCount = 3
         binding.recyclerviewThumbnails.layoutManager = GridLayoutManager(requireContext(), spanCount)
         binding.recyclerviewThumbnails.addItemDecoration(
@@ -55,7 +62,5 @@ class ThumbnailsListFragment : Fragment() {
             val posts = postRepository.getUserPosts(ownerID)
             binding.recyclerviewThumbnails.adapter = ThumbnailsAdapter(posts)
         }
-
-        return binding.root
     }
 }

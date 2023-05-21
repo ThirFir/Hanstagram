@@ -10,6 +10,7 @@ abstract class PostRepository : Repository {
 
     abstract suspend fun addPost(post: PostEntity)
     abstract suspend fun updatePost(post: PostEntity)
+    abstract suspend fun updatePost(postID: Long, images:String, content: String)
     abstract suspend fun deletePost(postID: Long)
     abstract suspend fun getPostsCount(userID: String): Long
     abstract suspend fun getUserPosts(userID: String?): List<PostEntity>

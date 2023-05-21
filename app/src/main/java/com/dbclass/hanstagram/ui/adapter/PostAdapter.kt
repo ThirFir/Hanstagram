@@ -1,18 +1,19 @@
 package com.dbclass.hanstagram.ui.adapter
 
+import android.app.Activity
+import android.app.Activity.RESULT_OK
 import android.content.Context
+import android.content.Intent
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.afollestad.materialdialogs.LayoutMode
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.bottomsheets.BasicGridItem
-import com.afollestad.materialdialogs.bottomsheets.BottomSheet
-import com.afollestad.materialdialogs.bottomsheets.gridItems
+import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.dislikes.DislikeEntity
@@ -26,12 +27,17 @@ import com.dbclass.hanstagram.data.repository.dislike.DislikeRepository
 import com.dbclass.hanstagram.data.repository.dislike.DislikeRepositoryImpl
 import com.dbclass.hanstagram.data.repository.like.LikeRepository
 import com.dbclass.hanstagram.data.repository.like.LikeRepositoryImpl
+import com.dbclass.hanstagram.data.repository.post.PostRepository
+import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
 import com.dbclass.hanstagram.data.repository.user.UserRepository
 import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
+import com.dbclass.hanstagram.data.utils.closeKeyboard
 import com.dbclass.hanstagram.data.utils.getImageHeightWithWidthFully
 import com.dbclass.hanstagram.data.utils.getImageList
 import com.dbclass.hanstagram.data.utils.startPostCommentActivity
 import com.dbclass.hanstagram.ui.activity.MainActivity
+import com.dbclass.hanstagram.ui.activity.PostAddActivity
+import com.dbclass.hanstagram.ui.dialog.PostMenuDialogFragment
 import com.dbclass.hanstagram.ui.fragment.ProfilePageFragment
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -40,12 +46,14 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 class PostAdapter(
-    private val postsWithUsers: List<Pair<PostEntity, UserEntity>>,
+    private val postsWithUsers: MutableList<Pair<PostEntity, UserEntity>>,
     private val myID: String?,
     private val context: Context,
-    private val rootWidth: Int = 0
+    private val rootWidth: Int = 0,
+    private val postEditActivityResult: ActivityResultLauncher<Intent>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private val postRepository: PostRepository = PostRepositoryImpl
     private val commentRepository: CommentRepository = CommentRepositoryImpl
     private val dislikeRepository: DislikeRepository = DislikeRepositoryImpl
     private val likeRepository: LikeRepository = LikeRepositoryImpl
@@ -53,6 +61,7 @@ class PostAdapter(
 
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
     private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         return PostViewHolder(
@@ -82,18 +91,56 @@ class PostAdapter(
 
         postBinding.textContent.text = post.content
         postBinding.iconPostMenu.setOnClickListener {
-            MaterialDialog(this.context, BottomSheet(LayoutMode.WRAP_CONTENT)).show {
-                gridItems(
-                    items = listOf(
-                        BasicGridItem(R.drawable.ic_siren_48, "신고"),
-                        BasicGridItem(R.drawable.baseline_edit_32, "수정"),
-                        BasicGridItem(R.drawable.baseline_delete_32, "삭제")
-                    )
-                ) { _, index, item ->
-                    Toast.makeText(context, "dddddd", Toast.LENGTH_SHORT).show()
+            PostMenuDialogFragment.newInstance(post.postID, postOwner.id, myID!!, position)
+                .apply {
+                    setOnItemClickListener { selectedItem ->
+                        when (selectedItem) {
+                            PostMenuDialogFragment.EDIT -> {
+                                dismiss()
+                                val postEditActivity = PostAddActivity().apply {
+                                    setOnEditCompleteListener { _, images, content ->
+                                        updatePost(position, post.postID, images, content)
+                                        Toast.makeText(
+                                            this@PostAdapter.context,
+                                            "게시물 수정이 완료되었습니다.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
 
-                }
-            }
+                                postEditActivityResult.launch(
+                                    Intent(context, postEditActivity::class.java).apply {
+                                        putExtra("user_id", postOwner.id)
+                                        putExtra("images", post.images)
+                                    }
+                                )
+                            }
+
+                            PostMenuDialogFragment.DELETE -> {
+                                uiScope.launch {
+                                    dismiss()
+                                    postRepository.deletePost(post.postID)
+                                    postsWithUsers.removeAt(position)
+                                    notifyItemRemoved(position)
+                                    notifyItemRangeChanged(position, itemCount)
+                                }
+                            }
+
+                            PostMenuDialogFragment.REPORT -> {
+                                uiScope.launch {
+                                    dismiss()
+                                    userRepository.updateTemperature(
+                                        postOwner.id,
+                                        postOwner.temperature - 5f
+                                    )
+                                    Toast.makeText(this@PostAdapter.context, "신고가 접수되었습니다", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+                            }
+                        }
+                    }
+                }.show((context as MainActivity).supportFragmentManager, PostMenuDialogFragment.TAG)
+
         }
 
         setDislikeListener(holder.binding, post, postOwner)
@@ -102,11 +149,8 @@ class PostAdapter(
         postBinding.iconComment.setOnClickListener {
             myID?.let { this.context.startPostCommentActivity(it, post.postID) }
         }
-        postBinding.iconReport.setOnClickListener {
-            // TODO 신고 - 매너 온도 하락 ?
-        }
 
-        setContentImageViewPager(holder.binding, post)
+        setContentImageViewPager(holder.binding, post.images)
 
         postBinding.textNickname.setOnClickListener {
             val profilePageFragment = ProfilePageFragment.newInstance(postOwner.id)
@@ -139,14 +183,22 @@ class PostAdapter(
                     uiScope.launch {
                         if (dislike == null) {
                             dislike = dislikeRepository.doDislike(DislikeEntity(myID, post.postID))
-                            userRepository.updateTemperature(postOwner.id, postOwner.temperature - 1f)
+                            if (postOwner.id != myID)   // Not self dislike
+                                userRepository.updateTemperature(
+                                    postOwner.id,
+                                    postOwner.temperature - 1f
+                                )
                             Glide.with(this@PostAdapter.context)
                                 .load(R.drawable.ic_disgusting_filled_100)
                                 .into(binding.iconDislike)
                             binding.textDislikesCount.text = (++dislikesCount).toString()
                         } else {
                             dislikeRepository.cancelDislike(dislike!!.pid)
-                            userRepository.updateTemperature(postOwner.id, postOwner.temperature + 1f)
+                            if (postOwner.id != myID)
+                                userRepository.updateTemperature(
+                                    postOwner.id,
+                                    postOwner.temperature + 1f
+                                )
                             dislike = null
 
                             Glide.with(this@PostAdapter.context).load(R.drawable.ic_disgusting_100)
@@ -178,7 +230,11 @@ class PostAdapter(
                     uiScope.launch {
                         if (like == null) {
                             like = likeRepository.doLike(LikeEntity(myID, post.postID))
-                            userRepository.updateTemperature(postOwner.id, postOwner.temperature + 1f)
+                            if (postOwner.id != myID)    // Not self like
+                                userRepository.updateTemperature(
+                                    postOwner.id,
+                                    postOwner.temperature + 1f
+                                )
 
                             Glide.with(this@PostAdapter.context)
                                 .load(R.drawable.ic_heart_filled_100)
@@ -186,7 +242,11 @@ class PostAdapter(
                             binding.textLikesCount.text = (++likesCount).toString()
                         } else {
                             likeRepository.cancelLike(like!!.pid)
-                            userRepository.updateTemperature(postOwner.id, postOwner.temperature - 1f)
+                            if (postOwner.id != myID)
+                                userRepository.updateTemperature(
+                                    postOwner.id,
+                                    postOwner.temperature - 1f
+                                )
                             like = null
 
                             Glide.with(this@PostAdapter.context).load(R.drawable.ic_heart_100)
@@ -200,8 +260,8 @@ class PostAdapter(
         }
     }
 
-    private fun setContentImageViewPager(binding: ItemPostBinding, post: PostEntity) {
-        val imageList = getImageList(post.images)
+    private fun setContentImageViewPager(binding: ItemPostBinding, images: String) {
+        val imageList = getImageList(images)
         binding.imageContentViewpager.adapter =
             ImagePagerAdapter(this.context as FragmentActivity).apply {
                 setImages(
@@ -209,6 +269,36 @@ class PostAdapter(
                     this@PostAdapter.context.getImageHeightWithWidthFully(imageList[0], rootWidth)
                 )
             }
+
+        if (imageList.size != 1) {
+            binding.textImagePosition.text = "1/${imageList.size}"
+            binding.imageContentViewpager.registerOnPageChangeCallback(object :
+                ViewPager2.OnPageChangeCallback() {
+
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    Log.d(this@PostAdapter.javaClass.simpleName, position.toString())
+                    binding.textImagePosition.text = "${position + 1}/${imageList.size}"
+                }
+            }
+            )
+        }
+    }
+
+    private fun updatePost(position: Int, postID: Long, images: String, content: String) {
+        uiScope.launch {
+            postRepository.updatePost(
+                postID = postID,
+                images = images,
+                content = content
+            )
+            val p = postsWithUsers[position].first
+            p.images = images
+            p.content = content
+            val u = postsWithUsers[position].second
+            postsWithUsers[position] = Pair(p, u)
+            notifyItemChanged(position)
+        }
     }
 
     override fun getItemCount(): Int = postsWithUsers.size

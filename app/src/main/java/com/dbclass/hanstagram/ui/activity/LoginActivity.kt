@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.databinding.ActivityLoginBinding
 import com.dbclass.hanstagram.data.repository.comment.CommentRepositoryImpl
@@ -26,6 +27,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityLoginBinding.inflate(layoutInflater)
+        installSplashScreen()
         setContentView(binding.root)
 
         initializeVariables()

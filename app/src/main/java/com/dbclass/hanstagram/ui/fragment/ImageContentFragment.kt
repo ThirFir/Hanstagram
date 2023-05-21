@@ -14,6 +14,10 @@ import com.dbclass.hanstagram.databinding.FragmentImageContentBinding
 
 class ImageContentFragment private constructor(): Fragment() {
 
+    private lateinit var binding: FragmentImageContentBinding
+    private var imageURI: String? = null
+    private var imageHeight: Int = 600
+
     companion object {
         fun newInstance(uri: String, height: Int): ImageContentFragment {
             val args = bundleOf("uri" to uri, "height" to height)
@@ -28,15 +32,19 @@ class ImageContentFragment private constructor(): Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        binding = FragmentImageContentBinding.inflate(inflater, container, false)
 
-        val binding = FragmentImageContentBinding.inflate(inflater, container, false)
-        val imageURI = arguments?.getString("uri")
-        val imageHeight = arguments?.getInt("height", 600) ?: 600
-        Log.d("ImageContentFragment", "생성 : $imageURI")
+        imageURI = arguments?.getString("uri")
+        imageHeight = arguments?.getInt("height", 600) ?: 600
         binding.imageContent.layoutParams.height = imageHeight
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         Glide.with(requireContext()).load(imageURI).error(R.drawable.ic_error_96)
             .into(binding.imageContent)
-        return binding.root
     }
 
 }
