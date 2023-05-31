@@ -15,6 +15,7 @@ import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.guests.GuestCommentEntity
 import com.dbclass.hanstagram.data.repository.guest.GuestCommentRepository
 import com.dbclass.hanstagram.data.repository.guest.GuestCommentRepositoryImpl
+import com.dbclass.hanstagram.data.utils.StringConstants.OWNER_ID
 import com.dbclass.hanstagram.data.utils.closeKeyboard
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentGuestBookBinding
@@ -34,8 +35,9 @@ class GuestBookFragment private constructor() : Fragment() {
     private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
 
     companion object {
+
         fun newInstance(ownerID: String): GuestBookFragment {
-            val args = bundleOf("owerID" to ownerID)
+            val args = bundleOf(OWNER_ID to ownerID)
 
             val fragment = GuestBookFragment()
             fragment.arguments = args
@@ -48,21 +50,7 @@ class GuestBookFragment private constructor() : Fragment() {
     ): View {
         binding = FragmentGuestBookBinding.inflate(inflater, container, false)
 
-        ownerID = arguments?.getString("owner_id") ?: userViewModel.user.value?.id
-
-        uiScope.launch {
-            val guestComments = ownerID?.let { guestCommentRepository.getGuestComments(it) }
-
-            binding.recyclerviewGuestComments.layoutManager =
-                LinearLayoutManager(requireContext())
-            if (guestComments != null)
-                binding.recyclerviewGuestComments.adapter =
-                    GuestAdapter(
-                        guestComments as MutableList<GuestCommentEntity>,
-                        userViewModel.user.value?.id
-                    )
-
-        }
+        ownerID = arguments?.getString(OWNER_ID) ?: userViewModel.user.value?.id
 
         binding.buttonAddGuestComment.setOnClickListener {
             val fromUserID = userViewModel.user.value?.id ?: return@setOnClickListener
@@ -78,7 +66,6 @@ class GuestBookFragment private constructor() : Fragment() {
             binding.editTextGuestComment.text.clear()
         }
 
-
         val layout = inflater.inflate(R.layout.item_guest_comment, container, false) as ConstraintLayout
         val view = layout.findViewById<ImageView>(R.id.image_guest_profile)
         userViewModel.user.observe(viewLifecycleOwner) {
@@ -89,5 +76,23 @@ class GuestBookFragment private constructor() : Fragment() {
         }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        uiScope.launch {
+            val guestComments = ownerID?.let { guestCommentRepository.getGuestComments(it) }
+
+            binding.recyclerviewGuestComments.layoutManager =
+                LinearLayoutManager(requireContext())
+            if (guestComments != null)
+                binding.recyclerviewGuestComments.adapter =
+                    GuestAdapter(
+                        guestComments as MutableList<GuestCommentEntity>,
+                        userViewModel.user.value?.id
+                    )
+
+        }
     }
 }

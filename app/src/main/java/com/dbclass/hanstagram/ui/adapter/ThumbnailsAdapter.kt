@@ -35,9 +35,7 @@ class ThumbnailsAdapter(private val posts: List<PostEntity>) : RecyclerView.Adap
         holder.binding.imageThumbnail.setOnClickListener {
             PostFragmentDialog().apply {
                 arguments = bundleOf("post_id" to post.postID)
-            }.show(
-                (context as MainActivity).supportFragmentManager, "PostDialog"
-            )
+            }.show((context as MainActivity).supportFragmentManager, "PostDialog")
         }
     }
 

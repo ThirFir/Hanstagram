@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dbclass.hanstagram.data.repository.post.PostRepository
 import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
+import com.dbclass.hanstagram.data.utils.StringConstants.OWNER_ID
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentThumbnailsListBinding
 import com.dbclass.hanstagram.ui.adapter.ThumbnailsAdapter
@@ -20,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class ThumbnailsListFragment : Fragment() {
+class ThumbnailsListFragment private constructor(): Fragment() {
     private val userViewModel: UserViewModel by activityViewModels()
     private val postRepository: PostRepository = PostRepositoryImpl
     private lateinit var binding: FragmentThumbnailsListBinding
@@ -33,7 +34,14 @@ class ThumbnailsListFragment : Fragment() {
     ): View {
         binding = FragmentThumbnailsListBinding.inflate(inflater, container, false)
 
-        ownerID = arguments?.getString("owner_id") ?: userViewModel.user.value?.id
+        ownerID = arguments?.getString(OWNER_ID) ?: userViewModel.user.value?.id
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         val spanCount = 3
         binding.recyclerviewThumbnails.layoutManager = GridLayoutManager(requireContext(), spanCount)
         binding.recyclerviewThumbnails.addItemDecoration(
@@ -55,7 +63,18 @@ class ThumbnailsListFragment : Fragment() {
             val posts = postRepository.getUserPosts(ownerID)
             binding.recyclerviewThumbnails.adapter = ThumbnailsAdapter(posts)
         }
+    }
 
-        return binding.root
+    companion object {
+
+        fun newInstance(ownerID: String): ThumbnailsListFragment {
+            val args = Bundle().apply {
+                putString(OWNER_ID, ownerID)
+            }
+
+            val fragment = ThumbnailsListFragment()
+            fragment.arguments = args
+            return fragment
+        }
     }
 }

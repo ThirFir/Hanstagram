@@ -28,6 +28,7 @@
     <string name="toast_input_password">비밀번호를 입력하세요</string>
     <string name="toast_input_email">이메일을 입력하세요</string>
     <string name="toast_input_student_id">학번을 입력하세요</string>
+    <string name="toast_input_department">학부를 선택하세요</string>
     <string name="toast_no_exist_id">존재하지 않는 아이디입니다</string>
     <string name="toast_wrong_account">잘못된 아이디 또는 비밀번호입니다</string>
     <string name="toast_create_account">회원가입이 완료되었습니다</string>
@@ -67,4 +68,5 @@
     <string name="text_post">게시물</string>
     <string name="text_follower">팔로워</string>
     <string name="text_following">팔로잉</string>
+    <string name="text_select_department">학부를 선택하세요</string>
 </resources>

@@ -12,6 +12,9 @@ interface PostsDao {
     @Update
     suspend fun updatePost(post: PostEntity)
 
+    @Query("update posts set images=:images, content=:content where post_id=:postID")
+    suspend fun updatePost(postID: Long, images: String, content: String)
+
     @Query("delete from posts where post_id = :postID")
     suspend fun deletePost(postID: Long)
 

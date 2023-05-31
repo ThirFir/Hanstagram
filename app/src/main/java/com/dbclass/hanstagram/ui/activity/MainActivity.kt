@@ -1,10 +1,14 @@
 package com.dbclass.hanstagram.ui.activity
 
+import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import com.dbclass.hanstagram.ui.fragment.PostsPageFragment
@@ -13,9 +17,12 @@ import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.repository.user.UserRepository
 import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
+import com.dbclass.hanstagram.data.utils.IntegerConstants.ALL
+import com.dbclass.hanstagram.data.utils.IntegerConstants.FOLLOW
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.ActivityMainBinding
 import com.dbclass.hanstagram.ui.fragment.FindPageFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,12 +42,20 @@ class MainActivity : AppCompatActivity() {
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
     private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
 
+    private var backPressedTime = 0L
     private val backPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            if (supportFragmentManager.backStackEntryCount > 0) {
+            /*if (supportFragmentManager.backStackEntryCount > 0) {
                 supportFragmentManager.popBackStack()
                 binding.bottomNavigationView.menu.findItem(prevSelectedItem)?.isChecked = true
-            } else finish()
+            } else finish()*/
+            // if tab twice than finish app
+            if (System.currentTimeMillis() - backPressedTime < 2000) {
+                finish()
+            } else {
+                backPressedTime = System.currentTimeMillis()
+                Toast.makeText(this@MainActivity, "한 번 더 누르면 앱을 종료합니다.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -48,10 +63,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        postsPageFragment = PostsPageFragment.newInstance(PostsPageFragment.ALL)
-        followersPostsPageFragment = PostsPageFragment.newInstance(PostsPageFragment.FOLLOW)
+        postsPageFragment = PostsPageFragment.newInstance(ALL)
+        followersPostsPageFragment = PostsPageFragment.newInstance(FOLLOW)
         findPageFragment = FindPageFragment.newInstance()
         // profilePageFragment = ProfilePageFragment.newInstance(userViewModel.user.value?.id)
+
 
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
         uiScope.launch {
@@ -122,4 +138,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 }
+

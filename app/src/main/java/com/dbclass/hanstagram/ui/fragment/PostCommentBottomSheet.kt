@@ -14,6 +14,7 @@ import com.dbclass.hanstagram.data.repository.comment.CommentRepository
 import com.dbclass.hanstagram.data.repository.comment.CommentRepositoryImpl
 import com.dbclass.hanstagram.data.repository.user.UserRepository
 import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
+import com.dbclass.hanstagram.data.utils.StringConstants.POST_ID
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentPostCommentBottomSheetBinding
 import com.dbclass.hanstagram.ui.adapter.PostCommentAdapter
@@ -31,34 +32,40 @@ class PostCommentBottomSheet : BottomSheetDialogFragment() {
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
     private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
 
+    private var postID: Long? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentPostCommentBottomSheetBinding.inflate(inflater, container, false)
-        binding.recyclerviewPostComments.layoutManager = LinearLayoutManager(requireContext())
 
-        val postID = arguments?.getLong("post_id")
+        postID = arguments?.getLong(POST_ID)
         if (postID == null) {
             Log.d("PostCommentBottomSheet", "Post ID Load Failure")
             dismiss()
         }
 
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.recyclerviewPostComments.layoutManager = LinearLayoutManager(requireContext())
         uiScope.launch {
             val image =
                 userRepository.getProfileImage(userViewModel.user.value?.id ?: return@launch)
             Glide.with(requireContext()).load(image).error(R.drawable.ic_account_96)
                 .into(binding.imageProfile)
-
         }
 
         uiScope.launch {
-            val comments = postID?.let { commentRepository.getComments(it) }
+            val comments = commentRepository.getComments(postID!!)
 
             binding.recyclerviewPostComments.adapter =
-                PostCommentAdapter(comments as MutableList, postID, userViewModel.user.value?.id)
+                PostCommentAdapter(comments as MutableList, postID!!, userViewModel.user.value?.id)
             binding.textButtonLeaveComment.setOnClickListener {
                 binding.editTextPostComment.text.ifEmpty {
                     Toast.makeText(requireContext(), "댓글을 입력해주세요", Toast.LENGTH_SHORT).show()
@@ -72,7 +79,5 @@ class PostCommentBottomSheet : BottomSheetDialogFragment() {
             }
 
         }
-
-        return binding.root
     }
 }

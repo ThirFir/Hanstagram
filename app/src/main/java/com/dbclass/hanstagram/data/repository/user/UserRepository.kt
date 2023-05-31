@@ -6,7 +6,7 @@ import com.dbclass.hanstagram.data.db.users.UsersDao
 import com.dbclass.hanstagram.data.repository.Repository
 
 abstract class UserRepository : Repository {
-    var dao: UsersDao? = null
+    protected var dao: UsersDao? = null
 
     abstract suspend fun createUser(user: UserEntity)
     abstract suspend fun updateProfileImage(id: String, uri: Uri)

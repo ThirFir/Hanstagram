@@ -3,16 +3,18 @@ package com.dbclass.hanstagram.ui.fragment
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
+import com.dbclass.hanstagram.data.db.posts.PostEntity
 import com.dbclass.hanstagram.data.repository.follow.FollowRepository
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentProfilePageBinding
@@ -21,6 +23,11 @@ import com.dbclass.hanstagram.data.repository.post.PostRepository
 import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
 import com.dbclass.hanstagram.data.repository.user.UserRepository
 import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
+import com.dbclass.hanstagram.data.utils.IntegerConstants.ALL
+import com.dbclass.hanstagram.data.utils.IntegerConstants.FOLLOWERS
+import com.dbclass.hanstagram.data.utils.IntegerConstants.FOLLOWINGS
+import com.dbclass.hanstagram.data.utils.StringConstants.OWNER_ID
+import com.dbclass.hanstagram.data.utils.StringConstants.USER_ID
 import com.dbclass.hanstagram.ui.activity.*
 import com.dbclass.hanstagram.ui.adapter.ProfileViewPagerFragmentAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -35,8 +42,8 @@ class ProfilePageFragment private constructor() : Fragment() {
 
     private lateinit var binding: FragmentProfilePageBinding
 
-    private lateinit var activityEditedResult: ActivityResultLauncher<Intent>
-    private lateinit var newPostAddedResult: ActivityResultLauncher<Intent>
+    private lateinit var profileEditActivityResult: ActivityResultLauncher<Intent>
+    private lateinit var newPostAddActivityResult: ActivityResultLauncher<Intent>
 
     private val followRepository: FollowRepository = FollowRepositoryImpl
     private val userRepository: UserRepository = UserRepositoryImpl
@@ -55,9 +62,10 @@ class ProfilePageFragment private constructor() : Fragment() {
     val temperature = MutableLiveData<Float>()
 
     companion object {
+
         fun newInstance(ownerID: String?): ProfilePageFragment {
             val args = Bundle().apply {
-                putString("user_id", ownerID)
+                putString(OWNER_ID, ownerID)
             }
 
             val fragment = ProfilePageFragment()
@@ -77,38 +85,22 @@ class ProfilePageFragment private constructor() : Fragment() {
                     profilePageFragment = this@ProfilePageFragment
                     lifecycleOwner = this@ProfilePageFragment
                 }
-        ownerID = arguments?.getString("user_id") ?: userViewModel.user.value?.id
+        ownerID = arguments?.getString(OWNER_ID) ?: userViewModel.user.value?.id
         myID = userViewModel.user.value?.id
 
+        (requireActivity() as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
+        setHasOptionsMenu(true)
 
-        activityEditedResult =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == RESULT_OK) {
-                    val editedImageURI = it.data?.getStringExtra("image_uri")
-                    val editedNickname = it.data?.getStringExtra("nickname")
-                    val editedCaption = it.data?.getStringExtra("caption")
-                    if (editedImageURI != null)
-                        userViewModel.setProfileImage(editedImageURI)
-                    if (editedNickname != null)
-                        userViewModel.setNickname(editedNickname)
-                    if (editedCaption != null)
-                        userViewModel.setCaption(editedCaption)
-                }
-            }
-
-        newPostAddedResult =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                if (it.resultCode == RESULT_OK) {
-                    parentFragmentManager.beginTransaction()
-                        .replace(
-                            R.id.fragment_content,
-                            PostsPageFragment.newInstance(PostsPageFragment.ALL)
-                        )
-                        .commit()
-                    requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-                        .selectedItemId = R.id.item_posts
-                }
-            }
+        binding.wrapperTextFollowers.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_content, FollowUsersFragment
+                    .newInstance(FOLLOWERS, ownerID!!)).commit()
+        }
+        binding.wrapperTextFollowings.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_content, FollowUsersFragment
+                    .newInstance(FOLLOWINGS, ownerID!!)).commit()
+        }
 
         return binding.root
     }
@@ -126,26 +118,41 @@ class ProfilePageFragment private constructor() : Fragment() {
             tab.setIcon(tabIcons[pos])
         }.attach()
 
+        profileEditActivityResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == RESULT_OK) {
+                    val editedImageURI = it.data?.getStringExtra("image_uri")
+                    val editedNickname = it.data?.getStringExtra("nickname")
+                    val editedCaption = it.data?.getStringExtra("caption")
+                    if (editedImageURI != null)
+                        userViewModel.setProfileImage(editedImageURI)
+                    if (editedNickname != null)
+                        userViewModel.setNickname(editedNickname)
+                    if (editedCaption != null)
+                        userViewModel.setCaption(editedCaption)
+                }
+            }
+        newPostAddActivityResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == RESULT_OK) {
+                    parentFragmentManager.beginTransaction()
+                        .replace(
+                            R.id.fragment_content,
+                            PostsPageFragment.newInstance(ALL)
+                        )
+                        .commit()
+                    requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+                        .selectedItemId = R.id.item_posts
+                }
+            }
+        setView()
 
+    }
+
+    private fun setView() {
         setViewButtonState()
         setViewProfileInfo()
         setViewData()
-
-        (requireActivity() as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
-        setHasOptionsMenu(true)
-
-        binding.wrapperTextFollowers.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_content, FollowUsersFragment().apply {
-                    arguments = bundleOf("user_id" to ownerID, "state" to "followers")
-                }).commit()
-        }
-        binding.wrapperTextFollowings.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_content, FollowUsersFragment().apply {
-                    arguments = bundleOf("user_id" to ownerID, "state" to "followings")
-                }).commit()
-        }
     }
 
     private fun setViewData() {
@@ -179,6 +186,8 @@ class ProfilePageFragment private constructor() : Fragment() {
                 binding.run {
                     textNickname.text = it.nickname
                     textContent.text = it.caption
+                    textStudentId.text = it.studentID
+                    textDepartment.text = it.department
                     Glide.with(this@ProfilePageFragment)
                         .load(it.profileImage)
                         .error(R.drawable.ic_account_96)
@@ -189,13 +198,16 @@ class ProfilePageFragment private constructor() : Fragment() {
         } else {     // 타인 프로필
             uiScope.launch {
                 val user = ownerID?.let { userRepository.getUser(it) }
-                binding.textNickname.text = user?.nickname
-                binding.textContent.text = user?.caption
-                Glide.with(requireContext()).load(user?.profileImage)
-                    .error(R.drawable.ic_account_96)
-                    .placeholder(R.drawable.ic_account_96)
-                    .into(binding.imageProfile)
-
+                binding.run {
+                    textNickname.text = user?.nickname
+                    textContent.text = user?.caption
+                    textStudentId.text = user?.studentID
+                    textDepartment.text = user?.department
+                    Glide.with(requireContext()).load(user?.profileImage)
+                        .error(R.drawable.ic_account_96)
+                        .placeholder(R.drawable.ic_account_96)
+                        .into(imageProfile)
+                }
             }
         }
     }
@@ -212,8 +224,9 @@ class ProfilePageFragment private constructor() : Fragment() {
                     putExtra("caption", userViewModel.user.value?.caption)
                     putExtra("user_id", myID)
                     putExtra("image_uri", userViewModel.user.value?.profileImage)
+                    putExtra("department", userViewModel.user.value?.department)
                 }
-                activityEditedResult.launch(intent)
+                profileEditActivityResult.launch(intent)
             }
 
             // message버튼을 로그아웃 버튼으로 사용
@@ -261,10 +274,28 @@ class ProfilePageFragment private constructor() : Fragment() {
 
         return when (item.itemId) {
             R.id.icon_add_new_post -> {
-                val intent = Intent(requireActivity(), NewPostActivity::class.java).apply {
-                    putExtra("user_id", userViewModel.user.value?.id)
+                val newPostAddActivity = PostAddActivity().apply {
+                    setOnEditCompleteListener { userID, images, content ->
+                        uiScope.launch {
+                            postRepository.addPost(
+                                PostEntity(
+                                    userID = userID,
+                                    content = content,
+                                    images = images,
+                                    createdTime = System.currentTimeMillis()
+                                )
+                            )
+
+                            Toast.makeText(requireContext(), "게시글이 작성되었습니다", Toast.LENGTH_SHORT)
+                                .show()
+
+                        }
+                    }
                 }
-                newPostAddedResult.launch(intent)
+                val intent = Intent(requireActivity(), newPostAddActivity::class.java).apply {
+                    putExtra(USER_ID, userViewModel.user.value?.id)
+                }
+                newPostAddActivityResult.launch(intent)
                 true
             }
 

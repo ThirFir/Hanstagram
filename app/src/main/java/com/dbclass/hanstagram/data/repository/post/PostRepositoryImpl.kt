@@ -34,6 +34,12 @@ object PostRepositoryImpl : PostRepository() {
         }
     }
 
+    override suspend fun updatePost(postID: Long, images: String, content: String) {
+        withContext(dbScope.coroutineContext) {
+            dao?.updatePost(postID, images, content)
+        }
+    }
+
     override suspend fun deletePost(postID: Long) {
         withContext(dbScope.coroutineContext) {
             dao?.deletePost(postID)

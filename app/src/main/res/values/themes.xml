@@ -19,7 +19,19 @@
         <item name="android:editTextBackground">@null</item>
 
         <item name="bottomSheetDialogTheme">@style/CommentBottomSheetDialog</item>
+
+        <!--<item name="android:windowSplashScreenBackground" tools:targetApi="S">@color/white</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="S">@drawable/logo_koreatech</item>
+        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="S">@color/white</item>
+        <item name="android:windowSplashScreenAnimationDuration" tools:targetApi="S">2000</item>
+        <item name="android:windowSplashScreenBrandingImage" tools:targetApi="s">@drawable/hanstagram</item>-->
+
     </style>
 
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
 
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/heart_pink_48</item>
+        <item name="postSplashScreenTheme">@style/Theme.Hanstagram</item>
+    </style>
 </resources>

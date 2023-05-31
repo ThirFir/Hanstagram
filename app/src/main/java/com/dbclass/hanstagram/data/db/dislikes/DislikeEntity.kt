@@ -22,7 +22,7 @@ import com.dbclass.hanstagram.data.db.users.UserEntity
     )
 ])
 data class DislikeEntity(
-    @ColumnInfo(name = "user_id") val userID: String,
+    @ColumnInfo(name = "user_id") val userID: String,       /** Primary Key : (user_id, post_id)??? */
     @ColumnInfo(name = "post_id") val postID: Long,
     @PrimaryKey(autoGenerate = true) val pid: Long = 0
 )

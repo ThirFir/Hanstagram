@@ -33,7 +33,6 @@ class GuestAdapter(private val guestComments: MutableList<GuestCommentEntity>, p
     }
     override fun getItemCount(): Int = guestComments.size
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         with((holder as GuestViewHolder).binding) {
             val comment = guestComments[position]
