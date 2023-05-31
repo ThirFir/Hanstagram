@@ -14,6 +14,7 @@ import com.dbclass.hanstagram.data.repository.comment.CommentRepository
 import com.dbclass.hanstagram.data.repository.comment.CommentRepositoryImpl
 import com.dbclass.hanstagram.data.repository.user.UserRepository
 import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
+import com.dbclass.hanstagram.data.utils.StringConstants.POST_ID
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentPostCommentBottomSheetBinding
 import com.dbclass.hanstagram.ui.adapter.PostCommentAdapter
@@ -40,7 +41,7 @@ class PostCommentBottomSheet : BottomSheetDialogFragment() {
     ): View {
         binding = FragmentPostCommentBottomSheetBinding.inflate(inflater, container, false)
 
-        postID = arguments?.getLong("post_id")
+        postID = arguments?.getLong(POST_ID)
         if (postID == null) {
             Log.d("PostCommentBottomSheet", "Post ID Load Failure")
             dismiss()

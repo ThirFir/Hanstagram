@@ -9,6 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
+import com.dbclass.hanstagram.data.utils.IntegerConstants.DELETE
+import com.dbclass.hanstagram.data.utils.IntegerConstants.EDIT
+import com.dbclass.hanstagram.data.utils.IntegerConstants.REPORT
+import com.dbclass.hanstagram.data.utils.StringConstants.MY_ID
+import com.dbclass.hanstagram.data.utils.StringConstants.OWNER_ID
+import com.dbclass.hanstagram.data.utils.StringConstants.POST_ID
 import com.dbclass.hanstagram.databinding.ItemFragmentPostMenuDialogBinding
 import com.dbclass.hanstagram.databinding.FragmentPostMenuDialogBinding
 
@@ -35,7 +41,7 @@ class PostMenuDialogFragment : BottomSheetDialogFragment() {
         binding = FragmentPostMenuDialogBinding.inflate(inflater, container, false)
         arguments?.let {
             postID = it.getLong(POST_ID)
-            ownerID = it.getString(POST_OWNER_ID)
+            ownerID = it.getString(OWNER_ID)
             myID = it.getString(MY_ID)
         }
         return binding.root
@@ -105,20 +111,13 @@ class PostMenuDialogFragment : BottomSheetDialogFragment() {
 
         val TAG = ""
 
-        val EDIT = 10000
-        val DELETE = 10001
-        val REPORT = 20000
-
-        val POST_ID = "post_id"
-        val POST_OWNER_ID = "owner_id"
-        val MY_ID = "my_id"
-        val POST_POSITION = "post_position"
+        private const val POST_POSITION = "post_position"
 
         fun newInstance(postID: Long, ownerID: String, myID: String, postPosition: Int): PostMenuDialogFragment =
             PostMenuDialogFragment().apply {
                 arguments = Bundle().apply {
                     putLong(POST_ID, postID)
-                    putString(POST_OWNER_ID, ownerID)
+                    putString(OWNER_ID, ownerID)
                     putString(MY_ID, myID)
                     putInt(POST_POSITION, postPosition)
                 }

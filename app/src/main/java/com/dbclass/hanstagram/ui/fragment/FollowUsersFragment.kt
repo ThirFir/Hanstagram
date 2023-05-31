@@ -10,6 +10,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.repository.follow.FollowRepository
 import com.dbclass.hanstagram.data.repository.follow.FollowRepositoryImpl
+import com.dbclass.hanstagram.data.utils.IntegerConstants.FOLLOWERS
+import com.dbclass.hanstagram.data.utils.IntegerConstants.FOLLOWINGS
+import com.dbclass.hanstagram.data.utils.StringConstants.STATE
+import com.dbclass.hanstagram.data.utils.StringConstants.USER_ID
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.FragmentFollowUsersBinding
 import com.dbclass.hanstagram.ui.adapter.FoundUserAdapter
@@ -27,7 +31,7 @@ class FollowUsersFragment private constructor(): Fragment() {
     private val uiScope: CoroutineScope = CoroutineScope(mainDispatcher)
 
     private var userID: String? = null
-    private var state: String? = null
+    private var state: Int? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,8 +40,8 @@ class FollowUsersFragment private constructor(): Fragment() {
         binding = FragmentFollowUsersBinding.inflate(inflater, container, false)
 
         /** state : "followers" or "followings" */
-        state = arguments?.getString("state")
-        userID = arguments?.getString("user_id")
+        state = arguments?.getInt(STATE, 101)
+        userID = arguments?.getString(USER_ID)
 
         return binding.root
     }
@@ -49,9 +53,9 @@ class FollowUsersFragment private constructor(): Fragment() {
 
         uiScope.launch {
             var followUsers = listOf<UserEntity>()
-            if (state == "followers")
+            if (state == FOLLOWERS)
                 followUsers = followRepository.getFollowers(userID)
-            else if(state == "followings")
+            else if(state == FOLLOWINGS)
                 followUsers = followRepository.getFollowings(userID)
             binding.recyclerviewFollowUsers.adapter =
                 FoundUserAdapter(followUsers as MutableList, true, userViewModel.user.value?.id)
@@ -61,10 +65,10 @@ class FollowUsersFragment private constructor(): Fragment() {
 
     companion object {
 
-        fun newInstance(state: String, userID: String): FollowUsersFragment {
+        fun newInstance(state: Int, userID: String): FollowUsersFragment {
             val args = Bundle().apply {
-                putString("state", state)
-                putString("user_id", userID)
+                putInt(STATE, state)
+                putString(USER_ID, userID)
             }
 
             val fragment = FollowUsersFragment()

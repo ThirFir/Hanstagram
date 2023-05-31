@@ -3,6 +3,7 @@ package com.dbclass.hanstagram.ui.activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
 import com.dbclass.hanstagram.databinding.ActivityRegisterBinding
@@ -24,11 +25,27 @@ class RegisterActivity : AppCompatActivity() {
         val binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        var selectedDepartment = ""
+        binding.editTextDepartment.setOnClickListener {
+            AlertDialog.Builder(this@RegisterActivity)
+                .setTitle("학부")
+                .setSingleChoiceItems(R.array.departments, 0) { _, which ->
+                    selectedDepartment = resources.getStringArray(R.array.departments)[which]
+                }
+                .setPositiveButton("확인") { _, _ ->
+                    binding.editTextDepartment.setText(selectedDepartment)
+                }.setNegativeButton("취소") { _, _ ->
+                    selectedDepartment = ""
+                }
+                .show()
+        }
+
         binding.buttonRegister.setOnClickListener {
             val id = binding.editTextNewId.text
             val password = binding.editTextNewPassword.text
             val email = binding.editTextEmail.text
             val studentID = binding.editTextStudentId.text
+            val department = binding.editTextDepartment.text
 
             if (id.isEmpty()) {
                 Toast.makeText(this, R.string.toast_input_id, Toast.LENGTH_SHORT).show()
@@ -38,7 +55,10 @@ class RegisterActivity : AppCompatActivity() {
                 Toast.makeText(this, R.string.toast_input_email, Toast.LENGTH_SHORT).show()
             } else if (studentID.isEmpty()) {
                 Toast.makeText(this, R.string.toast_input_student_id, Toast.LENGTH_SHORT).show()
-            } else {
+            } else if (department.isEmpty()) {
+                Toast.makeText(this, R.string.toast_input_department, Toast.LENGTH_SHORT).show()
+            }
+            else {
                 // 계정 생성
                 val user = UserEntity(
                     id = id.toString(),
@@ -46,7 +66,8 @@ class RegisterActivity : AppCompatActivity() {
                     nickname = id.toString(),
                     studentID = studentID.toString(),
                     createdTime = System.currentTimeMillis(),
-                    email = email.toString()
+                    email = email.toString(),
+                    department = department.toString()
                 )
                 uiScope.launch {
                     userRepository.createUser(user)

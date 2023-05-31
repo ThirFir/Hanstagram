@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -31,6 +32,9 @@ import com.dbclass.hanstagram.data.repository.post.PostRepository
 import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
 import com.dbclass.hanstagram.data.repository.user.UserRepository
 import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
+import com.dbclass.hanstagram.data.utils.IntegerConstants.DELETE
+import com.dbclass.hanstagram.data.utils.IntegerConstants.EDIT
+import com.dbclass.hanstagram.data.utils.IntegerConstants.REPORT
 import com.dbclass.hanstagram.data.utils.closeKeyboard
 import com.dbclass.hanstagram.data.utils.getImageHeightWithWidthFully
 import com.dbclass.hanstagram.data.utils.getImageList
@@ -95,7 +99,7 @@ class PostAdapter(
                 .apply {
                     setOnItemClickListener { selectedItem ->
                         when (selectedItem) {
-                            PostMenuDialogFragment.EDIT -> {
+                            EDIT -> {
                                 dismiss()
                                 val postEditActivity = PostAddActivity().apply {
                                     setOnEditCompleteListener { _, images, content ->
@@ -116,9 +120,13 @@ class PostAdapter(
                                 )
                             }
 
-                            PostMenuDialogFragment.DELETE -> {
+                            DELETE -> {
                                 uiScope.launch {
-                                    dismiss()
+                                    parentFragmentManager.fragments.forEach { fragment ->
+                                        if (fragment is DialogFragment) {
+                                            fragment.dismiss()
+                                        }
+                                    }
                                     postRepository.deletePost(post.postID)
                                     postsWithUsers.removeAt(position)
                                     notifyItemRemoved(position)
@@ -126,7 +134,7 @@ class PostAdapter(
                                 }
                             }
 
-                            PostMenuDialogFragment.REPORT -> {
+                            REPORT -> {
                                 uiScope.launch {
                                     dismiss()
                                     userRepository.updateTemperature(

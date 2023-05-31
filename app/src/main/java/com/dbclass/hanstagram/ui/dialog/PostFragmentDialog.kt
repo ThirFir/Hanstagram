@@ -54,14 +54,11 @@ class PostFragmentDialog : DialogFragment() {
         postEditActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 if (it.resultCode == Activity.RESULT_OK) {
-                    parentFragmentManager.beginTransaction()
-                        .replace(
-                            R.id.fragment_content,
-                            PostsPageFragment.newInstance(PostsPageFragment.ALL)
-                        )
-                        .commit()
-                    requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-                        .selectedItemId = R.id.item_posts
+                    parentFragmentManager.fragments.forEach { fragment ->
+                        if (fragment is DialogFragment) {
+                            fragment.dismiss()
+                        }
+                    }
                 }
             }
 

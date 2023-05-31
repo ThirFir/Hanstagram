@@ -5,7 +5,7 @@ import com.dbclass.hanstagram.data.db.likes.LikesDao
 import com.dbclass.hanstagram.data.repository.Repository
 
 abstract class LikeRepository : Repository {
-    var dao: LikesDao? = null
+    protected var dao: LikesDao? = null
 
     abstract suspend fun doLike(like: LikeEntity): LikeEntity?
     abstract suspend fun cancelLike(pid: Long)

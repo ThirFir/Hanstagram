@@ -149,7 +149,7 @@ class PostImageAddFragment : Fragment() {
                     val action =
                         PostImageAddFragmentDirections.actionAddPostImageAddFragmentToAddPostContentAddFragment()
                     action.arguments.run {
-                        putStringArray("image_array", imageURIs)
+                        putStringArray(PostContentAddFragment.IMAGE_ARRAY, imageURIs)
                     }
                     (requireActivity() as PostAddActivity).findNavController(R.id.nav_host_fragment_post)
                         .navigate(action)

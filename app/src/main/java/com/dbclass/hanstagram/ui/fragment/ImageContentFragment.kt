@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import com.bumptech.glide.Glide
 import com.dbclass.hanstagram.R
+import com.dbclass.hanstagram.data.utils.StringConstants.HEIGHT
+import com.dbclass.hanstagram.data.utils.StringConstants.URI
 import com.dbclass.hanstagram.databinding.FragmentImageContentBinding
 
 
@@ -19,8 +21,9 @@ class ImageContentFragment private constructor(): Fragment() {
     private var imageHeight: Int = 600
 
     companion object {
+
         fun newInstance(uri: String, height: Int): ImageContentFragment {
-            val args = bundleOf("uri" to uri, "height" to height)
+            val args = bundleOf(URI to uri, HEIGHT to height)
 
             val fragment = ImageContentFragment()
             fragment.arguments = args
@@ -34,8 +37,8 @@ class ImageContentFragment private constructor(): Fragment() {
     ): View {
         binding = FragmentImageContentBinding.inflate(inflater, container, false)
 
-        imageURI = arguments?.getString("uri")
-        imageHeight = arguments?.getInt("height", 600) ?: 600
+        imageURI = arguments?.getString(URI)
+        imageHeight = arguments?.getInt(HEIGHT, 600) ?: 600
         binding.imageContent.layoutParams.height = imageHeight
 
         return binding.root

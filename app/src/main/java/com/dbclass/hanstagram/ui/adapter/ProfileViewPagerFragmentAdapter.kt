@@ -9,10 +9,8 @@ import com.dbclass.hanstagram.ui.fragment.ThumbnailsListFragment
 
 class ProfileViewPagerFragmentAdapter(fragmentActivity: FragmentActivity): FragmentStateAdapter(fragmentActivity) {
 
-    private val fragments: List<Fragment> by lazy{
-        listOf(ThumbnailsListFragment().apply {
-            arguments = bundleOf("owner_id" to ownerID)
-        }, GuestBookFragment.newInstance(ownerID))
+    private val fragments: List<Fragment> by lazy {
+        listOf(ThumbnailsListFragment.newInstance(ownerID), GuestBookFragment.newInstance(ownerID))
     }
     private lateinit var ownerID: String
     override fun getItemCount(): Int = fragments.size

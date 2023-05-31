@@ -78,7 +78,12 @@ class PostContentAddFragment : Fragment() {
     }
 
     private fun loadImages() {
-        imageURIArray = arguments?.getStringArray("image_array") ?: arrayOf("", "", "", "", "")
+        imageURIArray = arguments?.getStringArray(IMAGE_ARRAY) ?: arrayOf("", "", "", "", "")
         Glide.with(requireContext()).load(imageURIArray[0]).into(binding.imageDisplay)
     }
+
+    companion object {
+        const val IMAGE_ARRAY = "image_array"
+    }
+
 }

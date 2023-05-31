@@ -5,7 +5,7 @@ import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.repository.Repository
 
 abstract class FollowRepository: Repository {
-    var dao: FollowsDao? = null
+    protected var dao: FollowsDao? = null
 
     abstract suspend fun getFollowPID(follower: String, following: String): Long?
     abstract suspend fun doFollow(follower: String, following: String): Long?

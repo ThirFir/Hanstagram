@@ -5,7 +5,7 @@ import com.dbclass.hanstagram.data.db.dislikes.DislikesDao
 import com.dbclass.hanstagram.data.repository.Repository
 
 abstract class DislikeRepository: Repository {
-    var dao: DislikesDao? = null
+    protected var dao: DislikesDao? = null
 
     abstract suspend fun doDislike(dislike: DislikeEntity): DislikeEntity?
     abstract suspend fun cancelDislike(pid: Long)

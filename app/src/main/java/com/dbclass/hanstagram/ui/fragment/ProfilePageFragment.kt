@@ -23,6 +23,11 @@ import com.dbclass.hanstagram.data.repository.post.PostRepository
 import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
 import com.dbclass.hanstagram.data.repository.user.UserRepository
 import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
+import com.dbclass.hanstagram.data.utils.IntegerConstants.ALL
+import com.dbclass.hanstagram.data.utils.IntegerConstants.FOLLOWERS
+import com.dbclass.hanstagram.data.utils.IntegerConstants.FOLLOWINGS
+import com.dbclass.hanstagram.data.utils.StringConstants.OWNER_ID
+import com.dbclass.hanstagram.data.utils.StringConstants.USER_ID
 import com.dbclass.hanstagram.ui.activity.*
 import com.dbclass.hanstagram.ui.adapter.ProfileViewPagerFragmentAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -57,9 +62,10 @@ class ProfilePageFragment private constructor() : Fragment() {
     val temperature = MutableLiveData<Float>()
 
     companion object {
+
         fun newInstance(ownerID: String?): ProfilePageFragment {
             val args = Bundle().apply {
-                putString("user_id", ownerID)
+                putString(OWNER_ID, ownerID)
             }
 
             val fragment = ProfilePageFragment()
@@ -79,9 +85,8 @@ class ProfilePageFragment private constructor() : Fragment() {
                     profilePageFragment = this@ProfilePageFragment
                     lifecycleOwner = this@ProfilePageFragment
                 }
-        ownerID = arguments?.getString("user_id") ?: userViewModel.user.value?.id
+        ownerID = arguments?.getString(OWNER_ID) ?: userViewModel.user.value?.id
         myID = userViewModel.user.value?.id
-
 
         (requireActivity() as MainActivity).supportActionBar?.setDisplayShowHomeEnabled(true)
         setHasOptionsMenu(true)
@@ -89,12 +94,12 @@ class ProfilePageFragment private constructor() : Fragment() {
         binding.wrapperTextFollowers.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_content, FollowUsersFragment
-                    .newInstance("followers", ownerID!!)).commit()
+                    .newInstance(FOLLOWERS, ownerID!!)).commit()
         }
         binding.wrapperTextFollowings.setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_content, FollowUsersFragment
-                    .newInstance("followings", ownerID!!)).commit()
+                    .newInstance(FOLLOWINGS, ownerID!!)).commit()
         }
 
         return binding.root
@@ -133,7 +138,7 @@ class ProfilePageFragment private constructor() : Fragment() {
                     parentFragmentManager.beginTransaction()
                         .replace(
                             R.id.fragment_content,
-                            PostsPageFragment.newInstance(PostsPageFragment.ALL)
+                            PostsPageFragment.newInstance(ALL)
                         )
                         .commit()
                     requireActivity().findViewById<BottomNavigationView>(R.id.bottomNavigationView)
@@ -181,6 +186,8 @@ class ProfilePageFragment private constructor() : Fragment() {
                 binding.run {
                     textNickname.text = it.nickname
                     textContent.text = it.caption
+                    textStudentId.text = it.studentID
+                    textDepartment.text = it.department
                     Glide.with(this@ProfilePageFragment)
                         .load(it.profileImage)
                         .error(R.drawable.ic_account_96)
@@ -191,13 +198,16 @@ class ProfilePageFragment private constructor() : Fragment() {
         } else {     // 타인 프로필
             uiScope.launch {
                 val user = ownerID?.let { userRepository.getUser(it) }
-                binding.textNickname.text = user?.nickname
-                binding.textContent.text = user?.caption
-                Glide.with(requireContext()).load(user?.profileImage)
-                    .error(R.drawable.ic_account_96)
-                    .placeholder(R.drawable.ic_account_96)
-                    .into(binding.imageProfile)
-
+                binding.run {
+                    textNickname.text = user?.nickname
+                    textContent.text = user?.caption
+                    textStudentId.text = user?.studentID
+                    textDepartment.text = user?.department
+                    Glide.with(requireContext()).load(user?.profileImage)
+                        .error(R.drawable.ic_account_96)
+                        .placeholder(R.drawable.ic_account_96)
+                        .into(imageProfile)
+                }
             }
         }
     }
@@ -214,6 +224,7 @@ class ProfilePageFragment private constructor() : Fragment() {
                     putExtra("caption", userViewModel.user.value?.caption)
                     putExtra("user_id", myID)
                     putExtra("image_uri", userViewModel.user.value?.profileImage)
+                    putExtra("department", userViewModel.user.value?.department)
                 }
                 profileEditActivityResult.launch(intent)
             }
@@ -282,7 +293,7 @@ class ProfilePageFragment private constructor() : Fragment() {
                     }
                 }
                 val intent = Intent(requireActivity(), newPostAddActivity::class.java).apply {
-                    putExtra("user_id", userViewModel.user.value?.id)
+                    putExtra(USER_ID, userViewModel.user.value?.id)
                 }
                 newPostAddActivityResult.launch(intent)
                 true

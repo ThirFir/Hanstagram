@@ -6,7 +6,7 @@ import com.dbclass.hanstagram.data.repository.Repository
 
 
 abstract class CommentRepository: Repository {
-    var dao: CommentsDao? = null
+    protected var dao: CommentsDao? = null
 
     abstract suspend fun leaveComment(comment: CommentEntity)
     abstract suspend fun deleteComment(comment: CommentEntity)

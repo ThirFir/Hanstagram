@@ -87,9 +87,8 @@ class FoundUserAdapter(
                 .error(R.drawable.ic_account_96).into(imageProfile)
             itemFoundUser.setOnClickListener {
                 (context as MainActivity).supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_content, ProfilePageFragment.newInstance(null).apply {
-                        arguments = bundleOf("user_id" to foundUsers[position].id)
-                    }).commit()
+                    .replace(R.id.fragment_content, ProfilePageFragment.newInstance(foundUsers[position].id))
+                    .commit()
             }
         }
     }

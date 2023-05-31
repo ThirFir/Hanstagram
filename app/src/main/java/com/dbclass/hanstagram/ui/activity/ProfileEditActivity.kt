@@ -30,6 +30,7 @@ class ProfileEditActivity : AppCompatActivity() {
     private var userID: String = ""
     private var initialNickname: String = ""
     private var initialCaption: String = ""
+    private var department: String = ""
     private lateinit var activityImageResult: ActivityResultLauncher<Intent>
     private val userRepository: UserRepository = UserRepositoryImpl
 
@@ -44,6 +45,7 @@ class ProfileEditActivity : AppCompatActivity() {
             initialNickname = getStringExtra("nickname") ?: ""
             initialCaption = getStringExtra("caption") ?: ""
             imageURI = getStringExtra("image_uri") ?: ""
+            department = getStringExtra("department") ?: ""
         }
 
         activityImageResult =
@@ -61,6 +63,8 @@ class ProfileEditActivity : AppCompatActivity() {
                 editTextNickname.setText(initialNickname)
             if (initialCaption != "")
                 editTextCaption.setText(initialCaption)
+            if(department != "")
+                textDepartmentName.text = department
             Glide.with(this@ProfileEditActivity).load(imageURI)
                 .error(R.drawable.ic_account_96).into(imageProfile)
 
@@ -98,6 +102,21 @@ class ProfileEditActivity : AppCompatActivity() {
                         requestPermissions(arrayOf(Manifest.permission.READ_MEDIA_IMAGES), 1000)
                     }
                 }
+            }
+
+            var selectedDepartment = ""
+            textDepartment.setOnClickListener {
+                AlertDialog.Builder(this@ProfileEditActivity)
+                    .setTitle("학부")
+                    .setSingleChoiceItems(R.array.departments, 0) { _, which ->
+                        selectedDepartment = resources.getStringArray(R.array.departments)[which]
+                    }
+                    .setPositiveButton("확인") { _, _ ->
+                        binding.textDepartmentName.text = selectedDepartment
+                    }.setNegativeButton("취소") { _, _ ->
+                        selectedDepartment = ""
+                    }
+                    .show()
             }
 
             textButtonWithdrawal.setOnClickListener {

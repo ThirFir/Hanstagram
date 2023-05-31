@@ -5,7 +5,7 @@ import com.dbclass.hanstagram.data.db.messages.MessagesDao
 import com.dbclass.hanstagram.data.repository.Repository
 
 abstract class MessageRepository : Repository {
-    var dao: MessagesDao? = null
+    protected var dao: MessagesDao? = null
 
     abstract suspend fun sendMessage(message: MessageEntity)
     abstract suspend fun getHasUnreadMessage(userID: String): Boolean

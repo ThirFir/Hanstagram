@@ -20,6 +20,9 @@ import com.dbclass.hanstagram.databinding.FragmentPostsPageBinding
 import com.dbclass.hanstagram.data.repository.message.MessageRepositoryImpl
 import com.dbclass.hanstagram.data.repository.post.PostRepository
 import com.dbclass.hanstagram.data.repository.post.PostRepositoryImpl
+import com.dbclass.hanstagram.data.utils.IntegerConstants.ALL
+import com.dbclass.hanstagram.data.utils.StringConstants.LOAD
+import com.dbclass.hanstagram.data.utils.StringConstants.USER_ID
 import com.dbclass.hanstagram.ui.activity.MainActivity
 import com.dbclass.hanstagram.ui.activity.MessageBoxActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -40,10 +43,9 @@ class PostsPageFragment private constructor() : Fragment() {
     private lateinit var binding: FragmentPostsPageBinding
 
     companion object {
-        val ALL: Int = 1000
-        val FOLLOW: Int = 1001
+
         fun newInstance(load: Int): PostsPageFragment {
-            val args = bundleOf("load" to load)
+            val args = bundleOf(LOAD to load)
 
             val fragment = PostsPageFragment()
             fragment.arguments = args
@@ -82,7 +84,7 @@ class PostsPageFragment private constructor() : Fragment() {
 
         binding.recyclerviewPosts.layoutManager = LinearLayoutManager(context)
         uiScope.launch {
-            val load = arguments?.getInt("load") ?: 1000
+            val load = arguments?.getInt(LOAD) ?: 1000
             val postsWithUser =
                 if (load == ALL) userViewModel.user.value?.id?.let {
                     postRepository.getAllPostsWithUsers(0)
@@ -123,7 +125,7 @@ class PostsPageFragment private constructor() : Fragment() {
         return when (item.itemId) {
             R.id.icon_message_box -> {
                 val intent = Intent(requireActivity(), MessageBoxActivity::class.java).apply {
-                    putExtra("user_id", userViewModel.user.value?.id)
+                    putExtra(USER_ID, userViewModel.user.value?.id)
                 }
                 startActivity(intent)
 

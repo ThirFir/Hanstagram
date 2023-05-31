@@ -17,6 +17,8 @@ import com.dbclass.hanstagram.R
 import com.dbclass.hanstagram.data.db.users.UserEntity
 import com.dbclass.hanstagram.data.repository.user.UserRepository
 import com.dbclass.hanstagram.data.repository.user.UserRepositoryImpl
+import com.dbclass.hanstagram.data.utils.IntegerConstants.ALL
+import com.dbclass.hanstagram.data.utils.IntegerConstants.FOLLOW
 import com.dbclass.hanstagram.data.viewmodel.UserViewModel
 import com.dbclass.hanstagram.databinding.ActivityMainBinding
 import com.dbclass.hanstagram.ui.fragment.FindPageFragment
@@ -61,8 +63,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        postsPageFragment = PostsPageFragment.newInstance(PostsPageFragment.ALL)
-        followersPostsPageFragment = PostsPageFragment.newInstance(PostsPageFragment.FOLLOW)
+        postsPageFragment = PostsPageFragment.newInstance(ALL)
+        followersPostsPageFragment = PostsPageFragment.newInstance(FOLLOW)
         findPageFragment = FindPageFragment.newInstance()
         // profilePageFragment = ProfilePageFragment.newInstance(userViewModel.user.value?.id)
 

@@ -114,6 +114,23 @@
             app:layout_constraintTop_toBottomOf="@id/image_profile" />
 
         <TextView
+            android:id="@+id/text_student_id"
+            style="@style/text_nickname_small_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/text_nickname"
+            app:layout_constraintBottom_toBottomOf="@id/text_nickname"
+            android:layout_marginStart="16dp"/>
+
+        <TextView
+            android:id="@+id/text_department"
+            style="@style/text_nickname_small_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/text_student_id"
+            app:layout_constraintTop_toTopOf="@id/text_student_id"
+            android:layout_marginStart="20dp"/>
+        <TextView
             android:id="@+id/text_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
